@@ -4,9 +4,9 @@ file (TO_NATIVE_PATH "${PROJECT_SOURCE_DIR}/resources/" GLVIZ_RESOURCES_DIR)
 configure_file (config.h.in "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 # shader
-set (SHADER_GLSL shader/attribute_fs.glsl shader/attribute_vs.glsl
-                 shader/finalization_fs.glsl shader/finalization_vs.glsl
-                 shader/lighting.glsl
+set (SHADER_GLSL attribute_fs.glsl attribute_vs.glsl
+                 finalization_fs.glsl finalization_vs.glsl
+                 lighting.glsl
                  )
 
 include (GLvizShaderWrapCpp)
