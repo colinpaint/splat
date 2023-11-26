@@ -1,1 +1,1 @@
-const char* path_resources = R"(/home/pi/splat/resources/)";
+const char* path_resources = R"(../resources/)";

@@ -321,101 +321,93 @@ namespace {
   //}}}
 
   //{{{
-  void steiner_circumellipse(float const* v0_ptr, float const* v1_ptr,
-      float const* v2_ptr, float* p0_ptr, float* t1_ptr, float* t2_ptr)
-  {
-      Matrix2f Q;
-      Vector3f d0, d1, d2;
+  void steiner_circumellipse (float const* v0_ptr, float const* v1_ptr,
+                             float const* v2_ptr, float* p0_ptr, float* t1_ptr, float* t2_ptr) {
+    Matrix2f Q;
+
+    Vector3f d0, d1, d2;
       {
-          using Vec = Map<const Vector3f>;
-          Vec v[] = { Vec(v0_ptr), Vec(v1_ptr), Vec(v2_ptr) };
+      using Vec = Map<const Vector3f>;
+      Vec v[] = { Vec(v0_ptr), Vec(v1_ptr), Vec(v2_ptr) };
 
-          d0 = v[1] - v[0];
-          d0.normalize();
+      d0 = v[1] - v[0];
+      d0.normalize();
 
-          d1 = v[2] - v[0];
-          d1 = d1 - d0 * d0.dot(d1);
-          d1.normalize();
+      d1 = v[2] - v[0];
+      d1 = d1 - d0 * d0.dot(d1);
+      d1.normalize();
 
-          d2 = (1.0f / 3.0f) * (v[0] + v[1] + v[2]);
+      d2 = (1.0f / 3.0f) * (v[0] + v[1] + v[2]);
 
-          Vector2f p[3];
-          for (unsigned int j(0); j < 3; ++j)
-          {
-              p[j] = Vector2f(
-                  d0.dot(v[j] - d2),
-                  d1.dot(v[j] - d2)
-              );
-          }
+      Vector2f p[3];
+      for (unsigned int j(0); j < 3; ++j) {
+        p[j] = Vector2f (d0.dot(v[j] - d2), d1.dot(v[j] - d2));
+        }
 
-          Matrix3f A;
-          for (unsigned int j(0); j < 3; ++j)
-          {
-              A.row(j) = Vector3f(
-                  p[j].x() * p[j].x(),
-                  2.0f * p[j].x() * p[j].y(),
-                  p[j].y() * p[j].y()
-              );
-          }
+      Matrix3f A;
+      for (unsigned int j(0); j < 3; ++j) {
+        A.row(j) = Vector3f (p[j].x() * p[j].x(),
+                             2.0f * p[j].x() * p[j].y(),
+                             p[j].y() * p[j].y());
+        }
 
-          FullPivLU<Matrix3f> lu(A);
-          Vector3f res = lu.solve(Vector3f::Ones());
+      FullPivLU<Matrix3f> lu(A);
+      Vector3f res = lu.solve(Vector3f::Ones());
 
-          Q(0, 0) = res(0);
-          Q(1, 1) = res(2);
-          Q(0, 1) = Q(1, 0) = res(1);
+      Q(0, 0) = res(0);
+      Q(1, 1) = res(2);
+      Q(0, 1) = Q(1, 0) = res(1);
       }
 
-      Map<Vector3f> p0(p0_ptr), t1(t1_ptr), t2(t2_ptr);
+    Map<Vector3f> p0(p0_ptr), t1(t1_ptr), t2(t2_ptr);
       {
-          SelfAdjointEigenSolver<Matrix2f> es;
-          es.compute(Q);
+      SelfAdjointEigenSolver<Matrix2f> es;
+      es.compute(Q);
 
-          Vector2f const& l = es.eigenvalues();
-          Vector2f const& e0 = es.eigenvectors().col(0);
-          Vector2f const& e1 = es.eigenvectors().col(1);
+      Vector2f const& l = es.eigenvalues();
+      Vector2f const& e0 = es.eigenvectors().col(0);
+      Vector2f const& e1 = es.eigenvectors().col(1);
 
-          p0 = d2;
-          t1 = (1.0f / std::sqrt(l.x())) * (d0 * e0.x() + d1 * e0.y());
-          t2 = (1.0f / std::sqrt(l.y())) * (d0 * e1.x() + d1 * e1.y());
+      p0 = d2;
+      t1 = (1.0f / std::sqrt(l.x())) * (d0 * e0.x() + d1 * e0.y());
+      t2 = (1.0f / std::sqrt(l.y())) * (d0 * e1.x() + d1 * e1.y());
       }
-  }
+    }
   //}}}
   //{{{
-  void hsv2rgb(float h, float s, float v, float& r, float& g, float& b)
+  void hsv2rgb (float h, float s, float v, float& r, float& g, float& b)
   {
-      float h_i = std::floor(h / 60.0f);
-      float f = h / 60.0f - h_i;
+    float h_i = std::floor(h / 60.0f);
+    float f = h / 60.0f - h_i;
 
-      float p = v * (1.0f - s);
-      float q = v * (1.0f - s * f);
-      float t = v * (1.0f - s * (1.0f - f));
+    float p = v * (1.0f - s);
+    float q = v * (1.0f - s * f);
+    float t = v * (1.0f - s * (1.0f - f));
 
-      switch (static_cast<int>(h_i))
-      {
-          case 1:
-              r = q; g = v; b = p;
-              break;
-          case 2:
-              r = p; g = v; b = t;
-              break;
-          case 3:
-              r = p; g = q; b = v;
-              break;
-          case 4:
-              r = t; g = p; b = v;
-              break;
-          case 5:
-              r = v; g = p; b = q;
-              break;
-          default:
-              r = v; g = t; b = p;
+    switch (static_cast<int>(h_i)) {
+      case 1:
+        r = q; g = v; b = p;
+        break;
+      case 2:
+        r = p; g = v; b = t;
+        break;
+      case 3:
+        r = p; g = q; b = v;
+        break;
+      case 4:
+        r = t; g = p; b = v;
+        break;
+      case 5:
+        r = v; g = p; b = q;
+        break;
+      default:
+        r = v; g = t; b = p;
       }
-  }
+    }
   //}}}
 
   //{{{
-  void face_to_surfel(std::vector<Eigen::Vector3f> const& vertices,
+  void face_to_surfel (std::vector<Eigen::Vector3f> const& vertices,
       std::array<unsigned int, 3> const& face, Surfel& surfel)
   {
       Vector3f v[3] = {
@@ -452,7 +444,7 @@ namespace {
   }
   //}}}
   //{{{
-  void mesh_to_surfel(std::vector<Eigen::Vector3f> const& vertices,
+  void mesh_to_surfel (std::vector<Eigen::Vector3f> const& vertices,
       std::vector<std::array<unsigned int, 3>> const& faces,
       std::vector<Surfel>& surfels)
   {
@@ -484,7 +476,7 @@ namespace {
   }
   //}}}
   //{{{
-  void reshape(int width, int height)
+  void reshape (int width, int height)
   {
       const float aspect = static_cast<float>(width) /
           static_cast<float>(height);
@@ -621,7 +613,7 @@ namespace {
   }
   //}}}
   //{{{
-  void keyboard(SDL_Keycode key)
+  void keyboard (SDL_Keycode key)
   {
       switch (key)
       {
@@ -646,21 +638,21 @@ namespace {
   }
 
 //{{{
-int main(int argc, char* argv[])
-{
-    GLviz::GLviz();
+int main(int argc, char* argv[]) {
 
-    g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-    viz = std::unique_ptr<SplatRenderer>(new SplatRenderer (g_camera));
+  GLviz::GLviz (960, 540);
 
-    load_model();
+  g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+  viz = std::unique_ptr<SplatRenderer>(new SplatRenderer (g_camera));
 
-    GLviz::display_callback (display);
-    GLviz::reshape_callback (reshape);
-    GLviz::close_callback (close);
-    GLviz::gui_callback (gui);
-    GLviz::keyboard_callback (keyboard);
+  load_model();
 
-    return GLviz::exec (g_camera);
-}
+  GLviz::display_callback (display);
+  GLviz::reshape_callback (reshape);
+  GLviz::close_callback (close);
+  GLviz::gui_callback (gui);
+  GLviz::keyboard_callback (keyboard);
+
+  return GLviz::exec (g_camera);
+  }
 //}}}
