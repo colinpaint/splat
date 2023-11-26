@@ -1,20 +1,22 @@
+//{{{
 // This file is part of Surface Splatting.
 //
 // Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
+//
 // Surface Splatting is free software: you can redistribute it and / or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Surface Splatting is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
+//}}}
+//{{{
 #include "splat_renderer.hpp"
 
 #include <GLviz/glviz.hpp>
@@ -24,14 +26,16 @@
 #include <cmath>
 
 using namespace Eigen;
+//}}}
 
+//{{{
 UniformBufferRaycast::UniformBufferRaycast()
     : glUniformBuffer(sizeof(Matrix4f) + sizeof(Vector4f))
 {
 }
-
-void
-UniformBufferRaycast::set_buffer_data(Matrix4f const&
+//}}}
+//{{{
+void UniformBufferRaycast::set_buffer_data(Matrix4f const&
     projection_matrix_inv, GLint const* viewport)
 {
     float viewportf[4] = {
@@ -48,28 +52,30 @@ UniformBufferRaycast::set_buffer_data(Matrix4f const&
         4 * sizeof(float), viewportf);
     unbind();
 }
-
+//}}}
+//{{{
 UniformBufferFrustum::UniformBufferFrustum()
     : glUniformBuffer(6 * sizeof(Vector4f))
 {
 }
-
-void
-UniformBufferFrustum::set_buffer_data(Vector4f const* frustum_plane)
+//}}}
+//{{{
+void UniformBufferFrustum::set_buffer_data(Vector4f const* frustum_plane)
 {
     bind();
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Vector4f),
         static_cast<void const*>(frustum_plane));
     unbind();
 }
-
+//}}}
+//{{{
 UniformBufferParameter::UniformBufferParameter()
     : glUniformBuffer(8 * sizeof(float))
 {
 }
-
-void
-UniformBufferParameter::set_buffer_data(Vector3f const& color, float shininess,
+//}}}
+//{{{
+void UniformBufferParameter::set_buffer_data(Vector3f const& color, float shininess,
     float radius_scale, float ewa_radius, float epsilon)
 {
     bind();
@@ -80,8 +86,9 @@ UniformBufferParameter::set_buffer_data(Vector3f const& color, float shininess,
     glBufferSubData(GL_UNIFORM_BUFFER, 24, sizeof(float), &epsilon);
     unbind();
 }
+//}}}
 
-
+//{{{
 SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
     : m_camera(camera), m_soft_zbuffer(true), m_smooth(false),
       m_color_material(true), m_ewa_filter(false), m_multisample(false),
@@ -99,7 +106,8 @@ SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
     setup_screen_size_quad();
     setup_vertex_array_buffer_object();
 }
-
+//}}}
+//{{{
 SplatRenderer::~SplatRenderer()
 {
     glDeleteVertexArrays(1, &m_vao);
@@ -111,9 +119,10 @@ SplatRenderer::~SplatRenderer()
 
     glDeleteTextures(1, &m_filter_kernel);
 }
+//}}}
 
-void
-SplatRenderer::setup_program_objects()
+//{{{
+void SplatRenderer::setup_program_objects()
 {
     m_visibility.set_visibility_pass();
     m_visibility.set_pointsize_method(m_pointsize_method);
@@ -129,9 +138,9 @@ SplatRenderer::setup_program_objects()
     m_finalization.set_multisampling(m_multisample);
     m_finalization.set_smooth(m_smooth);
 }
-
-inline void
-SplatRenderer::setup_filter_kernel()
+//}}}
+//{{{
+inline void SplatRenderer::setup_filter_kernel()
 {
     const float sigma2 = 0.316228f; // Sqrt(0.1).
 
@@ -150,9 +159,9 @@ SplatRenderer::setup_filter_kernel()
     glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, 256, 0, GL_RED, GL_FLOAT, yi);
 }
-
-inline void
-SplatRenderer::setup_screen_size_quad()
+//}}}
+//{{{
+inline void SplatRenderer::setup_screen_size_quad()
 {
     float rect_vertices[12] = {
         1.0f, 1.0f, 0.0f,
@@ -195,9 +204,9 @@ SplatRenderer::setup_screen_size_quad()
 
     glBindVertexArray(0);
 }
-
-void
-SplatRenderer::setup_vertex_array_buffer_object()
+//}}}
+//{{{
+void SplatRenderer::setup_vertex_array_buffer_object()
 {
     glGenBuffers(1, &m_vbo);
 
@@ -225,7 +234,7 @@ SplatRenderer::setup_vertex_array_buffer_object()
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE,
         sizeof(Surfel), reinterpret_cast<const GLfloat*>(36));
-    
+
     // Color rgba.
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,
@@ -233,15 +242,16 @@ SplatRenderer::setup_vertex_array_buffer_object()
 
     glBindVertexArray(0);
 }
+//}}}
 
-bool
-SplatRenderer::smooth() const
+//{{{
+bool SplatRenderer::smooth() const
 {
     return m_smooth;
 }
-
-void
-SplatRenderer::set_smooth(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_smooth(bool enable)
 {
     if (m_smooth != enable)
     {
@@ -262,15 +272,16 @@ SplatRenderer::set_smooth(bool enable)
         }
     }
 }
+//}}}
 
-bool
-SplatRenderer::color_material() const
+//{{{
+bool SplatRenderer::color_material() const
 {
     return m_color_material;
 }
-
-void
-SplatRenderer::set_color_material(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_color_material(bool enable)
 {
     if (m_color_material != enable)
     {
@@ -278,15 +289,16 @@ SplatRenderer::set_color_material(bool enable)
         m_attribute.set_color_material(enable);
     }
 }
+//}}}
 
-bool
-SplatRenderer::backface_culling() const
+//{{{
+bool SplatRenderer::backface_culling() const
 {
     return m_backface_culling;
 }
-
-void
-SplatRenderer::set_backface_culling(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_backface_culling(bool enable)
 {
     if (m_backface_culling != enable)
     {
@@ -295,15 +307,16 @@ SplatRenderer::set_backface_culling(bool enable)
         m_attribute.set_backface_culling(enable);
     }
 }
+//}}}
 
-bool
-SplatRenderer::soft_zbuffer() const
+//{{{
+bool SplatRenderer::soft_zbuffer() const
 {
     return m_soft_zbuffer;
 }
-
-void
-SplatRenderer::set_soft_zbuffer(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_soft_zbuffer(bool enable)
 {
     if (m_soft_zbuffer != enable)
     {
@@ -316,27 +329,28 @@ SplatRenderer::set_soft_zbuffer(bool enable)
         m_soft_zbuffer = enable;
     }
 }
-
-float
-SplatRenderer::soft_zbuffer_epsilon() const
+//}}}
+//{{{
+float SplatRenderer::soft_zbuffer_epsilon() const
 {
     return m_epsilon;
 }
-
-void
-SplatRenderer::set_soft_zbuffer_epsilon(float epsilon)
+//}}}
+//{{{
+void SplatRenderer::set_soft_zbuffer_epsilon(float epsilon)
 {
     m_epsilon = epsilon;
 }
+//}}}
 
-unsigned int
-SplatRenderer::pointsize_method() const
+//{{{
+unsigned int SplatRenderer::pointsize_method() const
 {
     return m_pointsize_method;
 }
-
-void
-SplatRenderer::set_pointsize_method(unsigned int pointsize_method)
+//}}}
+//{{{
+void SplatRenderer::set_pointsize_method(unsigned int pointsize_method)
 {
     if (m_pointsize_method != pointsize_method)
     {
@@ -345,15 +359,16 @@ SplatRenderer::set_pointsize_method(unsigned int pointsize_method)
         m_attribute.set_pointsize_method(pointsize_method);
     }
 }
+//}}}
 
-bool
-SplatRenderer::ewa_filter() const
+//{{{
+bool SplatRenderer::ewa_filter() const
 {
     return m_ewa_filter;
 }
-
-void
-SplatRenderer::set_ewa_filter(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_ewa_filter(bool enable)
 {
     if (m_soft_zbuffer && m_ewa_filter != enable)
     {
@@ -361,15 +376,16 @@ SplatRenderer::set_ewa_filter(bool enable)
         m_attribute.set_ewa_filter(enable);
     }
 }
+//}}}
 
-bool
-SplatRenderer::multisample() const
+//{{{
+bool SplatRenderer::multisample() const
 {
     return m_multisample;
 }
-
-void
-SplatRenderer::set_multisample(bool enable)
+//}}}
+//{{{
+void SplatRenderer::set_multisample(bool enable)
 {
     if (m_multisample != enable)
     {
@@ -378,71 +394,74 @@ SplatRenderer::set_multisample(bool enable)
         m_fbo.set_multisample(enable);
     }
 }
+//}}}
 
-float const*
-SplatRenderer::material_color() const
+//{{{
+float const* SplatRenderer::material_color() const
 {
     return m_color.data();
 }
-
-void
-SplatRenderer::set_material_color(float const* color_ptr)
+//}}}
+//{{{
+void SplatRenderer::set_material_color(float const* color_ptr)
 {
     Map<const Vector3f> color(color_ptr);
     m_color = color;
 }
-
-float
-SplatRenderer::material_shininess() const
+//}}}
+//{{{
+float SplatRenderer::material_shininess() const
 {
     return m_shininess;
 }
-
-void
-SplatRenderer::set_material_shininess(float shininess)
+//}}}
+//{{{
+void SplatRenderer::set_material_shininess(float shininess)
 {
     m_shininess = shininess;
 }
+//}}}
 
-float
-SplatRenderer::radius_scale() const
+//{{{
+float SplatRenderer::radius_scale() const
 {
     return m_radius_scale;
 }
-
-void
-SplatRenderer::set_radius_scale(float radius_scale)
+//}}}
+//{{{
+void SplatRenderer::set_radius_scale(float radius_scale)
 {
     m_radius_scale = radius_scale;
 }
-
-float
-SplatRenderer::ewa_radius() const
+//}}}
+//{{{
+float SplatRenderer::ewa_radius() const
 {
     return m_ewa_radius;
 }
-
-void
-SplatRenderer::set_ewa_radius(float ewa_radius)
+//}}}
+//{{{
+void SplatRenderer::set_ewa_radius(float ewa_radius)
 {
     m_ewa_radius = ewa_radius;
 }
-
-void
-SplatRenderer::reshape(int width, int height)
+//}}}
+//{{{
+void SplatRenderer::reshape(int width, int height)
 {
     m_fbo.reshape(width, height);
 }
+//}}}
 
-void
-SplatRenderer::setup_uniforms(glProgram& program)
+//{{{
+void SplatRenderer::setup_uniforms(glProgram& program)
 {
     m_uniform_camera.set_buffer_data(m_camera);
-    
+
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     GLviz::Frustum view_frustum = m_camera.get_frustum();
-        
+
     m_uniform_raycast.set_buffer_data(
         m_camera.get_projection_matrix().inverse(),
         viewport);
@@ -455,7 +474,7 @@ SplatRenderer::setup_uniforms(glProgram& program)
         frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f
             * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
     }
-    
+
     for (unsigned int i(0); i < 6; ++i)
     {
         frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>(
@@ -468,10 +487,10 @@ SplatRenderer::setup_uniforms(glProgram& program)
         m_color, m_shininess, m_radius_scale, m_ewa_radius, m_epsilon
     );
 }
-
-void
-SplatRenderer::render_pass(bool depth_only)
-{ 
+//}}}
+//{{{
+void SplatRenderer::render_pass(bool depth_only)
+{
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -521,23 +540,24 @@ SplatRenderer::render_pass(bool depth_only)
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 }
+//}}}
 
-void
-SplatRenderer::begin_frame()
+//{{{
+void SplatRenderer::begin_frame()
 {
     m_fbo.bind();
 
     glDepthMask(GL_TRUE);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    
+
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClearDepth(1.0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
-
-void
-SplatRenderer::end_frame()
+//}}}
+//{{{
+void SplatRenderer::end_frame()
 {
     m_fbo.unbind();
 
@@ -571,7 +591,7 @@ SplatRenderer::end_frame()
     }
 
     m_finalization.use();
-    
+
     try
     {
         setup_uniforms(m_finalization);
@@ -593,9 +613,9 @@ SplatRenderer::end_frame()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
-
-void
-SplatRenderer::render_frame(std::vector<Surfel> const& visible_geometry)
+//}}}
+//{{{
+void SplatRenderer::render_frame(std::vector<Surfel> const& visible_geometry)
 {
     begin_frame();
 
@@ -641,3 +661,4 @@ SplatRenderer::render_frame(std::vector<Surfel> const& visible_geometry)
     }
 #endif
 }
+//}}}

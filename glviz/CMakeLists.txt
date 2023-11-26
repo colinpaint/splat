@@ -12,7 +12,13 @@ project (glviz LANGUAGES CXX)
                      src/buffer.cpp
                      src/utility.cpp
                      src/utility.hpp
-                     src/shader.hpp)
+                     src/shader.hpp
+                     shaders/mesh3_gs_glsl.cpp
+                     shaders/mesh3_vs_glsl.cpp
+                     shaders/mesh3_fs_glsl.cpp
+                     shaders/sphere_fs_glsl.cpp
+                     shaders/sphere_vs_glsl.cpp
+                     )
 
   find_package (SDL2 REQUIRED CONFIG)
   find_package (Eigen3 REQUIRED CONFIG)

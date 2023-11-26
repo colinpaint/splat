@@ -23,11 +23,6 @@ project (splat VERSION 1.0.0)
                                   shaders/attribute_vs_glsl.cpp
                                   shaders/finalization_fs_glsl.cpp
                                   shaders/finalization_vs_glsl.cpp
-                                  shaders/mesh3_gs_glsl.cpp
-                                  shaders/mesh3_vs_glsl.cpp
-                                  shaders/mesh3_fs_glsl.cpp
-                                  shaders/sphere_fs_glsl.cpp
-                                  shaders/sphere_vs_glsl.cpp
                                   )
 
   target_include_directories (${PROJECT_NAME} PRIVATE . eigen)

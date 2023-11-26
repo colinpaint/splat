@@ -1,3 +1,4 @@
+//{{{
 // (c) Copyright 1993, 1994, Silicon Graphics, Inc.
 // ALL RIGHTS RESERVED
 // Permission to use, copy, modify, and distribute this software for
@@ -34,16 +35,18 @@
 // OpenGL(TM) is a trademark of Silicon Graphics, Inc.
 
 // Trackball code:
-// 
+//
 // Implementation of a virtual trackball.
 // Implemented by Gavin Bell, lots of ideas from Thant Tessman and
 //   the August '88 issue of Siggraph's "Computer Graphics," pp. 121-129.*
-
+//}}}
+//{{{
 #include "trackball.hpp"
 
 #include <Eigen/Core>
 
 using namespace Eigen;
+//}}}
 
 // This size should really be based on the distance from the center of
 // rotation to the point on the object underneath the mouse.  That
@@ -62,8 +65,8 @@ const float trackball_size = 1.0f;
 //
 // It is assumed that the arguments to this routine are in the range
 // (-1.0 ... 1.0)
-Quaternionf const&
-Trackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y)
+//{{{
+Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y)
 {
     if (u0_x == u1_x && u0_y == u1_y)
     {
@@ -99,11 +102,11 @@ Trackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y)
 
     return rotation;
 }
-
+//}}}
+//{{{
 // Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
 // if we are away from the center of the sphere.
-inline float
-Trackball::project_to_sphere(float r, float x, float y) const
+inline float Trackball::project_to_sphere(float r, float x, float y) const
 {
     const float sqrt2_div2 = 0.70710678118654752440f;
     float d = std::sqrt(x * x + y * y);
@@ -122,3 +125,4 @@ Trackball::project_to_sphere(float r, float x, float y) const
 
     return z;
 }
+//}}}

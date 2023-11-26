@@ -1,20 +1,23 @@
+//{{{
+
 // This file is part of Surface Splatting.
 //
 // Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
+//
 // Surface Splatting is free software: you can redistribute it and / or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Surface Splatting is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
+//}}}
+//{{{
 #include "program_finalization.hpp"
 
 #include <iostream>
@@ -23,16 +26,19 @@
 extern unsigned char const finalization_vs_glsl[];
 extern unsigned char const finalization_fs_glsl[];
 extern unsigned char const lighting_glsl[];
+//}}}
 
+//{{{
 ProgramFinalization::ProgramFinalization()
     : m_smooth(false), m_multisampling(false)
 {
     initialize_shader_obj();
     initialize_program_obj();
 }
+//}}}
 
-void
-ProgramFinalization::set_multisampling(bool enable)
+//{{{
+void ProgramFinalization::set_multisampling(bool enable)
 {
     if (m_multisampling != enable)
     {
@@ -41,8 +47,9 @@ ProgramFinalization::set_multisampling(bool enable)
     }
 }
 
-void
-ProgramFinalization::set_smooth(bool enable)
+//}}}
+//{{{
+void ProgramFinalization::set_smooth(bool enable)
 {
     if (m_smooth != enable)
     {
@@ -50,9 +57,10 @@ ProgramFinalization::set_smooth(bool enable)
         initialize_program_obj();
     }
 }
+//}}}
 
-void
-ProgramFinalization::initialize_shader_obj()
+//{{{
+void ProgramFinalization::initialize_shader_obj()
 {
     m_finalization_vs_obj.load_from_cstr(
         reinterpret_cast<char const*>(finalization_vs_glsl));
@@ -65,9 +73,9 @@ ProgramFinalization::initialize_shader_obj()
     attach_shader(m_finalization_fs_obj);
     attach_shader(m_lighting_fs_obj);
 }
-
-void
-ProgramFinalization::initialize_program_obj()
+//}}}
+//{{{
+void ProgramFinalization::initialize_program_obj()
 {
     try
     {
@@ -110,3 +118,4 @@ ProgramFinalization::initialize_program_obj()
             << e.what() << std::endl;
     }
 }
+//}}}

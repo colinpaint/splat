@@ -1,20 +1,22 @@
+//{{{
 // This file is part of Surface Splatting.
 //
 // Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
+//
 // Surface Splatting is free software: you can redistribute it and / or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Surface Splatting is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
+//}}}
+//{{{
 #include "framebuffer.hpp"
 
 #include <GLviz/glviz.hpp>
@@ -22,7 +24,9 @@
 
 #include <iostream>
 #include <cstdlib>
+//}}}
 
+//{{{
 struct Framebuffer::Impl
 {
     virtual void framebuffer_texture_2d(GLenum target,
@@ -39,7 +43,8 @@ struct Framebuffer::Impl
         GLsizei width, GLsizei height) = 0;
     virtual bool multisample() const = 0;
 };
-
+//}}}
+//{{{
 struct Framebuffer::Default : public Framebuffer::Impl
 {
     void framebuffer_texture_2d(GLenum target,
@@ -48,7 +53,7 @@ struct Framebuffer::Default : public Framebuffer::Impl
         glFramebufferTexture2D(target, attachment,
             GL_TEXTURE_2D, texture, level);
     }
-    
+
     void renderbuffer_storage(GLenum target,
         GLenum internalformat, GLsizei width, GLsizei height)
     {
@@ -100,7 +105,8 @@ struct Framebuffer::Default : public Framebuffer::Impl
         return false;
     }
 };
-
+//}}}
+//{{{
 struct Framebuffer::Multisample : public Framebuffer::Impl
 {
     void framebuffer_texture_2d(GLenum target,
@@ -157,7 +163,9 @@ struct Framebuffer::Multisample : public Framebuffer::Impl
         return true;
     }
 };
+//}}}
 
+//{{{
 Framebuffer::Framebuffer()
     : m_fbo(0), m_color(0), m_normal(0), m_depth(0),
       m_pimpl(new Default())
@@ -170,7 +178,8 @@ Framebuffer::Framebuffer()
     initialize();
     unbind();
 }
-
+//}}}
+//{{{
 Framebuffer::~Framebuffer()
 {
     bind();
@@ -179,15 +188,16 @@ Framebuffer::~Framebuffer()
 
     glDeleteFramebuffers(1, &m_fbo);
 }
+//}}}
 
-GLuint
-Framebuffer::color_texture()
+//{{{
+GLuint Framebuffer::color_texture()
 {
     return m_color;
 }
-
-void
-Framebuffer::enable_depth_texture()
+//}}}
+//{{{
+void Framebuffer::enable_depth_texture()
 {
     bind();
 
@@ -205,9 +215,9 @@ Framebuffer::enable_depth_texture()
 
     unbind();
 }
-
-void
-Framebuffer::disable_depth_texture()
+//}}}
+//{{{
+void Framebuffer::disable_depth_texture()
 {
     bind();
 
@@ -217,7 +227,7 @@ Framebuffer::disable_depth_texture()
 
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    
+
     glGenRenderbuffers(1, &m_depth);
     glBindRenderbuffer(GL_RENDERBUFFER, m_depth);
     m_pimpl->renderbuffer_storage(GL_RENDERBUFFER,
@@ -229,18 +239,19 @@ Framebuffer::disable_depth_texture()
 
     unbind();
 }
-
-GLuint
-Framebuffer::depth_texture()
+//}}}
+//{{{
+GLuint Framebuffer::depth_texture()
 {
     return m_depth;
 }
+//}}}
 
-void
-Framebuffer::attach_normal_texture()
+//{{{
+void Framebuffer::attach_normal_texture()
 {
     bind();
-    
+
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -254,9 +265,9 @@ Framebuffer::attach_normal_texture()
 
     unbind();
 }
-
-void
-Framebuffer::detach_normal_texture()
+//}}}
+//{{{
+void Framebuffer::detach_normal_texture()
 {
     bind();
 
@@ -269,15 +280,17 @@ Framebuffer::detach_normal_texture()
 
     unbind();
 }
+//}}}
 
-GLuint
-Framebuffer::normal_texture()
+//{{{
+GLuint Framebuffer::normal_texture()
 {
     return m_normal;
 }
+//}}}
 
-void
-Framebuffer::set_multisample(bool enable)
+//{{{
+void Framebuffer::set_multisample(bool enable)
 {
     if (m_pimpl->multisample() != enable)
     {
@@ -325,21 +338,23 @@ Framebuffer::set_multisample(bool enable)
         unbind();
     }
 }
+//}}}
 
-void
-Framebuffer::bind()
+//{{{
+void Framebuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 }
-
-void
-Framebuffer::unbind()
+//}}}
+//{{{
+void Framebuffer::unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+//}}}
 
-void
-Framebuffer::reshape(GLint width, GLint height)
+//{{{
+void Framebuffer::reshape(GLint width, GLint height)
 {
     bind();
 
@@ -397,7 +412,7 @@ Framebuffer::reshape(GLint width, GLint height)
         std::cerr << __FILE__ << "(" << __LINE__ << "): "
             << GLviz::get_gl_framebuffer_status_string(status) << std::endl;
     }
-    
+
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
     {
@@ -408,9 +423,10 @@ Framebuffer::reshape(GLint width, GLint height)
 
     unbind();
 }
+//}}}
 
-void
-Framebuffer::initialize()
+//{{{
+void Framebuffer::initialize()
 {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -442,9 +458,10 @@ Framebuffer::initialize()
     }
 #endif
 }
+//}}}
 
-void
-Framebuffer::remove_and_delete_attachments()
+//{{{
+void Framebuffer::remove_and_delete_attachments()
 {
     GLenum attachment[3] = {
         GL_COLOR_ATTACHMENT0,
@@ -480,3 +497,4 @@ Framebuffer::remove_and_delete_attachments()
         }
     }
 }
+//}}}
