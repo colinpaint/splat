@@ -8,12 +8,13 @@ project (embed VERSION 1.0.0)
 project (example VERSION 1.0.0)
   add_executable (${PROJECT_NAME} example.cpp)
   target_include_directories (${PROJECT_NAME} PRIVATE . eigen)
+
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
   else()
     find_package (OpenGL REQUIRED)
-    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
   endif()
+
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
 
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} config.hpp
@@ -32,8 +33,8 @@ project (splat VERSION 1.0.0)
   target_include_directories (${PROJECT_NAME} PRIVATE . eigen)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
   else()
     find_package (OpenGL REQUIRED)
-    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
   endif()
+
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)

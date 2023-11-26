@@ -20,17 +20,21 @@ project (glviz LANGUAGES CXX)
                      shaders/sphere_vs_glsl.cpp
                      )
 
-  find_package (SDL2 REQUIRED CONFIG)
-  find_package (Eigen3 REQUIRED CONFIG)
-
   add_subdirectory (imgui)
 
   target_include_directories (${PROJECT_NAME} PUBLIC . /include ./imgui)
-  target_link_libraries (${PROJECT_NAME} PUBLIC imgui
-                                                Eigen3::Eigen
-                                                SDL2::SDL2main SDL2::SDL2-static
-                                                -lGLEW
-                                                )
 
-  find_package (OpenGL REQUIRED)
-  target_link_libraries (${PROJECT_NAME} PRIVATE imgui GL pthread)
+  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+    target_link_libraries (${PROJECT_NAME} PRIVATE imgui opengl32)
+
+  else()
+    find_package (SDL2 REQUIRED CONFIG)
+    find_package (Eigen3 REQUIRED CONFIG)
+    find_package (OpenGL REQUIRED)
+    target_link_libraries (${PROJECT_NAME} PUBLIC imgui
+                                                  Eigen3::Eigen
+                                                  SDL2::SDL2main SDL2::SDL2-static
+                                                  GL
+                                                  -lGLEW
+                                                  pthread)
+  endif()
