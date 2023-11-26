@@ -46,6 +46,6 @@ namespace GLviz {
   void     cout_opengl_version();
   void     cout_glew_version();
 
-  void     GLviz(int screen_width = 1920, int screen_height = 1080);
+  void     GLviz(int screen_width = 960, int screen_height = 540);
   int      exec(Camera& camera);
   }
