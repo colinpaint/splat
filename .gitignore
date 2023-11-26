@@ -1,0 +1,25 @@
+# Visual Studio clutter
+_ReSharper*
+*.sdf
+*.suo
+*.dir
+*.vcxproj*
+*.sln
+.vs
+CMakeSettings.json
+Win32
+x64
+Debug
+Release
+MinSizeRel
+RelWithDebInfo
+*.opensdf
+
+build/*
+wbuild/*
+
+font/build/*
+
+*.~*
+*.*~
+*.*;*

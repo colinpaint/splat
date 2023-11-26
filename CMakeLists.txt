@@ -1,0 +1,40 @@
+cmake_minimum_required (VERSION 3.18)
+#
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  set (BUILD_MSVC_COMPILE_OPTIONS "/arch:AVX" CACHE STRING "msvc compile options")
+else()
+  set (BUILD_LINUX_COMPILE_OPTIONS "-Ofast" CACHE STRING "gcc compile options")
+endif()
+#
+add_subdirectory (glviz)
+
+project (embed VERSION 1.0.0)
+  add_executable (${PROJECT_NAME} embed.cpp)
+
+project (splat VERSION 1.0.0)
+  add_executable (${PROJECT_NAME} config.hpp
+                                  src/main.cpp
+                                  src/framebuffer.cpp
+                                  src/program_attribute.cpp
+                                  src/program_finalization.cpp
+                                  src/splat_renderer.cpp
+                                  lighting_glsl.cpp
+                                  attribute_fs_glsl.cpp
+                                  attribute_vs_glsl.cpp
+                                  finalization_fs_glsl.cpp
+                                  finalization_vs_glsl.cpp
+                                  mesh3_gs_glsl.cpp
+                                  mesh3_vs_glsl.cpp
+                                  mesh3_fs_glsl.cpp
+                                  sphere_fs_glsl.cpp
+                                  sphere_vs_glsl.cpp
+                                  )
+
+  target_include_directories (${PROJECT_NAME} PRIVATE . eigen)
+
+  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
+  else()
+    find_package (OpenGL REQUIRED)
+    target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
+  endif()

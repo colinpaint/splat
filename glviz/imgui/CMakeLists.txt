@@ -1,0 +1,7 @@
+project (imgui VERSION 1.0.0)
+  file (GLOB HEADER_FILES *.h)
+  file (GLOB SOURCE_FILES *.cpp)
+  add_library (${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
+
+  find_package (SDL2 REQUIRED CONFIG)
+  target_include_directories (${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
