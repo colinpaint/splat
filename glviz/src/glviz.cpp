@@ -224,48 +224,48 @@ namespace GLviz {
   //}}}
 
   //{{{
-  int exec (Camera& camera)
-  {
-      m_camera = &camera;
-      Uint32 last_time = 0;
+  int exec (Camera& camera) {
 
-      reshape(m_screen_width, m_screen_height);
+    m_camera = &camera;
+    Uint32 last_time = 0;
 
-      while (!process_events())
-      {
-          if (m_timer_callback)
-          {
-              const Uint32 time = SDL_GetTicks();
-              const Uint32 delta_t_msec = time - last_time;
+    reshape (m_screen_width, m_screen_height);
 
-              if (delta_t_msec >= m_timer_msec)
-              {
-                  last_time = time;
-                  m_timer_callback(delta_t_msec);
-              }
+    while (!process_events()) {
+      if (m_timer_callback) { 
+        const Uint32 time = SDL_GetTicks();
+        const Uint32 delta_t_msec = time - last_time;
+        if (delta_t_msec >= m_timer_msec) {
+         last_time = time;
+          m_timer_callback (delta_t_msec);
           }
+        }
 
-          if (m_display_callback) { m_display_callback(); }
+      if (m_display_callback) 
+        m_display_callback(); 
 
-          ImGui_ImplOpenGL3_NewFrame();
-          ImGui_ImplSDL2_NewFrame(m_sdl_window);
-          ImGui::NewFrame();
+      ImGui_ImplOpenGL3_NewFrame();
+      ImGui_ImplSDL2_NewFrame (m_sdl_window);
+      ImGui::NewFrame();
 
-          if (m_gui_callback) { m_gui_callback(); }
-          ImGui::Render();
-          ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+      if (m_gui_callback) 
+        m_gui_callback(); 
 
-          SDL_GL_SwapWindow(m_sdl_window);
+      ImGui::Render();
+      ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData());
+
+      SDL_GL_SwapWindow (m_sdl_window);
       }
 
-      if (m_close_callback) { m_close_callback(); }
+    if (m_close_callback) 
+      m_close_callback(); 
 
-      SDL_GL_DeleteContext(m_gl_context);
-      SDL_DestroyWindow(m_sdl_window);
-      SDL_Quit();
+    SDL_GL_DeleteContext (m_gl_context);
+    SDL_DestroyWindow (m_sdl_window);
+    SDL_Quit();
 
-      return EXIT_SUCCESS;
-  }
+    return EXIT_SUCCESS;
+    }
   //}}}
   //{{{
   void GLviz (int screen_width, int screen_height) {
@@ -323,28 +323,28 @@ namespace GLviz {
     // Print OpenGL version.
     cout_opengl_version();
 
-    { // Initialize GLEW.
-    glewExperimental = GL_TRUE;
-    GLenum glew_error = glewInit();
+      { // Initialize GLEW.
+      glewExperimental = GL_TRUE;
+      GLenum glew_error = glewInit();
 
-    if (GLEW_OK != glew_error) {
-      //{{{  erro, return
-      cerr << "Failed to initialize GLEW:" << endl;
-      cerr << __FILE__ << "(" << __LINE__ << "): "
-                << glewGetErrorString(glew_error) << endl;
-      exit(EXIT_FAILURE);
+      if (GLEW_OK != glew_error) {
+        //{{{  erro, return
+        cerr << "Failed to initialize GLEW:" << endl;
+        cerr << __FILE__ << "(" << __LINE__ << "): "
+                  << glewGetErrorString(glew_error) << endl;
+        exit(EXIT_FAILURE);
+        }
+        //}}}
+
+      // GLEW has a problem with core contexts. It calls
+      // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
+      GLenum gl_error = glGetError();
+      if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
+        cerr << __FILE__ << "(" << __LINE__ << "): "
+                  << GLviz::get_gl_error_string(gl_error) << endl;
       }
-      //}}}
 
-    // GLEW has a problem with core contexts. It calls
-    // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
-    GLenum gl_error = glGetError();
-    if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
-      cerr << __FILE__ << "(" << __LINE__ << "): "
-                << GLviz::get_gl_error_string(gl_error) << endl;
-    }
-
-    // Print GLEW version.
+    // print GLEW version.
     cout_glew_version();
     cout << endl;
 

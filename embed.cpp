@@ -26,9 +26,11 @@
 #include <fstream>
 #include <cstdint>
 #include <algorithm>
+
+usig namespace std;
 //}}}
 //{{{
-inline void write_hex(std::ofstream& out, uint8_t c)
+inline void write_hex(ofstream& out, uint8_t c)
 {
 		const char base16_digits[] = "0123456789abcdef";
 
@@ -48,30 +50,24 @@ inline void write_hex(std::ofstream& out, uint8_t c)
 
 int
 main(int argc, char* argv[]) {
-		if (argc < 3)
-		{
-				std::cerr << "USAGE: " << argv[0] << " {sym} {rsrc}\n\n"
-									<< "  Creates {sym}.cpp from the contents of {rsrc}\n"
-									<< std::endl;
+		if (argc < 3) {
+				cerr << "USAGE: " << argv[0] << " {sym} {rsrc}\n\n"
+									<< "  Creates {sym}.cpp from the contents of {rsrc}\n" << endl;
 
 				return EXIT_FAILURE;
 		}
 
-		std::string sym(argv[1]), rsrc(argv[2]);
+		string sym(argv[1]), rsrc(argv[2]);
 
-		std::ifstream in(rsrc, std::ifstream::binary);
-		if (in.fail())
-		{
-				std::cerr << "Could not open file " << rsrc
-									<< " for reading." << std::endl;
+		ifstream in(rsrc, ifstream::binary);
+		if (in.fail()) {
+				cerr << "Could not open file " << rsrc << " for reading." << endl;
 				exit(EXIT_FAILURE);
 		}
 
-		std::ofstream out(sym + ".cpp");
-		if (out.fail())
-		{
-				std::cerr << "Could not open file " << sym
-									<< " for writing." << std::endl;
+		ofstream out(sym + ".cpp");
+		if (out.fail()) {
+				cerr << "Could not open file " << sym << " for writing." << endl;
 				exit(EXIT_FAILURE);
 		}
 
@@ -79,28 +75,24 @@ main(int argc, char* argv[]) {
 		out << "extern const unsigned char " << sym << "[] = {";
 
 		in.seekg(0, in.end);
-		std::size_t size = in.tellg();
+		size_t size = in.tellg();
 		in.seekg(0, in.beg);
 
 		char buf[1024];
-		std::size_t i(0);
+		size_t i(0);
 
-		while (size > 0)
-		{
-		std::size_t n = std::min(size, static_cast<std::size_t>(1024));
+		while (size > 0) {
+		size_t n = min(size, static_cast<size_t>(1024));
 				in.read(buf, n);
 				size = size - n;
 
-				if (in.fail())
-				{
-						std::cerr << "Could not read from file." << std::endl;
+				if (in.fail()) {
+						cerr << "Could not read from file." << endl;
 						exit(EXIT_FAILURE);
 				}
 
-				for (unsigned int j(0); j < static_cast<unsigned int>(n); ++j)
-				{
-						if (i % 12 == 0)
-						{
+				for (unsigned int j(0); j < static_cast<unsigned int>(n); ++j) {
+						if (i % 12 == 0) {
 								out << "\n    ";
 						}
 
@@ -112,7 +104,7 @@ main(int argc, char* argv[]) {
 		}
 
 		out << "0x0 };\n\n";
-		out << "const std::size_t " << sym << "_len = sizeof(" << sym << ");\n\n";
+		out << "const size_t " << sym << "_len = sizeof(" << sym << ");\n\n";
 
 		in.close();
 		out.close();

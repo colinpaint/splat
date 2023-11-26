@@ -40,9 +40,11 @@
 #include <array>
 #include <exception>
 #include <cmath>
+
+using namespace std;
+using namespace Eigen;
 //}}}
 
-using namespace Eigen;
 
 namespace {
   GLviz::Camera g_camera;
@@ -163,14 +165,14 @@ namespace {
     GLviz::ProgramSphere  program_sphere;
     };
   //}}}
-  std::unique_ptr<MyViz> viz;
-  std::vector<Eigen::Vector3f>               g_ref_vertices;
-  std::vector<Eigen::Vector3f>               g_ref_normals;
-  std::vector<Eigen::Vector3f>               g_vertices;
-  std::vector<Eigen::Vector3f>               g_normals;
-  std::vector<std::array<unsigned int, 3> >  g_faces;
+  unique_ptr<MyViz> viz;
+  vector<Eigen::Vector3f>               g_ref_vertices;
+  vector<Eigen::Vector3f>               g_ref_normals;
+  vector<Eigen::Vector3f>               g_vertices;
+  vector<Eigen::Vector3f>               g_normals;
+  vector<array<unsigned int, 3> >  g_faces;
 
-  void load_triangle_mesh(std::string const& filename);
+  void load_triangle_mesh(string const& filename);
   //{{{
   void display() {
 
@@ -232,10 +234,10 @@ namespace {
       for (unsigned int i(0); i < g_vertices.size(); ++i) {
         const float x = g_ref_vertices[i].x() + g_ref_vertices[i].y() + g_ref_vertices[i].z();
 
-        const float u = 5.0f * (x - 0.75f * std::sin(2.5f * g_time));
-        const float w = (a / 2.0f) * (1.0f + std::sin(k * x + v * g_time));
+        const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
+        const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
 
-        g_vertices[i] = g_ref_vertices[i] + (std::exp(-u * u) * w) * g_ref_normals[i];
+        g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
         }
 
       GLviz::set_vertex_normals_from_triangle_mesh (g_vertices, g_faces, g_normals);
@@ -297,10 +299,10 @@ namespace {
     }
   //}}}
   //{{{
-  void load_triangle_mesh (std::string const& filename) {
+  void load_triangle_mesh (string const& filename) {
 
-    std::cout << "\nRead " << filename << "." << std::endl;
-    std::ifstream input(filename);
+    cout << "\nRead " << filename << "." << endl;
+    ifstream input(filename);
 
     if (input.good()) {
       input.close();
@@ -308,14 +310,14 @@ namespace {
       }
     else {
       input.close();
-      std::ostringstream fqfn;
+      ostringstream fqfn;
       fqfn << path_resources;
       fqfn << filename;
       GLviz::load_raw(fqfn.str(), g_vertices, g_faces);
       }
 
-    std::cout << "  #vertices " << g_vertices.size() << std::endl;
-    std::cout << "  #faces    " << g_faces.size() << std::endl;
+    cout << "  #vertices " << g_vertices.size() << endl;
+    cout << "  #faces    " << g_faces.size() << endl;
 
     GLviz::set_vertex_normals_from_triangle_mesh(g_vertices, g_faces, g_normals);
 
@@ -330,14 +332,14 @@ int main (int argc, char* argv[]) {
 
   GLviz::GLviz();
 
-  viz = std::unique_ptr<MyViz>(new MyViz());
+  viz = unique_ptr<MyViz>(new MyViz());
 
   try {
     load_triangle_mesh ("stanford_dragon_v40k_f80k.raw");
     }
-  catch(std::runtime_error const& e) {
-    std::cerr << e.what() << std::endl;
-    std::exit(EXIT_FAILURE);
+  catch(runtime_error const& e) {
+    cerr << e.what() << endl;
+    exit(EXIT_FAILURE);
   }
 
   GLviz::display_callback (display);
