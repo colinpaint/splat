@@ -21,28 +21,30 @@
 // IN THE SOFTWARE.
 
 #version 330
-
 #define SMOOTH     0
 #define WIREFRAME  0
-
+{{{
 layout(std140, column_major) uniform Camera
 {
     mat4 modelview_matrix;
     mat4 modelview_matrix_it;
     mat4 projection_matrix;
 };
-
+}}}
 #if WIREFRAME
+    {{{
     layout(std140) uniform Wireframe
     {
         vec3 color_wireframe;
         ivec2 viewport;
     };
+    }}}
 #endif
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
+{{{
 in block
 {
     #if SMOOTH
@@ -50,8 +52,10 @@ in block
     #endif
     vec3 position;
 }
+}}}
 In[];
 
+{{{
 out block
 {
     #if SMOOTH
@@ -61,13 +65,15 @@ out block
     #endif
 
     vec3 position;
-    
+
     #if WIREFRAME
         noperspective vec3 distance;
     #endif
 }
+}}}
 Out;
 
+{{{
 void main()
 {
     #if WIREFRAME
@@ -86,7 +92,7 @@ void main()
         vec3 normal = normalize(cross(In[1].position - In[0].position,
             In[2].position - In[0].position));
     #endif
-    
+
     gl_Position = gl_in[0].gl_Position;
     #if SMOOTH
         Out.normal = In[0].normal;
@@ -123,3 +129,4 @@ void main()
     #endif
     EmitVertex();
 }
+}}}

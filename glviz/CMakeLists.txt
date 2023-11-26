@@ -25,7 +25,7 @@ project (glviz LANGUAGES CXX)
 
   add_subdirectory (imgui)
 
-  target_include_directories (${PROJECT_NAME} PUBLIC /include ./imgui)
+  target_include_directories (${PROJECT_NAME} PUBLIC . /include ./imgui)
   target_link_libraries (${PROJECT_NAME} PUBLIC imgui
                                                 Eigen3::Eigen
                                                 SDL2::SDL2main SDL2::SDL2-static

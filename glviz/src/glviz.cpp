@@ -65,21 +65,16 @@ namespace GLviz {
         m_screen_height = height;
 
         if (m_reshape_callback)
-        {
             m_reshape_callback(width, height);
-        }
     }
     //}}}
     //{{{
     void mouse (int button, int state, int x, int y)
     {
-        const float xf = static_cast<float>(x)
-            / static_cast<float>(m_screen_width);
-        const float yf = static_cast<float>(y)
-            / static_cast<float>(m_screen_height);
+        const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
+        const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
 
-        switch (button)
-        {
+        switch (button) {
             case SDL_BUTTON_LEFT:
                 m_camera->trackball_begin_motion(xf, yf);
                 break;
@@ -95,75 +90,62 @@ namespace GLviz {
     }
     //}}}
     //{{{
-    void motion (int state, int x, int y)
-    {
-        const float xf = static_cast<float>(x)
-            / static_cast<float>(m_screen_width);
-        const float yf = static_cast<float>(y)
-            / static_cast<float>(m_screen_height);
+    void motion (int state, int x, int y) {
 
-        if (state & SDL_BUTTON_LMASK)
-        {
-            m_camera->trackball_end_motion_rotate(xf, yf);
-        }
-        else if (state & SDL_BUTTON_RMASK)
-        {
-            m_camera->trackball_end_motion_zoom(xf, yf);
-        }
-        else if (state & SDL_BUTTON_MMASK)
-        {
-            m_camera->trackball_end_motion_translate(xf, yf);
-        }
-    }
+      const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
+      const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
+
+      if (state & SDL_BUTTON_LMASK)
+          m_camera->trackball_end_motion_rotate(xf, yf);
+      else if (state & SDL_BUTTON_RMASK)
+          m_camera->trackball_end_motion_zoom(xf, yf);
+      else if (state & SDL_BUTTON_MMASK)
+          m_camera->trackball_end_motion_translate(xf, yf);
+      }
     //}}}
     //{{{
-    bool process_events()
-    {
-        bool quit = false;
-        SDL_Event event;
+    bool process_events() {
 
-        while (SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            ImGuiIO const& io = ImGui::GetIO();
+      bool quit = false;
+      SDL_Event event;
 
-            switch (event.type)
-            {
-                case SDL_KEYDOWN:
-                    if (!io.WantCaptureKeyboard && m_keyboard_callback)
-                        m_keyboard_callback(event.key.keysym.sym);
-                    break;
-                case SDL_KEYUP:
-                    break;
-                case SDL_WINDOWEVENT:
-                    if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-                        reshape(event.window.data1, event.window.data2);
-                    break;
-                case SDL_MOUSEBUTTONUP:
-                    if (!io.WantCaptureMouse)
-                        SDL_CaptureMouse(SDL_FALSE);
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    if (!io.WantCaptureMouse)
-                    {
-                        SDL_CaptureMouse(SDL_TRUE);
-                        mouse(event.button.button, event.button.state,
-                            event.button.x, event.button.y);
-                    }
-                    break;
-                case SDL_MOUSEMOTION:
-                    if (!io.WantCaptureMouse)
-                        motion(event.motion.state, event.motion.x,
-                            event.motion.y);
-                    break;
-                case SDL_QUIT:
-                    quit = true;
-                    break;
-            }
+      while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        ImGuiIO const& io = ImGui::GetIO();
+
+        switch (event.type) {
+          case SDL_KEYDOWN:
+            if (!io.WantCaptureKeyboard && m_keyboard_callback)
+              m_keyboard_callback(event.key.keysym.sym);
+            break;
+          case SDL_KEYUP:
+            break;
+          case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+              reshape(event.window.data1, event.window.data2);
+            break;
+          case SDL_MOUSEBUTTONUP:
+            if (!io.WantCaptureMouse)
+              SDL_CaptureMouse(SDL_FALSE);
+            break;
+          case SDL_MOUSEBUTTONDOWN:
+            if (!io.WantCaptureMouse) {
+              SDL_CaptureMouse(SDL_TRUE);
+              mouse(event.button.button, event.button.state, event.button.x, event.button.y);
+              }
+            break;
+          case SDL_MOUSEMOTION:
+            if (!io.WantCaptureMouse)
+              motion(event.motion.state, event.motion.x, event.motion.y);
+            break;
+          case SDL_QUIT:
+            quit = true;
+            break;
+          }
         }
 
-        return quit;
-    }
+      return quit;
+      }
     //}}}
     }
 
@@ -180,54 +162,32 @@ namespace GLviz {
   }
   //}}}
 
-  //{{{
-  Camera* camera()
-  {
-      return m_camera;
-  }
-  //}}}
-  //{{{
-  void set_camera (Camera& camera)
-  {
-      m_camera = &camera;
-  }
-  //}}}
+  Camera* camera() { return m_camera; }
+  void set_camera (Camera& camera) { m_camera = &camera; }
 
   //{{{
-  void display_callback (function<void ()> display_callback)
-  {
-      m_display_callback = display_callback;
+  void display_callback (function<void ()> display_callback) { m_display_callback = display_callback; }
+  //}}}
+  //{{{
+  void reshape_callback (function<void (int width, int height)> reshape_callback) {
+    m_reshape_callback = reshape_callback;
   }
   //}}}
   //{{{
-  void reshape_callback (function<void (int width, int height)> reshape_callback)
-  {
-      m_reshape_callback = reshape_callback;
-  }
-  //}}}
-  //{{{
-  void timer_callback (function<void (unsigned int)> timer_callback,
-      unsigned int timer_msec)
+  void timer_callback (function<void (unsigned int)> timer_callback, unsigned int timer_msec)
   {
       m_timer_callback = timer_callback;
       m_timer_msec = timer_msec;
   }
   //}}}
   //{{{
-  void close_callback (function<void ()> close_callback)
-  {
-      m_close_callback = close_callback;
-  }
+  void close_callback (function<void ()> close_callback) { m_close_callback = close_callback; }
   //}}}
   //{{{
-  void gui_callback (function<void()> gui_callback)
-  {
-      m_gui_callback = gui_callback;
-  }
+  void gui_callback (function<void()> gui_callback) { m_gui_callback = gui_callback; }
   //}}}
   //{{{
-  void keyboard_callback (function<void (SDL_Keycode)> keyboard_callback)
-  {
+  void keyboard_callback (function<void (SDL_Keycode)> keyboard_callback) {
       m_keyboard_callback = keyboard_callback;
   }
   //}}}
