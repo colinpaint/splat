@@ -17,8 +17,8 @@
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
 //}}}
 //{{{
-#include <GLviz/glviz.hpp>
-#include <GLviz/utility.hpp>
+#include "../glviz/src/glviz.hpp"
+#include "../glviz/src/utility.hpp"
 
 #include "splat_renderer.hpp"
 

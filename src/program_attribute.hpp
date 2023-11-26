@@ -17,7 +17,7 @@
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
 //}}}
 #pragma once
-#include <GLviz/program.hpp>
+#include "../glviz/src/program.hpp"
 
 class ProgramAttribute : public glProgram
 {

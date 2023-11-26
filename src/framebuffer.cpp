@@ -19,8 +19,8 @@
 //{{{
 #include "framebuffer.hpp"
 
-#include <GLviz/glviz.hpp>
-#include <GLviz/utility.hpp>
+#include "../glviz/src/glviz.hpp"
+#include "../glviz/src/utility.hpp"
 
 #include <iostream>
 #include <cstdlib>

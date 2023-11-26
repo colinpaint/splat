@@ -19,7 +19,7 @@
 #pragma once
 #include "program_attribute.hpp"
 #include "program_finalization.hpp"
-#include <GLviz/buffer.hpp>
+#include "../glviz/src/buffer.hpp"
 #include "framebuffer.hpp"
 #include <Eigen/Core>
 #include <string>

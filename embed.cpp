@@ -27,7 +27,7 @@
 #include <cstdint>
 #include <algorithm>
 
-usig namespace std;
+using namespace std;
 //}}}
 //{{{
 inline void write_hex(ofstream& out, uint8_t c)
