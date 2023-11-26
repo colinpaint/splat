@@ -59,35 +59,35 @@ namespace GLviz {
     Camera*  m_camera;
 
     //{{{
-    void reshape (int width, int height)
-    {
-        m_screen_width  = width;
-        m_screen_height = height;
+    void reshape (int width, int height) {
 
-        if (m_reshape_callback)
-            m_reshape_callback(width, height);
+      m_screen_width  = width;
+      m_screen_height = height;
+
+      if (m_reshape_callback)
+        m_reshape_callback(width, height);
     }
     //}}}
     //{{{
-    void mouse (int button, int state, int x, int y)
-    {
-        const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
-        const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
+    void mouse (int button, int state, int x, int y) {
 
-        switch (button) {
-            case SDL_BUTTON_LEFT:
-                m_camera->trackball_begin_motion(xf, yf);
-                break;
+      const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
+      const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
 
-            case SDL_BUTTON_RIGHT:
-                m_camera->trackball_begin_motion(xf, yf);
-                break;
+      switch (button) {
+        case SDL_BUTTON_LEFT:
+          m_camera->trackball_begin_motion (xf, yf);
+          break;
 
-            case SDL_BUTTON_MIDDLE:
-                m_camera->trackball_begin_motion(xf, yf);
-                break;
+        case SDL_BUTTON_RIGHT:
+          m_camera->trackball_begin_motion (xf, yf);
+          break;
+
+        case SDL_BUTTON_MIDDLE:
+          m_camera->trackball_begin_motion (xf, yf);
+          break;
         }
-    }
+      }
     //}}}
     //{{{
     void motion (int state, int x, int y) {
@@ -96,11 +96,11 @@ namespace GLviz {
       const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
 
       if (state & SDL_BUTTON_LMASK)
-          m_camera->trackball_end_motion_rotate(xf, yf);
+        m_camera->trackball_end_motion_rotate (xf, yf);
       else if (state & SDL_BUTTON_RMASK)
-          m_camera->trackball_end_motion_zoom(xf, yf);
+        m_camera->trackball_end_motion_zoom (xf, yf);
       else if (state & SDL_BUTTON_MMASK)
-          m_camera->trackball_end_motion_translate(xf, yf);
+        m_camera->trackball_end_motion_translate (xf, yf);
       }
     //}}}
     //{{{
@@ -118,26 +118,32 @@ namespace GLviz {
             if (!io.WantCaptureKeyboard && m_keyboard_callback)
               m_keyboard_callback(event.key.keysym.sym);
             break;
+
           case SDL_KEYUP:
             break;
+
           case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
               reshape(event.window.data1, event.window.data2);
             break;
+
           case SDL_MOUSEBUTTONUP:
             if (!io.WantCaptureMouse)
               SDL_CaptureMouse(SDL_FALSE);
             break;
+
           case SDL_MOUSEBUTTONDOWN:
             if (!io.WantCaptureMouse) {
               SDL_CaptureMouse(SDL_TRUE);
               mouse(event.button.button, event.button.state, event.button.x, event.button.y);
               }
             break;
+
           case SDL_MOUSEMOTION:
             if (!io.WantCaptureMouse)
               motion(event.motion.state, event.motion.x, event.motion.y);
             break;
+
           case SDL_QUIT:
             quit = true;
             break;
@@ -149,18 +155,8 @@ namespace GLviz {
     //}}}
     }
 
-  //{{{
-  int screen_width()
-  {
-      return m_screen_width;
-  }
-  //}}}
-  //{{{
-  int screen_height()
-  {
-      return m_screen_height;
-  }
-  //}}}
+  int screen_width() { return m_screen_width; }
+  int screen_height() { return m_screen_height; }
 
   Camera* camera() { return m_camera; }
   void set_camera (Camera& camera) { m_camera = &camera; }
@@ -171,7 +167,7 @@ namespace GLviz {
   //{{{
   void reshape_callback (function<void (int width, int height)> reshape_callback) {
     m_reshape_callback = reshape_callback;
-  }
+    }
   //}}}
   //{{{
   void timer_callback (function<void (unsigned int)> timer_callback, unsigned int timer_msec)
@@ -232,7 +228,7 @@ namespace GLviz {
     reshape (m_screen_width, m_screen_height);
 
     while (!process_events()) {
-      if (m_timer_callback) { 
+      if (m_timer_callback) {
         const Uint32 time = SDL_GetTicks();
         const Uint32 delta_t_msec = time - last_time;
         if (delta_t_msec >= m_timer_msec) {
@@ -241,15 +237,15 @@ namespace GLviz {
           }
         }
 
-      if (m_display_callback) 
-        m_display_callback(); 
+      if (m_display_callback)
+        m_display_callback();
 
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplSDL2_NewFrame (m_sdl_window);
       ImGui::NewFrame();
 
-      if (m_gui_callback) 
-        m_gui_callback(); 
+      if (m_gui_callback)
+        m_gui_callback();
 
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData());
@@ -257,8 +253,8 @@ namespace GLviz {
       SDL_GL_SwapWindow (m_sdl_window);
       }
 
-    if (m_close_callback) 
-      m_close_callback(); 
+    if (m_close_callback)
+      m_close_callback();
 
     SDL_GL_DeleteContext (m_gl_context);
     SDL_DestroyWindow (m_sdl_window);

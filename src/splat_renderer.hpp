@@ -43,9 +43,7 @@ struct Surfel
 //}}}
 
 //{{{
-class UniformBufferRaycast : public GLviz::glUniformBuffer
-{
-
+class UniformBufferRaycast : public GLviz::glUniformBuffer {
 public:
     UniformBufferRaycast();
 
@@ -54,9 +52,7 @@ public:
 };
 //}}}
 //{{{
-class UniformBufferFrustum : public GLviz::glUniformBuffer
-{
-
+class UniformBufferFrustum : public GLviz::glUniformBuffer {
 public:
     UniformBufferFrustum();
 
@@ -64,9 +60,7 @@ public:
 };
 //}}}
 //{{{
-class UniformBufferParameter : public GLviz::glUniformBuffer
-{
-
+class UniformBufferParameter : public GLviz::glUniformBuffer {
 public:
     UniformBufferParameter();
 
@@ -113,10 +107,10 @@ public:
     void set_material_shininess(float shininess);
 
     float radius_scale() const;
-    void set_radius_scale(float radius_scale);
+    void set_radius_scale (float radius_scale);
 
     float ewa_radius() const;
-    void set_ewa_radius(float ewa_radius);
+    void set_ewa_radius (float ewa_radius);
 
     void reshape(int width, int height);
 

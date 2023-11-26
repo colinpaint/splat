@@ -24,72 +24,74 @@
 #pragma once
 #include <GL/glew.h>
 
-namespace GLviz
-{
+namespace GLviz {
+  //{{{
+  class glUniformBuffer
+  {
 
-class glUniformBuffer
-{
+  public:
+      glUniformBuffer();
+      glUniformBuffer(GLsizeiptr size);
 
-public:
-    glUniformBuffer();
-    glUniformBuffer(GLsizeiptr size);
+      ~glUniformBuffer();
 
-    ~glUniformBuffer();
+      void bind_buffer_base(GLuint index);
 
-    void bind_buffer_base(GLuint index);
+  protected:
+      void bind();
+      void unbind();
 
-protected:
-    void bind();
-    void unbind();
+  private:
+      GLuint m_uniform_buffer_obj;
+  };
+  //}}}
+  //{{{
+  class glVertexArray
+  {
 
-private:
-    GLuint m_uniform_buffer_obj;
-};
+  public:
+      glVertexArray();
+      ~glVertexArray();
 
-class glVertexArray
-{
+      void bind();
+      void unbind();
 
-public:
-    glVertexArray();
-    ~glVertexArray();
+  private:
+      GLuint m_vertex_array_obj;
+  };
+  //}}}
+  //{{{
+  class glArrayBuffer
+  {
 
-    void bind();
-    void unbind();
+  public:
+      glArrayBuffer();
+      ~glArrayBuffer();
 
-private:
-    GLuint m_vertex_array_obj;
-};
+      void bind();
+      void unbind();
 
-class glArrayBuffer
-{
+      void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
 
-public:
-    glArrayBuffer();
-    ~glArrayBuffer();
+  private:
+      GLuint m_array_buffer_obj;
+  };
+  //}}}
+  //{{{
+  class glElementArrayBuffer
+  {
 
-    void bind();
-    void unbind();
+  public:
+      glElementArrayBuffer();
+      ~glElementArrayBuffer();
 
-    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
+      void bind();
+      void unbind();
 
-private:
-    GLuint m_array_buffer_obj;
-};
+      void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
 
-class glElementArrayBuffer
-{
-
-public:
-    glElementArrayBuffer();
-    ~glElementArrayBuffer();
-
-    void bind();
-    void unbind();
-
-    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
-
-private:
-    GLuint m_element_array_buffer_obj;
-};
-
-}
+  private:
+      GLuint m_element_array_buffer_obj;
+  };
+  //}}}
+  }

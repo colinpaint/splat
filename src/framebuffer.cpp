@@ -287,10 +287,9 @@ GLuint Framebuffer::normal_texture() {
 //}}}
 
 //{{{
-void Framebuffer::set_multisample(bool enable) {
+void Framebuffer::set_multisample (bool enable) {
 
-    if (m_pimpl->multisample() != enable)
-    {
+    if (m_pimpl->multisample() != enable) {
         bind();
 
         GLint type;
@@ -300,19 +299,12 @@ void Framebuffer::set_multisample(bool enable) {
         remove_and_delete_attachments();
 
         if (m_pimpl->multisample())
-        {
-            m_pimpl = std::unique_ptr<Framebuffer::Impl>(
-                new Framebuffer::Default());
-        }
+            m_pimpl = std::unique_ptr<Framebuffer::Impl>(new Framebuffer::Default());
         else
-        {
-            m_pimpl = std::unique_ptr<Framebuffer::Impl>(
-                new Framebuffer::Multisample());
-        }
+            m_pimpl = std::unique_ptr<Framebuffer::Impl>(new Framebuffer::Multisample());
 
         initialize();
-        if (type == GL_TEXTURE)
-        {
+        if (type == GL_TEXTURE) {
             attach_normal_texture();
             enable_depth_texture();
         }
@@ -320,17 +312,13 @@ void Framebuffer::set_multisample(bool enable) {
 #ifndef NDEBUG
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
-        {
             std::cerr << __FILE__ << "(" << __LINE__ << "): "
                 << GLviz::get_gl_framebuffer_status_string(status) << std::endl;
-        }
 
         GLenum gl_error = glGetError();
         if (GL_NO_ERROR != gl_error)
-        {
             std::cerr << __FILE__ << "(" << __LINE__ << "): "
                 << GLviz::get_gl_error_string(gl_error) << std::endl;
-        }
 #endif
         unbind();
     }
@@ -338,47 +326,36 @@ void Framebuffer::set_multisample(bool enable) {
 //}}}
 
 //{{{
-void Framebuffer::bind() {
-  glBindFramebuffer (GL_FRAMEBUFFER, m_fbo);
-  }
+void Framebuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
 //}}}
 //{{{
-void Framebuffer::unbind() {
-
-  glBindFramebuffer (GL_FRAMEBUFFER, 0);
-  }
+void Framebuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
 //}}}
 
 //{{{
-void Framebuffer::reshape(GLint width, GLint height) {
+void Framebuffer::reshape (GLint width, GLint height) {
 
   bind();
 
-  GLenum attachment[2] = {
-    GL_COLOR_ATTACHMENT0,
-    GL_COLOR_ATTACHMENT1
-    };
+  GLenum attachment[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
   for (unsigned int i(0); i < 2; ++i) {
       GLint type, name;
-      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment[i],
+      glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment[i],
+      glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
 
-      if (type == GL_TEXTURE) {
-          m_pimpl->resize_rgba_texture(name, width, height);
-      }
+      if (type == GL_TEXTURE)
+        m_pimpl->resize_rgba_texture (name, width, height);
   }
 
   {
       GLint type, name;
-      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
-          GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
-          &type);
-      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
-          GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-          &name);
+      glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+          GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+      glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+          GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
 
       switch (type) {
           case GL_TEXTURE:
@@ -386,10 +363,9 @@ void Framebuffer::reshape(GLint width, GLint height) {
               break;
 
           case GL_RENDERBUFFER:
-              glBindRenderbuffer(GL_RENDERBUFFER, name);
-              m_pimpl->renderbuffer_storage(GL_RENDERBUFFER,
-                  GL_DEPTH_COMPONENT, width, height);
-              glBindRenderbuffer(GL_RENDERBUFFER, 0);
+              glBindRenderbuffer (GL_RENDERBUFFER, name);
+              m_pimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+              glBindRenderbuffer (GL_RENDERBUFFER, 0);
               break;
 
           case GL_NONE:
@@ -398,22 +374,20 @@ void Framebuffer::reshape(GLint width, GLint height) {
       }
   }
 
-#ifndef NDEBUG
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
+  #ifndef NDEBUG
+    GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << __FILE__ << "(" << __LINE__ << "): "
-            << GLviz::get_gl_framebuffer_status_string(status) << std::endl;
-    }
+                  << GLviz::get_gl_framebuffer_status_string (status) << std::endl;
 
     GLenum gl_error = glGetError();
-    if (GL_NO_ERROR != gl_error) {
+    if (GL_NO_ERROR != gl_error)
         std::cerr << __FILE__ << "(" << __LINE__ << "): "
-            << GLviz::get_gl_error_string(gl_error) << std::endl;
-    }
-#endif
+                  << GLviz::get_gl_error_string(gl_error) << std::endl;
+  #endif
 
     unbind();
-}
+  }
 //}}}
 
 //{{{

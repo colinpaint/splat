@@ -35,7 +35,7 @@ UniformBufferRaycast::UniformBufferRaycast()
 }
 //}}}
 //{{{
-void UniformBufferRaycast::set_buffer_data(Matrix4f const&
+void UniformBufferRaycast::set_buffer_data (Matrix4f const&
     projection_matrix_inv, GLint const* viewport)
 {
     float viewportf[4] = {
@@ -60,7 +60,7 @@ UniformBufferFrustum::UniformBufferFrustum()
 }
 //}}}
 //{{{
-void UniformBufferFrustum::set_buffer_data(Vector4f const* frustum_plane)
+void UniformBufferFrustum::set_buffer_data (Vector4f const* frustum_plane)
 {
     bind();
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Vector4f),
@@ -75,7 +75,7 @@ UniformBufferParameter::UniformBufferParameter()
 }
 //}}}
 //{{{
-void UniformBufferParameter::set_buffer_data(Vector3f const& color, float shininess,
+void UniformBufferParameter::set_buffer_data (Vector3f const& color, float shininess,
     float radius_scale, float ewa_radius, float epsilon)
 {
     bind();
@@ -122,134 +122,119 @@ SplatRenderer::~SplatRenderer()
 //}}}
 
 //{{{
-void SplatRenderer::setup_program_objects()
-{
-    m_visibility.set_visibility_pass();
-    m_visibility.set_pointsize_method(m_pointsize_method);
-    m_visibility.set_backface_culling(m_backface_culling);
+void SplatRenderer::setup_program_objects() {
 
-    m_attribute.set_visibility_pass(false);
-    m_attribute.set_pointsize_method(m_pointsize_method);
-    m_attribute.set_backface_culling(m_backface_culling);
-    m_attribute.set_color_material(m_color_material);
-    m_attribute.set_ewa_filter(m_ewa_filter);
-    m_attribute.set_smooth(m_smooth);
+  m_visibility.set_visibility_pass();
+  m_visibility.set_pointsize_method (m_pointsize_method);
+  m_visibility.set_backface_culling (m_backface_culling);
 
-    m_finalization.set_multisampling(m_multisample);
-    m_finalization.set_smooth(m_smooth);
-}
+  m_attribute.set_visibility_pass (false);
+  m_attribute.set_pointsize_method (m_pointsize_method);
+  m_attribute.set_backface_culling (m_backface_culling);
+  m_attribute.set_color_material (m_color_material);
+  m_attribute.set_ewa_filter (m_ewa_filter);
+  m_attribute.set_smooth (m_smooth);
+
+  m_finalization.set_multisampling (m_multisample);
+  m_finalization.set_smooth (m_smooth);
+  }
 //}}}
 //{{{
-inline void SplatRenderer::setup_filter_kernel()
-{
-    const float sigma2 = 0.316228f; // Sqrt(0.1).
+inline void SplatRenderer::setup_filter_kernel() {
 
-    GLfloat yi[256];
-    for (unsigned int i = 0; i < 256; ++i)
-    {
-        float x = static_cast<GLfloat>(i) / 255.0f;
-        float const w = x * x / (2.0f * sigma2);
-        yi[i] = std::exp(-w);
+  const float sigma2 = 0.316228f; // Sqrt(0.1).
+
+  GLfloat yi[256];
+  for (unsigned int i = 0; i < 256; ++i) {
+    float x = static_cast<GLfloat>(i) / 255.0f;
+    float const w = x * x / (2.0f * sigma2);
+    yi[i] = std::exp(-w);
     }
 
-    glGenTextures(1, &m_filter_kernel);
-    glBindTexture(GL_TEXTURE_1D, m_filter_kernel);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, 256, 0, GL_RED, GL_FLOAT, yi);
-}
+  glGenTextures (1, &m_filter_kernel);
+  glBindTexture (GL_TEXTURE_1D, m_filter_kernel);
+  glPixelStorei (GL_UNPACK_ALIGNMENT, 4);
+  glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage1D (GL_TEXTURE_1D, 0, GL_R32F, 256, 0, GL_RED, GL_FLOAT, yi);
+  }
 //}}}
 //{{{
-inline void SplatRenderer::setup_screen_size_quad()
-{
-    float rect_vertices[12] = {
-        1.0f, 1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f
+inline void SplatRenderer::setup_screen_size_quad() {
+
+  float rect_vertices[12] = {
+    1.0f, 1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f,
+    -1.0f, -1.0f, 0.0f
     };
 
-    float rect_texture_uv[8] = {
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f
+  float rect_texture_uv[8] = {
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f
     };
 
-    glGenBuffers(1, &m_rect_vertices_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_rect_vertices_vbo);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), rect_vertices,
-        GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glGenBuffers (1, &m_rect_vertices_vbo);
+  glBindBuffer (GL_ARRAY_BUFFER, m_rect_vertices_vbo);
+  glBufferData (GL_ARRAY_BUFFER, 12 * sizeof(float), rect_vertices, GL_STATIC_DRAW);
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    glGenBuffers(1, &m_rect_texture_uv_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), rect_texture_uv,
-        GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glGenBuffers (1, &m_rect_texture_uv_vbo);
+  glBindBuffer (GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
+  glBufferData (GL_ARRAY_BUFFER, 8 * sizeof(float), rect_texture_uv, GL_STATIC_DRAW);
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    glGenVertexArrays(1, &m_rect_vao);
-    glBindVertexArray(m_rect_vao);
+  glGenVertexArrays (1, &m_rect_vao);
+  glBindVertexArray (m_rect_vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_rect_vertices_vbo);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-        3 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
+  glBindBuffer (GL_ARRAY_BUFFER, m_rect_vertices_vbo);
+  glEnableVertexAttribArray (0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-        2 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
+  glBindBuffer (GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
+  glEnableVertexAttribArray (1);
+  glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
 
-    glBindVertexArray(0);
-}
+  glBindVertexArray (0);
+  }
 //}}}
 //{{{
-void SplatRenderer::setup_vertex_array_buffer_object()
-{
-    glGenBuffers(1, &m_vbo);
+void SplatRenderer::setup_vertex_array_buffer_object() {
 
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
+  glGenBuffers (1, &m_vbo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+  glGenVertexArrays (1, &m_vao);
+  glBindVertexArray (m_vao);
 
-    // Center c.
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-        sizeof(Surfel), reinterpret_cast<const GLfloat*>(0));
+  glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
 
-    // Tagent vector u.
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-        sizeof(Surfel), reinterpret_cast<const GLfloat*>(12));
+  // Center c.
+  glEnableVertexAttribArray (0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(0));
 
-    // Tangent vector v.
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
-        sizeof(Surfel), reinterpret_cast<const GLfloat*>(24));
+  // Tagent vector u.
+  glEnableVertexAttribArray (1);
+  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(12));
 
-    // Clipping plane p.
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE,
-        sizeof(Surfel), reinterpret_cast<const GLfloat*>(36));
+  // Tangent vector v.
+  glEnableVertexAttribArray (2);
+  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(24));
 
-    // Color rgba.
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-        sizeof(Surfel), reinterpret_cast<const GLbyte*>(48));
+  // Clipping plane p.
+  glEnableVertexAttribArray (3);
+  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(36));
 
-    glBindVertexArray(0);
-}
+  // Color rgba.
+  glEnableVertexAttribArray (4);
+  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Surfel), reinterpret_cast<const GLbyte*>(48));
+
+  glBindVertexArray (0);
+  }
 //}}}
 
-//{{{
-bool SplatRenderer::smooth() const
-{
-    return m_smooth;
-}
-//}}}
+bool SplatRenderer::smooth() const { return m_smooth; }
 //{{{
 void SplatRenderer::set_smooth(bool enable)
 {
@@ -274,14 +259,9 @@ void SplatRenderer::set_smooth(bool enable)
 }
 //}}}
 
+bool SplatRenderer::color_material() const { return m_color_material; }
 //{{{
-bool SplatRenderer::color_material() const
-{
-    return m_color_material;
-}
-//}}}
-//{{{
-void SplatRenderer::set_color_material(bool enable)
+void SplatRenderer::set_color_material (bool enable)
 {
     if (m_color_material != enable)
     {
@@ -291,14 +271,9 @@ void SplatRenderer::set_color_material(bool enable)
 }
 //}}}
 
+bool SplatRenderer::backface_culling() const { return m_backface_culling; }
 //{{{
-bool SplatRenderer::backface_culling() const
-{
-    return m_backface_culling;
-}
-//}}}
-//{{{
-void SplatRenderer::set_backface_culling(bool enable)
+void SplatRenderer::set_backface_culling (bool enable)
 {
     if (m_backface_culling != enable)
     {
@@ -309,83 +284,52 @@ void SplatRenderer::set_backface_culling(bool enable)
 }
 //}}}
 
+bool SplatRenderer::soft_zbuffer() const { return m_soft_zbuffer; }
 //{{{
-bool SplatRenderer::soft_zbuffer() const
-{
-    return m_soft_zbuffer;
-}
-//}}}
-//{{{
-void SplatRenderer::set_soft_zbuffer(bool enable)
-{
-    if (m_soft_zbuffer != enable)
-    {
-        if (!enable)
-        {
-            m_ewa_filter = false;
-            m_attribute.set_ewa_filter(false);
-        }
+void SplatRenderer::set_soft_zbuffer (bool enable) {
 
-        m_soft_zbuffer = enable;
+  if (m_soft_zbuffer != enable) {
+    if (!enable) {
+       m_ewa_filter = false;
+       m_attribute.set_ewa_filter(false);
+       }
+
+    m_soft_zbuffer = enable;
     }
-}
-//}}}
-//{{{
-float SplatRenderer::soft_zbuffer_epsilon() const
-{
-    return m_epsilon;
-}
-//}}}
-//{{{
-void SplatRenderer::set_soft_zbuffer_epsilon(float epsilon)
-{
-    m_epsilon = epsilon;
-}
+  }
 //}}}
 
+float SplatRenderer::soft_zbuffer_epsilon() const { return m_epsilon; }
+void SplatRenderer::set_soft_zbuffer_epsilon (float epsilon) { m_epsilon = epsilon; }
+
+unsigned int SplatRenderer::pointsize_method() const { return m_pointsize_method; }
 //{{{
-unsigned int SplatRenderer::pointsize_method() const
-{
-    return m_pointsize_method;
-}
-//}}}
-//{{{
-void SplatRenderer::set_pointsize_method(unsigned int pointsize_method)
-{
-    if (m_pointsize_method != pointsize_method)
-    {
-        m_pointsize_method = pointsize_method;
-        m_visibility.set_pointsize_method(pointsize_method);
-        m_attribute.set_pointsize_method(pointsize_method);
+void SplatRenderer::set_pointsize_method (unsigned int pointsize_method) {
+
+  if (m_pointsize_method != pointsize_method) {
+    m_pointsize_method = pointsize_method;
+    m_visibility.set_pointsize_method(pointsize_method);
+    m_attribute.set_pointsize_method(pointsize_method);
     }
-}
+  }
 //}}}
 
+bool SplatRenderer::ewa_filter() const { return m_ewa_filter; }
 //{{{
-bool SplatRenderer::ewa_filter() const
-{
-    return m_ewa_filter;
-}
-//}}}
-//{{{
-void SplatRenderer::set_ewa_filter(bool enable)
-{
-    if (m_soft_zbuffer && m_ewa_filter != enable)
-    {
-        m_ewa_filter = enable;
-        m_attribute.set_ewa_filter(enable);
+void SplatRenderer::set_ewa_filter (bool enable) {
+
+  if (m_soft_zbuffer && m_ewa_filter != enable) {
+    m_ewa_filter = enable;
+    m_attribute.set_ewa_filter(enable);
     }
-}
+  }
 //}}}
+float SplatRenderer::ewa_radius() const { return m_ewa_radius; }
+void SplatRenderer::set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
 
+bool SplatRenderer::multisample() const { return m_multisample; }
 //{{{
-bool SplatRenderer::multisample() const
-{
-    return m_multisample;
-}
-//}}}
-//{{{
-void SplatRenderer::set_multisample(bool enable)
+void SplatRenderer::set_multisample (bool enable)
 {
     if (m_multisample != enable)
     {
@@ -396,269 +340,195 @@ void SplatRenderer::set_multisample(bool enable)
 }
 //}}}
 
+float const* SplatRenderer::material_color() const { return m_color.data(); }
 //{{{
-float const* SplatRenderer::material_color() const
-{
-    return m_color.data();
-}
+void SplatRenderer::set_material_color (float const* color_ptr) {
+  Map<const Vector3f> color(color_ptr);
+  m_color = color;
+  }
 //}}}
-//{{{
-void SplatRenderer::set_material_color(float const* color_ptr)
-{
-    Map<const Vector3f> color(color_ptr);
-    m_color = color;
-}
-//}}}
-//{{{
-float SplatRenderer::material_shininess() const
-{
-    return m_shininess;
-}
-//}}}
-//{{{
-void SplatRenderer::set_material_shininess(float shininess)
-{
-    m_shininess = shininess;
-}
-//}}}
+float SplatRenderer::material_shininess() const { return m_shininess; }
+void SplatRenderer::set_material_shininess (float shininess) { m_shininess = shininess; }
+
+float SplatRenderer::radius_scale() const { return m_radius_scale; }
+void SplatRenderer::set_radius_scale (float radius_scale) { m_radius_scale = radius_scale; }
+
+void SplatRenderer::reshape (int width, int height) { m_fbo.reshape(width, height); }
 
 //{{{
-float SplatRenderer::radius_scale() const
-{
-    return m_radius_scale;
-}
+void SplatRenderer::setup_uniforms (glProgram& program) {
+
+  m_uniform_camera.set_buffer_data(m_camera);
+
+  GLint viewport[4];
+  glGetIntegerv (GL_VIEWPORT, viewport);
+  GLviz::Frustum view_frustum = m_camera.get_frustum();
+
+  m_uniform_raycast.set_buffer_data (m_camera.get_projection_matrix().inverse(), viewport);
+
+  Vector4f frustum_plane[6];
+
+  Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
+  for (unsigned int i(0); i < 6; ++i)
+    frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f
+      * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
+
+  for (unsigned int i(0); i < 6; ++i)
+    frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
+
+  m_uniform_frustum.set_buffer_data (frustum_plane);
+
+  m_uniform_parameter.set_buffer_data (m_color, m_shininess, m_radius_scale, m_ewa_radius, m_epsilon);
+  }
 //}}}
 //{{{
-void SplatRenderer::set_radius_scale(float radius_scale)
-{
-    m_radius_scale = radius_scale;
-}
-//}}}
-//{{{
-float SplatRenderer::ewa_radius() const
-{
-    return m_ewa_radius;
-}
-//}}}
-//{{{
-void SplatRenderer::set_ewa_radius(float ewa_radius)
-{
-    m_ewa_radius = ewa_radius;
-}
-//}}}
-//{{{
-void SplatRenderer::reshape(int width, int height)
-{
-    m_fbo.reshape(width, height);
-}
-//}}}
+void SplatRenderer::render_pass (bool depth_only) {
 
-//{{{
-void SplatRenderer::setup_uniforms(glProgram& program)
-{
-    m_uniform_camera.set_buffer_data(m_camera);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_PROGRAM_POINT_SIZE);
 
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    GLviz::Frustum view_frustum = m_camera.get_frustum();
-
-    m_uniform_raycast.set_buffer_data(
-        m_camera.get_projection_matrix().inverse(),
-        viewport);
-
-    Vector4f frustum_plane[6];
-
-    Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
-    for (unsigned int i(0); i < 6; ++i)
-    {
-        frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f
-            * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
+  if (!depth_only && m_soft_zbuffer) {
+    glEnable(GL_BLEND);
+    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     }
 
-    for (unsigned int i(0); i < 6; ++i)
-    {
-        frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>(
-            0, 0).norm()) * frustum_plane[i];
-    }
+  glProgram &program = depth_only ? m_visibility : m_attribute;
 
-    m_uniform_frustum.set_buffer_data(frustum_plane);
+  program.use();
 
-    m_uniform_parameter.set_buffer_data(
-        m_color, m_shininess, m_radius_scale, m_ewa_radius, m_epsilon
-    );
-}
-//}}}
-//{{{
-void SplatRenderer::render_pass(bool depth_only)
-{
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_PROGRAM_POINT_SIZE);
-
-    if (!depth_only && m_soft_zbuffer)
-    {
-        glEnable(GL_BLEND);
-        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-    }
-
-    glProgram &program = depth_only ? m_visibility : m_attribute;
-
-    program.use();
-
-    if (depth_only)
-    {
-        glDepthMask(GL_TRUE);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    }
-    else
-    {
-        if (m_soft_zbuffer)
-            glDepthMask(GL_FALSE);
-        else
-            glDepthMask(GL_TRUE);
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
-
-    setup_uniforms(program);
-
-    if (!depth_only && m_soft_zbuffer && m_ewa_filter)
-    {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_1D, m_filter_kernel);
-
-        program.set_uniform_1i("filter_kernel", 1);
-    }
-
-    glBindVertexArray(m_vao);
-    glDrawArrays(GL_POINTS, 0, m_num_pts);
-    glBindVertexArray(0);
-
-    program.unuse();
-
-    glDisable(GL_PROGRAM_POINT_SIZE);
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
-}
-//}}}
-
-//{{{
-void SplatRenderer::begin_frame()
-{
-    m_fbo.bind();
-
+  if (depth_only) {
     glDepthMask(GL_TRUE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClearDepth(1.0);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-//}}}
-//{{{
-void SplatRenderer::end_frame()
-{
-    m_fbo.unbind();
-
-    if (m_multisample)
-    {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
-
-        if (m_smooth)
-        {
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
-
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
-        }
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     }
+  else {
+    if (m_soft_zbuffer)
+      glDepthMask (GL_FALSE);
     else
-    {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_fbo.color_texture());
+      glDepthMask (GL_TRUE);
 
-        if (m_smooth)
-        {
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_fbo.normal_texture());
-
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, m_fbo.depth_texture());
-        }
+    glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 
-    m_finalization.use();
+  setup_uniforms(program);
 
-    try
-    {
-        setup_uniforms(m_finalization);
-        m_finalization.set_uniform_1i("color_texture", 0);
-
-        if (m_smooth)
-        {
-            m_finalization.set_uniform_1i("normal_texture", 1);
-            m_finalization.set_uniform_1i("depth_texture", 2);
-        }
-    }
-    catch (uniform_not_found_error const& e)
-    {
-        std::cerr << "Warning: Failed to set a uniform variable." << std::endl
-            << e.what() << std::endl;
+  if (!depth_only && m_soft_zbuffer && m_ewa_filter) {
+    glActiveTexture (GL_TEXTURE1);
+    glBindTexture (GL_TEXTURE_1D, m_filter_kernel);
+    program.set_uniform_1i ("filter_kernel", 1);
     }
 
-    glBindVertexArray(m_rect_vao);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-}
+  glBindVertexArray (m_vao);
+  glDrawArrays (GL_POINTS, 0, m_num_pts);
+  glBindVertexArray (0);
+
+  program.unuse();
+
+  glDisable (GL_PROGRAM_POINT_SIZE);
+  glDisable (GL_BLEND);
+  glDisable (GL_DEPTH_TEST);
+  }
+//}}}
+
+//{{{
+void SplatRenderer::begin_frame() {
+
+  m_fbo.bind();
+
+  glDepthMask (GL_TRUE);
+  glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClearDepth (1.0);
+
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
 //}}}
 //{{{
-void SplatRenderer::render_frame(std::vector<Surfel> const& visible_geometry)
-{
-    begin_frame();
+void SplatRenderer::end_frame() {
 
-    m_num_pts = static_cast<unsigned int>(visible_geometry.size());
+  m_fbo.unbind();
 
-    if (m_num_pts > 0)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Surfel) * m_num_pts,
-            &visible_geometry.front(), GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+  if (m_multisample) {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
 
-        if (m_multisample)
-        {
-            glEnable(GL_MULTISAMPLE);
-            glEnable(GL_SAMPLE_SHADING);
-            glMinSampleShading(4.0);
-        }
+    if (m_smooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
 
-        if (m_soft_zbuffer)
-        {
-            render_pass(true);
-        }
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
+      }
+    }
+  else {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D, m_fbo.color_texture());
 
-        render_pass(false);
+    if (m_smooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D, m_fbo.normal_texture());
 
-        if (m_multisample)
-        {
-            glDisable(GL_MULTISAMPLE);
-            glDisable(GL_SAMPLE_SHADING);
-        }
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D, m_fbo.depth_texture());
+      }
     }
 
-    end_frame();
+  m_finalization.use();
 
-#ifndef NDEBUG
+  try {
+    setup_uniforms(m_finalization);
+    m_finalization.set_uniform_1i ("color_texture", 0);
+
+    if (m_smooth) {
+      m_finalization.set_uniform_1i ("normal_texture", 1);
+      m_finalization.set_uniform_1i ("depth_texture", 2);
+      }
+    }
+  catch (uniform_not_found_error const& e) {
+    std::cerr << "Warning: Failed to set a uniform variable." << std::endl << e.what() << std::endl;
+    }
+
+  glBindVertexArray (m_rect_vao);
+  glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray (0);
+  }
+//}}}
+//{{{
+void SplatRenderer::render_frame (std::vector<Surfel> const& visible_geometry) {
+
+  begin_frame();
+
+  m_num_pts = static_cast<unsigned int>(visible_geometry.size());
+  if (m_num_pts > 0) {
+    glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
+    glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof(Surfel) * m_num_pts, &visible_geometry.front(), GL_DYNAMIC_DRAW);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+    if (m_multisample) {
+      glEnable (GL_MULTISAMPLE);
+      glEnable (GL_SAMPLE_SHADING);
+      glMinSampleShading (4.0);
+      }
+
+    if (m_soft_zbuffer)
+      render_pass (true);
+
+    render_pass (false);
+
+    if (m_multisample) {
+      glDisable (GL_MULTISAMPLE);
+      glDisable (GL_SAMPLE_SHADING);
+      }
+    }
+
+  end_frame();
+
+  #ifndef NDEBUG
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-    {
-        std::cerr << __FILE__ << "(" << __LINE__ << "): "
-            << GLviz::get_gl_error_string(gl_error) << std::endl;
-    }
-#endif
-}
+      std::cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << std::endl;
+  #endif
+  }
 //}}}

@@ -19,22 +19,19 @@
 #pragma once
 #include "../glviz/src/program.hpp"
 
-class ProgramFinalization : public glProgram
-{
-
+class ProgramFinalization : public glProgram {
 public:
-    ProgramFinalization();
+  ProgramFinalization();
 
-    void set_multisampling(bool enable);
-    void set_smooth(bool enable);
-
-private:
-    void initialize_shader_obj();
-    void initialize_program_obj();
+  void set_multisampling(bool enable);
+  void set_smooth(bool enable);
 
 private:
-    glVertexShader    m_finalization_vs_obj;
-    glFragmentShader  m_finalization_fs_obj, m_lighting_fs_obj;
+  void initialize_shader_obj();
+  void initialize_program_obj();
 
-    bool m_smooth, m_multisampling;
-};
+  glVertexShader    m_finalization_vs_obj;
+  glFragmentShader  m_finalization_fs_obj, m_lighting_fs_obj;
+
+  bool m_smooth, m_multisampling;
+  };

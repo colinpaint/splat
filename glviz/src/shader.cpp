@@ -52,7 +52,7 @@ glShader::~glShader()
 //}}}
 
 //{{{
-void glShader::load_from_file(std::string const& filename)
+void glShader::load_from_file (std::string const& filename)
 {
     std::ifstream input(filename.c_str());
 
@@ -68,32 +68,29 @@ void glShader::load_from_file(std::string const& filename)
 }
 //}}}
 //{{{
-void glShader::load_from_cstr(char const* source_cstr)
+void glShader::load_from_cstr (char const* source_cstr)
 {
     m_source = std::string(source_cstr);
 }
 //}}}
 
 //{{{
-void glShader::compile(std::map<std::string, int> const& define_list)
-{
+void glShader::compile (std::map<std::string, int> const& define_list) {
+
     // Configure source.
     std::string source = m_source;
 
-    for (std::map<std::string, int>::const_iterator it = define_list.begin();
-        it != define_list.end(); ++it)
-    {
+    for (std::map<std::string, int>::const_iterator it = define_list.begin(); it != define_list.end(); ++it) {
         std::ostringstream define;
         define << "#define " << it->first;
 
-        std::size_t pos = source.find(define.str(), 0);
+        std::size_t pos = source.find (define.str(), 0);
 
-        if (pos != std::string::npos)
-        {
-            std::size_t len = source.find("\n", pos) - pos + 1;
+        if (pos != std::string::npos) {
+            std::size_t len = source.find ("\n", pos) - pos + 1;
 
             define << " " << it->second << "\n";
-            source.replace(pos, len, define.str());
+            source.replace (pos, len, define.str());
         }
     }
 
@@ -103,15 +100,13 @@ void glShader::compile(std::map<std::string, int> const& define_list)
     glShaderSource(m_shader_obj, 1, &source_cstr, NULL);
     glCompileShader(m_shader_obj);
 
-    if (!is_compiled())
-    {
+    if (!is_compiled()) {
         throw shader_compilation_error(infolog());
     }
 }
 //}}}
 //{{{
-bool glShader::is_compiled() const
-{
+bool glShader::is_compiled() const {
     GLint status;
     glGetShaderiv(m_shader_obj, GL_COMPILE_STATUS, &status);
 
@@ -120,8 +115,7 @@ bool glShader::is_compiled() const
 //}}}
 
 //{{{
-std::string glShader::infolog()
-{
+std::string glShader::infolog() {
     GLint infoLogLength = 0;
     glGetShaderiv(m_shader_obj, GL_INFO_LOG_LENGTH, &infoLogLength);
 
@@ -135,54 +129,46 @@ std::string glShader::infolog()
 //}}}
 
 //{{{
-glVertexShader::glVertexShader()
-{
+glVertexShader::glVertexShader() {
     m_shader_obj = glCreateShader(GL_VERTEX_SHADER);
 }
 //}}}
 //{{{
-glFragmentShader::glFragmentShader()
-{
+glFragmentShader::glFragmentShader() {
     m_shader_obj = glCreateShader(GL_FRAGMENT_SHADER);
 }
 //}}}
 //{{{
-glGeometryShader::glGeometryShader()
-{
+glGeometryShader::glGeometryShader() {
     m_shader_obj = glCreateShader(GL_GEOMETRY_SHADER);
 }
 //}}}
 
 //{{{
-glProgram::glProgram()
-    : m_program_obj(glCreateProgram())
+glProgram::glProgram() : m_program_obj(glCreateProgram())
 {
 }
 //}}}
 //{{{
-glProgram::~glProgram()
-{
+glProgram::~glProgram() {
     detach_all();
     glDeleteProgram(m_program_obj);
 }
 //}}}
 
 //{{{
-void glProgram::use() const
-{
+void glProgram::use() const {
     glUseProgram(m_program_obj);
 }
 //}}}
 //{{{
-void glProgram::unuse() const
-{
+void glProgram::unuse() const {
     glUseProgram(0);
 }
 //}}}
 
 //{{{
-void glProgram::link()
-{
+void glProgram::link() {
     glLinkProgram(m_program_obj);
 
     if (!is_linked())
@@ -191,35 +177,30 @@ void glProgram::link()
 //}}}
 
 //{{{
-void glProgram::attach_shader(glShader& shader)
-{
+void glProgram::attach_shader (glShader& shader) {
     glAttachShader(m_program_obj, shader.m_shader_obj);
 }
 //}}}
 //{{{
-void glProgram::detach_shader(glShader& shader)
-{
+void glProgram::detach_shader (glShader& shader) {
     glDetachShader(m_program_obj, shader.m_shader_obj);
 }
 //}}}
 //{{{
-void glProgram::detach_all()
-{
+void glProgram::detach_all() {
     GLsizei count;
     GLuint shader[64];
 
     glGetAttachedShaders(m_program_obj, 64, &count, shader);
 
     for (GLsizei i(0); i < count; ++i)
-    {
         glDetachShader(m_program_obj, shader[i]);
-    }
+
 }
 //}}}
 
 //{{{
-bool glProgram::is_linked()
-{
+bool glProgram::is_linked() {
     GLint status;
     glGetProgramiv(m_program_obj, GL_LINK_STATUS, &status);
 
@@ -227,8 +208,8 @@ bool glProgram::is_linked()
 }
 //}}}
 //{{{
-bool glProgram::is_attached(glShader const& shader)
-{
+bool glProgram::is_attached (glShader const& shader) {
+
     GLint number_shader_attached;
     glGetProgramiv(m_program_obj, GL_ATTACHED_SHADERS,
         &number_shader_attached);
@@ -250,8 +231,8 @@ bool glProgram::is_attached(glShader const& shader)
 //}}}
 
 //{{{
-std::string glProgram::infolog()
-{
+std::string glProgram::infolog() {
+
     GLint infoLogLength = 0;
     glGetProgramiv(m_program_obj, GL_INFO_LOG_LENGTH, &infoLogLength);
 
@@ -266,25 +247,20 @@ std::string glProgram::infolog()
 //}}}
 
 //{{{
-void glProgram::set_uniform_1i(GLchar const* name, GLint value)
-{
+void glProgram::set_uniform_1i (GLchar const* name, GLint value) {
     GLint location = glGetUniformLocation(m_program_obj, name);
     if (location == -1)
-    {
         throw uniform_not_found_error(name);
-    }
 
     glProgramUniform1i(m_program_obj, location, value);
 }
 //}}}
 //{{{
-void glProgram::set_uniform_block_binding(GLchar const* name, GLuint block_binding)
-{
+void glProgram::set_uniform_block_binding (GLchar const* name, GLuint block_binding) {
+
     GLuint block_index = glGetUniformBlockIndex(m_program_obj, name);
     if (block_index == GL_INVALID_INDEX)
-    {
         throw uniform_not_found_error(name);
-    }
 
     glUniformBlockBinding(m_program_obj, block_index, block_binding);
 }

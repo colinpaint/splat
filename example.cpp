@@ -122,13 +122,13 @@ namespace {
       if (g_shading_method == 0) {
         // Flat.
         vertex_array_vf.bind();
-        glDrawElements(GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+        glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
         vertex_array_vf.unbind();
         }
       else {
         // Smooth.
         vertex_array_vnf.bind();
-        glDrawElements(GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+        glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
         vertex_array_vnf.unbind();
         }
 
@@ -136,15 +136,15 @@ namespace {
       }
     //}}}
     //{{{
-    void draw_spheres(GLsizei nv) {
+    void draw_spheres (GLsizei nv) {
 
-      glEnable(GL_PROGRAM_POINT_SIZE);
-      glPointParameterf(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+      glEnable (GL_PROGRAM_POINT_SIZE);
+      glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
 
       program_sphere.use();
 
       vertex_array_v.bind();
-      glDrawArrays(GL_POINTS, 0, nv);
+      glDrawArrays (GL_POINTS, 0, nv);
       vertex_array_v.unbind();
 
       program_sphere.unuse();
@@ -152,27 +152,27 @@ namespace {
 
     //}}}
 
-    GLviz::glVertexArray  vertex_array_v, vertex_array_vf, vertex_array_vnf;
-    GLviz::glArrayBuffer  vertex_array_buffer, normal_array_buffer;
-    GLviz::glElementArrayBuffer  index_array_buffer;
+    GLviz::glVertexArray vertex_array_v, vertex_array_vf, vertex_array_vnf;
+    GLviz::glArrayBuffer vertex_array_buffer, normal_array_buffer;
+    GLviz::glElementArrayBuffer index_array_buffer;
 
-    GLviz::UniformBufferCamera      uniform_camera;
-    GLviz::UniformBufferMaterial    uniform_material;
-    GLviz::UniformBufferWireframe   uniform_wireframe;
-    GLviz::UniformBufferSphere      uniform_sphere;
+    GLviz::UniformBufferCamera    uniform_camera;
+    GLviz::UniformBufferMaterial  uniform_material;
+    GLviz::UniformBufferWireframe uniform_wireframe;
+    GLviz::UniformBufferSphere    uniform_sphere;
 
-    GLviz::ProgramMesh3   program_mesh3;
-    GLviz::ProgramSphere  program_sphere;
+    GLviz::ProgramMesh3  program_mesh3;
+    GLviz::ProgramSphere program_sphere;
     };
   //}}}
   unique_ptr<MyViz> viz;
-  vector<Eigen::Vector3f>               g_ref_vertices;
-  vector<Eigen::Vector3f>               g_ref_normals;
-  vector<Eigen::Vector3f>               g_vertices;
-  vector<Eigen::Vector3f>               g_normals;
-  vector<array<unsigned int, 3> >  g_faces;
+  vector<Eigen::Vector3f> g_ref_vertices;
+  vector<Eigen::Vector3f> g_ref_normals;
+  vector<Eigen::Vector3f> g_vertices;
+  vector<Eigen::Vector3f> g_normals;
+  vector <array <unsigned int, 3> > g_faces;
 
-  void load_triangle_mesh(string const& filename);
+  void load_triangle_mesh (string const& filename);
   //{{{
   void display() {
 
@@ -340,7 +340,7 @@ int main (int argc, char* argv[]) {
   catch(runtime_error const& e) {
     cerr << e.what() << endl;
     exit(EXIT_FAILURE);
-  }
+    }
 
   GLviz::display_callback (display);
   GLviz::reshape_callback (reshape);

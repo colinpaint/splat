@@ -101,13 +101,12 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void UniformBufferWireframe::set_buffer_data(float const* color,
+  void UniformBufferWireframe::set_buffer_data (float const* color,
       int const* viewport)
   {
       bind();
       glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(GLfloat), color);
-      glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat),
-          2 * sizeof(GLint), viewport);
+      glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 2 * sizeof(GLint), viewport);
       unbind();
   }
   //}}}
@@ -119,29 +118,25 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void UniformBufferCamera::set_buffer_data(Camera const& camera)
+  void UniformBufferCamera::set_buffer_data (Camera const& camera)
   {
       Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
       Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();
       Matrix4f const& projection_matrix = camera.get_projection_matrix();
 
       bind();
-      glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(GLfloat),
-          modelview_matrix.data());
-      glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(GLfloat),
-          16 * sizeof(GLfloat), modelview_matrix_it.data());
-      glBufferSubData(GL_UNIFORM_BUFFER, 32 * sizeof(GLfloat),
-          16 * sizeof(GLfloat), projection_matrix.data());
+      glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(GLfloat), modelview_matrix.data());
+      glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(GLfloat), 16 * sizeof(GLfloat), modelview_matrix_it.data());
+      glBufferSubData(GL_UNIFORM_BUFFER, 32 * sizeof(GLfloat), 16 * sizeof(GLfloat), projection_matrix.data());
       unbind();
   }
   //}}}
 
   //{{{
-  void UniformBufferMaterial::set_buffer_data(float const* mbuf)
+  void UniformBufferMaterial::set_buffer_data (float const* mbuf)
   {
       bind();
-      glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), mbuf,
-          GL_DYNAMIC_DRAW);
+      glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), mbuf, GL_DYNAMIC_DRAW);
       unbind();
   }
   //}}}
@@ -158,12 +153,11 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void UniformBufferSphere::set_buffer_data(float radius, float projection)
+  void UniformBufferSphere::set_buffer_data (float radius, float projection)
   {
       bind();
       glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &radius);
-      glBufferSubData(GL_UNIFORM_BUFFER, sizeof(GLfloat),
-          sizeof(GLfloat), &projection);
+      glBufferSubData(GL_UNIFORM_BUFFER, sizeof(GLfloat), sizeof(GLfloat), &projection);
       unbind();
   }
   //}}}
@@ -177,7 +171,7 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void ProgramMesh3::set_wireframe(bool enable)
+  void ProgramMesh3::set_wireframe (bool enable)
   {
       if (m_wireframe != enable)
       {
@@ -187,7 +181,7 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void ProgramMesh3::set_smooth(bool enable)
+  void ProgramMesh3::set_smooth (bool enable)
   {
       if (m_smooth != enable)
       {
@@ -199,16 +193,13 @@ namespace GLviz {
   //{{{
   void ProgramMesh3::initialize_shader_obj()
   {
-      m_mesh3_vs_obj.load_from_cstr(
-          reinterpret_cast<char const*>(mesh3_vs_glsl));
-      m_mesh3_gs_obj.load_from_cstr(
-          reinterpret_cast<char const*>(mesh3_gs_glsl));
-      m_mesh3_fs_obj.load_from_cstr(
-          reinterpret_cast<char const*>(mesh3_fs_glsl));
+      m_mesh3_vs_obj.load_from_cstr (reinterpret_cast<char const*>(mesh3_vs_glsl));
+      m_mesh3_gs_obj.load_from_cstr (reinterpret_cast<char const*>(mesh3_gs_glsl));
+      m_mesh3_fs_obj.load_from_cstr (reinterpret_cast<char const*>(mesh3_fs_glsl));
 
-      attach_shader(m_mesh3_vs_obj);
-      attach_shader(m_mesh3_gs_obj);
-      attach_shader(m_mesh3_fs_obj);
+      attach_shader (m_mesh3_vs_obj);
+      attach_shader (m_mesh3_gs_obj);
+      attach_shader (m_mesh3_fs_obj);
   }
   //}}}
   //{{{
