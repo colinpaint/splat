@@ -18,16 +18,16 @@ project (splat VERSION 1.0.0)
                                   src/program_attribute.cpp
                                   src/program_finalization.cpp
                                   src/splat_renderer.cpp
-                                  lighting_glsl.cpp
-                                  attribute_fs_glsl.cpp
-                                  attribute_vs_glsl.cpp
-                                  finalization_fs_glsl.cpp
-                                  finalization_vs_glsl.cpp
-                                  mesh3_gs_glsl.cpp
-                                  mesh3_vs_glsl.cpp
-                                  mesh3_fs_glsl.cpp
-                                  sphere_fs_glsl.cpp
-                                  sphere_vs_glsl.cpp
+                                  shaders/lighting_glsl.cpp
+                                  shaders/attribute_fs_glsl.cpp
+                                  shaders/attribute_vs_glsl.cpp
+                                  shaders/finalization_fs_glsl.cpp
+                                  shaders/finalization_vs_glsl.cpp
+                                  shaders/mesh3_gs_glsl.cpp
+                                  shaders/mesh3_vs_glsl.cpp
+                                  shaders/mesh3_fs_glsl.cpp
+                                  shaders/sphere_fs_glsl.cpp
+                                  shaders/sphere_vs_glsl.cpp
                                   )
 
   target_include_directories (${PROJECT_NAME} PRIVATE . eigen)
