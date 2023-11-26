@@ -100,76 +100,57 @@ void ProgramAttribute::set_color_material(bool enable)
 //}}}
 
 //{{{
-void ProgramAttribute::initialize_shader_obj()
-{
-    m_attribute_vs_obj.load_from_cstr(
-        reinterpret_cast<char const*>(attribute_vs_glsl));
-    m_lighting_vs_obj.load_from_cstr(
-        reinterpret_cast<char const*>(lighting_glsl));
+void ProgramAttribute::initialize_shader_obj() {
 
-    m_attribute_fs_obj.load_from_cstr(
-        reinterpret_cast<char const*>(attribute_fs_glsl));
-}
+  m_attribute_vs_obj.load_from_cstr (reinterpret_cast<char const*>(attribute_vs_glsl));
+  m_lighting_vs_obj.load_from_cstr (reinterpret_cast<char const*>(lighting_glsl));
+  m_attribute_fs_obj.load_from_cstr (reinterpret_cast<char const*>(attribute_fs_glsl));
+  }
 //}}}
 //{{{
-void ProgramAttribute::initialize_program_obj()
-{
-    try
-    {
-        detach_all();
+void ProgramAttribute::initialize_program_obj() {
 
-        attach_shader(m_attribute_vs_obj);
-        attach_shader(m_attribute_fs_obj);
-        attach_shader(m_lighting_vs_obj);
+  try {
+    detach_all();
 
-        std::map<std::string, int> defines;
+    attach_shader(m_attribute_vs_obj);
+    attach_shader(m_attribute_fs_obj);
+    attach_shader(m_lighting_vs_obj);
 
-        defines.insert(std::make_pair("EWA_FILTER",
-            m_ewa_filter ? 1 : 0));
-        defines.insert(std::make_pair("POINTSIZE_METHOD",
-            static_cast<int>(m_pointsize_method)));
-        defines.insert(std::make_pair("BACKFACE_CULLING",
-            m_backface_culling ? 1 : 0));
-        defines.insert(std::make_pair("VISIBILITY_PASS",
-            m_visibility_pass ? 1 : 0));
-        defines.insert(std::make_pair("SMOOTH",
-            m_smooth ? 1 : 0));
-        defines.insert(std::make_pair("COLOR_MATERIAL",
-            m_color_material ? 1 : 0));
+    std::map<std::string, int> defines;
 
-        m_attribute_vs_obj.compile(defines);
-        m_attribute_fs_obj.compile(defines);
-        m_lighting_vs_obj.compile(defines);
+    defines.insert(std::make_pair("EWA_FILTER", m_ewa_filter ? 1 : 0));
+    defines.insert(std::make_pair("POINTSIZE_METHOD", static_cast<int>(m_pointsize_method)));
+    defines.insert(std::make_pair("BACKFACE_CULLING", m_backface_culling ? 1 : 0));
+    defines.insert(std::make_pair("VISIBILITY_PASS", m_visibility_pass ? 1 : 0));
+    defines.insert(std::make_pair("SMOOTH", m_smooth ? 1 : 0));
+    defines.insert(std::make_pair("COLOR_MATERIAL", m_color_material ? 1 : 0));
+
+    m_attribute_vs_obj.compile(defines);
+    m_attribute_fs_obj.compile(defines);
+    m_lighting_vs_obj.compile(defines);
     }
-    catch (shader_compilation_error const& e)
-    {
-        std::cerr << "Error: A shader failed to compile." << std::endl
-            << e.what() << std::endl;
-        std::exit(EXIT_FAILURE);
+  catch (shader_compilation_error const& e) {
+    std::cerr << "Error: A shader failed to compile." << std::endl << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
     }
 
-    try
-    {
-        link();
+  try {
+    link();
     }
-    catch (shader_link_error const& e)
-    {
-        std::cerr << "Error: A program failed to link." << std::endl
-            << e.what() << std::endl;
-        std::exit(EXIT_FAILURE);
+  catch (shader_link_error const& e) {
+     std::cerr << "Error: A program failed to link." << std::endl << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
     }
 
-    try
-    {
-        set_uniform_block_binding("Camera", 0);
-        set_uniform_block_binding("Raycast", 1);
-        set_uniform_block_binding("Frustum", 2);
-        set_uniform_block_binding("Parameter", 3);
+  try {
+    set_uniform_block_binding("Camera", 0);
+    set_uniform_block_binding("Raycast", 1);
+    set_uniform_block_binding("Frustum", 2);
+    set_uniform_block_binding("Parameter", 3);
     }
-    catch (uniform_not_found_error const& e)
-    {
-        std::cerr << "Warning: Failed to set a uniform variable." << std::endl
-            << e.what() << std::endl;
+  catch (uniform_not_found_error const& e) {
+    std::cerr << "Warning: Failed to set a uniform variable." << std::endl << e.what() << std::endl;
     }
-}
+  }
 //}}}

@@ -1,3 +1,4 @@
+//{{{
 // This file is part of GLviz.
 //
 // Copyright(c) 2014, 2015 Sebastian Lipponer
@@ -19,10 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
-
-#ifndef SHADER_HPP
-#define SHADER_HPP
-
+//}}}
+#pragma once
 #include <GL/glew.h>
 #include <string>
 #include <map>
@@ -116,7 +115,7 @@ public:
     void use() const;
     void unuse() const;
     void link();
-    
+
     void attach_shader(glShader& shader);
     void detach_shader(glShader& shader);
 
@@ -132,5 +131,3 @@ public:
 protected:
     GLuint m_program_obj;
 };
-
-#endif // SHADER_HPP

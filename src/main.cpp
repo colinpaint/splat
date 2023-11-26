@@ -650,17 +650,17 @@ int main(int argc, char* argv[])
 {
     GLviz::GLviz();
 
-    g_camera.translate(Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-    viz = std::unique_ptr<SplatRenderer>(new SplatRenderer(g_camera));
+    g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+    viz = std::unique_ptr<SplatRenderer>(new SplatRenderer (g_camera));
 
     load_model();
 
-    GLviz::display_callback(display);
-    GLviz::reshape_callback(reshape);
-    GLviz::close_callback(close);
-    GLviz::gui_callback(gui);
-    GLviz::keyboard_callback(keyboard);
+    GLviz::display_callback (display);
+    GLviz::reshape_callback (reshape);
+    GLviz::close_callback (close);
+    GLviz::gui_callback (gui);
+    GLviz::keyboard_callback (keyboard);
 
-    return GLviz::exec(g_camera);
+    return GLviz::exec (g_camera);
 }
 //}}}

@@ -1,3 +1,4 @@
+//{{{
 // This file is part of GLviz.
 //
 // Copyright(c) 2014, 2015 Sebastian Lipponer
@@ -19,89 +20,83 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
-
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
-
+//}}}
+#pragma once
 #include <Eigen/Dense>
 #include <memory>
 
 class Trackball;
 
-namespace GLviz
-{
+namespace GLviz {
+  //{{{
+  class Frustum
+  {
 
-class Frustum
-{
+  public:
+      float& left() { return m_left; }
+      float& right() { return m_right; }
 
-public:
-    float& left() { return m_left; }
-    float& right() { return m_right; }
+      float& bottom() { return m_bottom; }
+      float& top() { return m_top; }
 
-    float& bottom() { return m_bottom; }
-    float& top() { return m_top; }
+      float& near_() { return m_near; }
+      float& far_() { return m_far; }
 
-    float& near_() { return m_near; }
-    float& far_() { return m_far; }
+  private:
+      float m_left, m_right;
+      float m_bottom, m_top;
+      float m_near, m_far;
+  };
+  //}}}
+  //{{{
+  class Camera {
+  public:
+      Camera();
+      virtual ~Camera();
 
-private:
-    float m_left, m_right;
-    float m_bottom, m_top;
-    float m_near, m_far;
-};
+      Eigen::Matrix4f const& get_modelview_matrix() const;
+      Eigen::Matrix4f const& get_projection_matrix() const;
+      Frustum const& get_frustum() const;
 
-class Camera
-{
+      void set_frustum(Frustum const& frustum);
+      void set_aspect(float aspect);
+      void set_perspective(float fovy, float aspect, float near_,
+          float far_);
 
-public:
-    Camera();
-    virtual ~Camera();
+      void set_position(Eigen::Vector3f const& position);
 
-    Eigen::Matrix4f const& get_modelview_matrix() const;
-    Eigen::Matrix4f const& get_projection_matrix() const;
-    Frustum const& get_frustum() const;
+      void set_orientation(Eigen::Matrix3f const& orientation);
+      void set_orientation(Eigen::Quaternionf const& orientation);
 
-    void set_frustum(Frustum const& frustum);
-    void set_aspect(float aspect);
-    void set_perspective(float fovy, float aspect, float near_,
-        float far_);
+      void rotate(Eigen::Quaternionf const& rotation);
+      void rotate(Eigen::Matrix3f const& rotation);
 
-    void set_position(Eigen::Vector3f const& position);
+      void translate(Eigen::Vector3f const& translation);
 
-    void set_orientation(Eigen::Matrix3f const& orientation);
-    void set_orientation(Eigen::Quaternionf const& orientation);
+      void trackball_begin_motion(float begin_x, float begin_y);
 
-    void rotate(Eigen::Quaternionf const& rotation);
-    void rotate(Eigen::Matrix3f const& rotation);
+      void trackball_end_motion_rotate(float end_x, float end_y);
+      void trackball_end_motion_zoom(float end_x, float end_y);
+      void trackball_end_motion_translate(float end_x, float end_y);
 
-    void translate(Eigen::Vector3f const& translation);
+  private:
+      void set_projection_matrix_from_frustum();
+      void set_modelview_matrix_from_orientation();
 
-    void trackball_begin_motion(float begin_x, float begin_y);
+  private:
+      Eigen::Vector3f m_position;
+      Eigen::Quaternionf m_orientation;
 
-    void trackball_end_motion_rotate(float end_x, float end_y);
-    void trackball_end_motion_zoom(float end_x, float end_y);
-    void trackball_end_motion_translate(float end_x, float end_y);
+      Eigen::Matrix4f m_modelview_matrix;
+      Eigen::Matrix4f m_projection_matrix;
 
-private:
-    void set_projection_matrix_from_frustum();
-    void set_modelview_matrix_from_orientation();
+      Frustum m_frustum;
+      float m_fovy_rad;
+      float m_aspect;
 
-private:
-    Eigen::Vector3f m_position;
-    Eigen::Quaternionf m_orientation;
+      float m_begin_x, m_begin_y;
 
-    Eigen::Matrix4f m_modelview_matrix;
-    Eigen::Matrix4f m_projection_matrix;
-
-    Frustum m_frustum;
-    float m_fovy_rad;
-    float m_aspect;
-
-    float m_begin_x, m_begin_y;
-
-    std::unique_ptr<Trackball> m_trackball;
-};
-
-}
-
-#endif // CAMERA_HPP
+      std::unique_ptr<Trackball> m_trackball;
+  };
+  //}}}
+  }

@@ -1,11 +1,5 @@
 cmake_minimum_required (VERSION 3.18)
 #
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-  set (BUILD_MSVC_COMPILE_OPTIONS "/arch:AVX" CACHE STRING "msvc compile options")
-else()
-  set (BUILD_LINUX_COMPILE_OPTIONS "-Ofast" CACHE STRING "gcc compile options")
-endif()
-#
 add_subdirectory (glviz)
 
 project (embed VERSION 1.0.0)

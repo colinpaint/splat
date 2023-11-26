@@ -1,34 +1,31 @@
+//{{{
 // This file is part of Surface Splatting.
 //
 // Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
+//
 // Surface Splatting is free software: you can redistribute it and / or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Surface Splatting is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
-#ifndef SPLATRENDER_HPP
-#define SPLATRENDER_HPP
-
+//}}}
+#pragma once
 #include "program_attribute.hpp"
 #include "program_finalization.hpp"
-
 #include <GLviz/buffer.hpp>
-
 #include "framebuffer.hpp"
-
 #include <Eigen/Core>
 #include <string>
 #include <vector>
 
+//{{{
 struct Surfel
 {
     Surfel() { }
@@ -43,7 +40,9 @@ struct Surfel
 
     unsigned int    rgba;   // Color.
 };
+//}}}
 
+//{{{
 class UniformBufferRaycast : public GLviz::glUniformBuffer
 {
 
@@ -53,7 +52,8 @@ public:
     void set_buffer_data(Eigen::Matrix4f const& projection_matrix_inv,
         GLint const* viewport);
 };
-
+//}}}
+//{{{
 class UniformBufferFrustum : public GLviz::glUniformBuffer
 {
 
@@ -62,7 +62,8 @@ public:
 
     void set_buffer_data(Eigen::Vector4f const* frustum_plane);
 };
-
+//}}}
+//{{{
 class UniformBufferParameter : public GLviz::glUniformBuffer
 {
 
@@ -72,10 +73,10 @@ public:
     void set_buffer_data(Eigen::Vector3f const& color, float shininess,
         float radius_scale, float ewa_radius, float epsilon);
 };
+//}}}
 
-class SplatRenderer
-{
-
+//{{{
+class SplatRenderer {
 public:
     SplatRenderer(GLviz::Camera const& camera);
     virtual ~SplatRenderer();
@@ -157,5 +158,4 @@ private:
     UniformBufferFrustum m_uniform_frustum;
     UniformBufferParameter m_uniform_parameter;
 };
-
-#endif // SPLATRENDER_HPP
+//}}}

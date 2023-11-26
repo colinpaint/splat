@@ -37,6 +37,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <functional>
+
+using namespace std;
 //}}}
 
 namespace GLviz {
@@ -47,17 +49,17 @@ namespace GLviz {
     SDL_Window* m_sdl_window;
     SDL_GLContext m_gl_context;
 
-    std::function<void ()>                      m_display_callback;
-    std::function<void ()>                      m_gui_callback;
-    std::function<void (unsigned int)>          m_timer_callback;
-    std::function<void (int width, int height)> m_reshape_callback;
-    std::function<void (SDL_Keycode)>           m_keyboard_callback;
-    std::function<void ()>                      m_close_callback;
+    function<void ()>                      m_display_callback;
+    function<void ()>                      m_gui_callback;
+    function<void (unsigned int)>          m_timer_callback;
+    function<void (int width, int height)> m_reshape_callback;
+    function<void (SDL_Keycode)>           m_keyboard_callback;
+    function<void ()>                      m_close_callback;
 
     Camera*  m_camera;
 
     //{{{
-    void reshape(int width, int height)
+    void reshape (int width, int height)
     {
         m_screen_width  = width;
         m_screen_height = height;
@@ -69,7 +71,7 @@ namespace GLviz {
     }
     //}}}
     //{{{
-    void mouse(int button, int state, int x, int y)
+    void mouse (int button, int state, int x, int y)
     {
         const float xf = static_cast<float>(x)
             / static_cast<float>(m_screen_width);
@@ -93,7 +95,7 @@ namespace GLviz {
     }
     //}}}
     //{{{
-    void motion(int state, int x, int y)
+    void motion (int state, int x, int y)
     {
         const float xf = static_cast<float>(x)
             / static_cast<float>(m_screen_width);
@@ -185,26 +187,26 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void set_camera(Camera& camera)
+  void set_camera (Camera& camera)
   {
       m_camera = &camera;
   }
   //}}}
 
   //{{{
-  void display_callback(std::function<void ()> display_callback)
+  void display_callback (function<void ()> display_callback)
   {
       m_display_callback = display_callback;
   }
   //}}}
   //{{{
-  void reshape_callback(std::function<void (int width, int height)> reshape_callback)
+  void reshape_callback (function<void (int width, int height)> reshape_callback)
   {
       m_reshape_callback = reshape_callback;
   }
   //}}}
   //{{{
-  void timer_callback(std::function<void (unsigned int)> timer_callback,
+  void timer_callback (function<void (unsigned int)> timer_callback,
       unsigned int timer_msec)
   {
       m_timer_callback = timer_callback;
@@ -212,150 +214,57 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void close_callback(std::function<void ()> close_callback)
+  void close_callback (function<void ()> close_callback)
   {
       m_close_callback = close_callback;
   }
   //}}}
   //{{{
-  void gui_callback(std::function<void()> gui_callback)
+  void gui_callback (function<void()> gui_callback)
   {
       m_gui_callback = gui_callback;
   }
   //}}}
   //{{{
-  void keyboard_callback(std::function<void (SDL_Keycode)> keyboard_callback)
+  void keyboard_callback (function<void (SDL_Keycode)> keyboard_callback)
   {
       m_keyboard_callback = keyboard_callback;
   }
   //}}}
 
   //{{{
-  void cout_opengl_version()
-  {
-      GLint context_major_version, context_minor_version, context_profile;
+  void cout_opengl_version() {
 
-      glGetIntegerv(GL_MAJOR_VERSION, &context_major_version);
-      glGetIntegerv(GL_MINOR_VERSION, &context_minor_version);
-      glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &context_profile);
+    GLint context_major_version, context_minor_version, context_profile;
 
-      std::cout << "  OpenGL version " << context_major_version << "."
-          << context_minor_version << " ";
+    glGetIntegerv (GL_MAJOR_VERSION, &context_major_version);
+    glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
+    glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
 
-      switch (context_profile)
-      {
-          case GL_CONTEXT_CORE_PROFILE_BIT:
-              std::cout << "core";
-              break;
+    cout << "  OpenGL version " << context_major_version << "."
+              << context_minor_version << " ";
 
-          case GL_CONTEXT_COMPATIBILITY_PROFILE_BIT:
-              std::cout << "compatibility";
-              break;
+    switch (context_profile) {
+      case GL_CONTEXT_CORE_PROFILE_BIT:
+        cout << "core";
+        break;
+
+      case GL_CONTEXT_COMPATIBILITY_PROFILE_BIT:
+        cout << "compatibility";
+        break;
       }
 
-      std::cout << " profile context." << std::endl;
-  }
+    cout << " profile context." << endl;
+    }
   //}}}
   //{{{
-  void cout_glew_version()
-  {
-      std::cout << "  GLEW version " << glewGetString(GLEW_VERSION)
-          << "." << std::endl;
-  }
+  void cout_glew_version() {
+    cout << "  GLEW version " << glewGetString(GLEW_VERSION) << "." << endl;
+    }
   //}}}
 
   //{{{
-  void GLviz(int screen_width, int screen_height) {
-
-      m_screen_width = screen_width;
-      m_screen_height = screen_height;
-
-      // Initialize SDL.
-      if (SDL_Init(SDL_INIT_VIDEO) < 0)
-      {
-          std::cerr << "Failed to initialize SDL Video:" << std::endl;
-          std::cerr << "Error: " << SDL_GetError() << std::endl;
-          SDL_Quit();
-          std::exit(EXIT_FAILURE);
-      }
-
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-          SDL_GL_CONTEXT_PROFILE_CORE);
-
-      //SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   8);
-      //SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-      //SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  8);
-      //SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-
-      //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-      //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-      SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-      SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
-      m_sdl_window = SDL_CreateWindow ("GLviz",
-          SDL_WINDOWPOS_UNDEFINED,
-          SDL_WINDOWPOS_UNDEFINED,
-          m_screen_width, m_screen_height,
-          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-
-      if (!m_sdl_window)
-      {
-          std::cerr << "Failed to create SDL window:" << std::endl;
-          std::cerr << "Error: " << SDL_GetError() << std::endl;
-          SDL_Quit();
-          std::exit(EXIT_FAILURE);
-      }
-
-      m_gl_context = SDL_GL_CreateContext(m_sdl_window);
-      if (!m_gl_context)
-      {
-          std::cerr << "Failed to initialize OpenGL:" << std::endl;
-          std::cerr << "Error: " << SDL_GetError() << std::endl;
-          SDL_Quit();
-          std::exit(EXIT_FAILURE);
-      }
-
-      // Print OpenGL version.
-      cout_opengl_version();
-
-      // Initialize GLEW.
-      {
-          glewExperimental = GL_TRUE;
-          GLenum glew_error = glewInit();
-
-          if (GLEW_OK != glew_error)
-          {
-              std::cerr << "Failed to initialize GLEW:" << std::endl;
-              std::cerr << __FILE__ << "(" << __LINE__ << "): "
-                        << glewGetErrorString(glew_error) << std::endl;
-              std::exit(EXIT_FAILURE);
-          }
-
-          // GLEW has a problem with core contexts. It calls
-          // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
-          GLenum gl_error = glGetError();
-          if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
-          {
-              std::cerr << __FILE__ << "(" << __LINE__ << "): "
-                        << GLviz::get_gl_error_string(gl_error) << std::endl;
-          }
-      }
-
-      // Print GLEW version.
-      cout_glew_version();
-      std::cout << std::endl;
-
-      // Initialize ImGui.
-      ImGui::CreateContext();
-      ImGui_ImplSDL2_InitForOpenGL(m_sdl_window, m_gl_context);
-      ImGui_ImplOpenGL3_Init();
-  }
-  //}}}
-  //{{{
-  int exec(Camera& camera)
+  int exec (Camera& camera)
   {
       m_camera = &camera;
       Uint32 last_time = 0;
@@ -397,5 +306,92 @@ namespace GLviz {
 
       return EXIT_SUCCESS;
   }
+  //}}}
+  //{{{
+  void GLviz (int screen_width, int screen_height) {
+
+    m_screen_width = screen_width;
+    m_screen_height = screen_height;
+
+    // Initialize SDL.
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+      //{{{  error,return
+        // Initialize GLEW.
+      cerr << "Failed to initialize SDL Video:" << endl;
+      cerr << "Error: " << SDL_GetError() << endl;
+      SDL_Quit();
+      exit(EXIT_FAILURE);
+      }
+      //}}}
+
+    SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    //SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   8);
+    //SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  8);
+    //SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    // no WSL
+    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+    m_sdl_window = SDL_CreateWindow ("GLviz", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                     m_screen_width, m_screen_height,
+                                     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    if (!m_sdl_window) {
+      //{{{  error, return
+      cerr << "Failed to create SDL window:" << endl;
+      cerr << "Error: " << SDL_GetError() << endl;
+      SDL_Quit();
+      exit(EXIT_FAILURE);
+      }
+      //}}}
+
+    m_gl_context = SDL_GL_CreateContext(m_sdl_window);
+    if (!m_gl_context) {
+      //{{{  error, return
+      cerr << "Failed to initialize OpenGL:" << endl;
+      cerr << "Error: " << SDL_GetError() << endl;
+      SDL_Quit();
+      exit(EXIT_FAILURE);
+      }
+      //}}}
+
+    // Print OpenGL version.
+    cout_opengl_version();
+
+    { // Initialize GLEW.
+    glewExperimental = GL_TRUE;
+    GLenum glew_error = glewInit();
+
+    if (GLEW_OK != glew_error) {
+      //{{{  erro, return
+      cerr << "Failed to initialize GLEW:" << endl;
+      cerr << __FILE__ << "(" << __LINE__ << "): "
+                << glewGetErrorString(glew_error) << endl;
+      exit(EXIT_FAILURE);
+      }
+      //}}}
+
+    // GLEW has a problem with core contexts. It calls
+    // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
+    GLenum gl_error = glGetError();
+    if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
+      cerr << __FILE__ << "(" << __LINE__ << "): "
+                << GLviz::get_gl_error_string(gl_error) << endl;
+    }
+
+    // Print GLEW version.
+    cout_glew_version();
+    cout << endl;
+
+    // Initialize ImGui.
+    ImGui::CreateContext();
+    ImGui_ImplSDL2_InitForOpenGL(m_sdl_window, m_gl_context);
+    ImGui_ImplOpenGL3_Init();
+    }
   //}}}
   }

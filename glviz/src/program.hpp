@@ -1,3 +1,4 @@
+//{{{
 // This file is part of GLviz.
 //
 // Copyright(c) 2014, 2015 Sebastian Lipponer
@@ -19,88 +20,89 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
-
-#ifndef PROGRAM_MESH3_HPP
-#define PROGRAM_MESH3_HPP
-
+//}}}
+#pragma once
 #include "shader.hpp"
 #include "buffer.hpp"
 
-namespace GLviz
-{
+namespace GLviz {
+  class Camera;
+  //{{{
+  class UniformBufferCamera : public glUniformBuffer
+  {
 
-class Camera;
+  public:
+      UniformBufferCamera();
 
-class UniformBufferCamera : public glUniformBuffer
-{
+      void set_buffer_data(Camera const& camera);
+  };
+  //}}}
+  //{{{
+  class UniformBufferMaterial : public glUniformBuffer
+  {
 
-public:
-    UniformBufferCamera();
+  public:
+      void set_buffer_data(const float* mbuf);
+  };
+  //}}}
+  //{{{
+  class UniformBufferWireframe : public glUniformBuffer
+  {
 
-    void set_buffer_data(Camera const& camera);
-};
+  public:
+      UniformBufferWireframe();
 
-class UniformBufferMaterial : public glUniformBuffer
-{
+      void set_buffer_data(float const* color, int const* viewport);
+  };
+  //}}}
+  //{{{
+  class UniformBufferSphere : public glUniformBuffer
+  {
 
-public:
-    void set_buffer_data(const float* mbuf);
-};
+  public:
+      UniformBufferSphere();
 
-class UniformBufferWireframe : public glUniformBuffer
-{
+      void set_buffer_data(float radius, float projection);
+  };
+  //}}}
 
-public:
-    UniformBufferWireframe();
+  //{{{
+  class ProgramMesh3 : public glProgram
+  {
 
-    void set_buffer_data(float const* color, int const* viewport);
-};
+  public:
+      ProgramMesh3();
 
-class UniformBufferSphere : public glUniformBuffer
-{
+      void set_wireframe(bool enable);
+      void set_smooth(bool enable);
 
-public:
-    UniformBufferSphere();
+  private:
+      void initialize_shader_obj();
+      void initialize_program_obj();
 
-    void set_buffer_data(float radius, float projection);
-};
+  private:
+      glVertexShader   m_mesh3_vs_obj;
+      glGeometryShader m_mesh3_gs_obj;
+      glFragmentShader m_mesh3_fs_obj;
 
-class ProgramMesh3 : public glProgram
-{
+      bool m_wireframe, m_smooth;
+  };
 
-public:
-    ProgramMesh3();
+  //}}}
+  //{{{
+  class ProgramSphere : public glProgram
+  {
 
-    void set_wireframe(bool enable);
-    void set_smooth(bool enable);
+  public:
+      ProgramSphere();
 
-private:
-    void initialize_shader_obj();
-    void initialize_program_obj();
+  private:
+      void initialize_shader_obj();
+      void initialize_program_obj();
 
-private:
-    glVertexShader   m_mesh3_vs_obj;
-    glGeometryShader m_mesh3_gs_obj;
-    glFragmentShader m_mesh3_fs_obj;
-
-    bool m_wireframe, m_smooth;
-};
-
-class ProgramSphere : public glProgram
-{
-
-public:
-    ProgramSphere();
-
-private:
-    void initialize_shader_obj();
-    void initialize_program_obj();
-
-private:
-    glVertexShader    m_sphere_vs_obj;
-    glFragmentShader  m_sphere_fs_obj;
-};
-
-}
-
-#endif // PROGRAM_HPP
+  private:
+      glVertexShader    m_sphere_vs_obj;
+      glFragmentShader  m_sphere_fs_obj;
+  };
+  //}}}
+  }

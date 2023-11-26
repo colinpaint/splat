@@ -1,3 +1,4 @@
+//{{{
 // This file is part of GLviz.
 //
 // Copyright(c) 2014, 2015 Sebastian Lipponer
@@ -19,10 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
-
-#ifndef UTILITY_HPP
-#define UTILITY_HPP
-
+//}}}
+#pragma once
 #include <GL/glew.h>
 #include <Eigen/Core>
 
@@ -47,5 +46,3 @@ std::string get_gl_error_string(GLenum gl_error);
 std::string get_gl_framebuffer_status_string(GLenum framebuffer_status);
 
 }
-
-#endif // UTILITY_HPP
