@@ -82,7 +82,7 @@ namespace {
       uniform_wireframe.bind_buffer_base(2);
       uniform_sphere.bind_buffer_base(3);
 
-      g_camera.translate(Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+      g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
       }
     //}}}
 
@@ -188,26 +188,26 @@ namespace {
     viz->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
     viz->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
 
-    viz->uniform_camera.set_buffer_data(g_camera);
+    viz->uniform_camera.set_buffer_data (g_camera);
 
     if (g_enable_mesh3) {
       viz->uniform_material.set_buffer_data(g_mesh_material);
 
-      viz->program_mesh3.set_wireframe(g_enable_wireframe);
+      viz->program_mesh3.set_wireframe (g_enable_wireframe);
       int screen[2] = { GLviz::screen_width(), GLviz::screen_height() };
-      viz->uniform_wireframe.set_buffer_data(g_wireframe, screen);
+      viz->uniform_wireframe.set_buffer_data (g_wireframe, screen);
 
-      viz->program_mesh3.set_smooth(g_shading_method != 0);
+      viz->program_mesh3.set_smooth (g_shading_method != 0);
       viz->draw_mesh3(static_cast<GLsizei>(3 * g_faces.size()));
       }
 
     if (g_enable_points) {
-      viz->uniform_material.set_buffer_data(g_points_material);
+      viz->uniform_material.set_buffer_data (g_points_material);
       GLviz::Frustum view_frustum = g_camera.get_frustum();
-      float g_projection_radius = view_frustum.near_() * (GLviz::screen_height()
-          / (view_frustum.top() - view_frustum.bottom()));
+      float g_projection_radius = view_frustum.near_() * 
+                                  (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
 
-      viz->uniform_sphere.set_buffer_data(g_point_radius, g_projection_radius);
+      viz->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
       viz->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
       }
     }
@@ -248,7 +248,7 @@ namespace {
   //{{{
   void gui() {
 
-    ImGui::Begin("GLviz", nullptr);
+    ImGui::Begin ("GLviz", nullptr);
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
     ImGui::SetWindowSize (ImVec2(265.0f, 345.0f), ImGuiCond_Once);
 

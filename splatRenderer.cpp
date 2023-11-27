@@ -222,51 +222,7 @@ void SplatRenderer::setup_vertex_array_buffer_object() {
   }
 //}}}
 
-bool SplatRenderer::smooth() const { return m_smooth; }
-//{{{
-void SplatRenderer::set_smooth(bool enable) {
-
-  if (m_smooth != enable) {
-    m_smooth = enable;
-
-    m_attribute.set_smooth(enable);
-    m_finalization.set_smooth(enable);
-
-    if (m_smooth) {
-      m_fbo.enable_depth_texture();
-      m_fbo.attach_normal_texture();
-      }
-    else {
-      m_fbo.disable_depth_texture();
-      m_fbo.detach_normal_texture();
-      }
-    }
-  }
-//}}}
-
-bool SplatRenderer::color_material() const { return m_color_material; }
-//{{{
-void SplatRenderer::set_color_material (bool enable) {
-
-  if (m_color_material != enable) {
-    m_color_material = enable;
-    m_attribute.set_color_material(enable);
-    }
-  }
-//}}}
-
-bool SplatRenderer::backface_culling() const { return m_backface_culling; }
-//{{{
-void SplatRenderer::set_backface_culling (bool enable) {
-
-  if (m_backface_culling != enable) {
-    m_backface_culling = enable;
-    m_visibility.set_backface_culling(enable);
-    m_attribute.set_backface_culling(enable);
-    }
-  }
-//}}}
-
+//{{{  soft z
 bool SplatRenderer::soft_zbuffer() const { return m_soft_zbuffer; }
 //{{{
 void SplatRenderer::set_soft_zbuffer (bool enable) {
@@ -284,20 +240,8 @@ void SplatRenderer::set_soft_zbuffer (bool enable) {
 
 float SplatRenderer::soft_zbuffer_epsilon() const { return m_epsilon; }
 void SplatRenderer::set_soft_zbuffer_epsilon (float epsilon) { m_epsilon = epsilon; }
-
-unsigned int SplatRenderer::pointsize_method() const { return m_pointsize_method; }
-//{{{
-void SplatRenderer::set_pointsize_method (unsigned int pointsize_method) {
-
-  if (m_pointsize_method != pointsize_method) {
-    m_pointsize_method = pointsize_method;
-    m_visibility.set_pointsize_method(pointsize_method);
-    m_attribute.set_pointsize_method(pointsize_method);
-    }
-  }
 //}}}
-
-// EWA
+//{{{  EWA
 bool SplatRenderer::ewa_filter() const { return m_ewa_filter; }
 //{{{
 void SplatRenderer::set_ewa_filter (bool enable) {
@@ -324,8 +268,19 @@ void SplatRenderer::set_multisample (bool enable)
     }
 }
 //}}}
+//}}}
+//{{{  material
+bool SplatRenderer::color_material() const { return m_color_material; }
+//{{{
+void SplatRenderer::set_color_material (bool enable) {
 
-// material
+  if (m_color_material != enable) {
+    m_color_material = enable;
+    m_attribute.set_color_material(enable);
+    }
+  }
+//}}}
+
 float const* SplatRenderer::material_color() const { return m_color.data(); }
 //{{{
 void SplatRenderer::set_material_color (float const* color_ptr) {
@@ -336,6 +291,53 @@ void SplatRenderer::set_material_color (float const* color_ptr) {
 
 float SplatRenderer::material_shininess() const { return m_shininess; }
 void SplatRenderer::set_material_shininess (float shininess) { m_shininess = shininess; }
+//}}}
+
+bool SplatRenderer::smooth() const { return m_smooth; }
+//{{{
+void SplatRenderer::set_smooth(bool enable) {
+
+  if (m_smooth != enable) {
+    m_smooth = enable;
+
+    m_attribute.set_smooth(enable);
+    m_finalization.set_smooth(enable);
+
+    if (m_smooth) {
+      m_fbo.enable_depth_texture();
+      m_fbo.attach_normal_texture();
+      }
+    else {
+      m_fbo.disable_depth_texture();
+      m_fbo.detach_normal_texture();
+      }
+    }
+  }
+//}}}
+
+bool SplatRenderer::backface_culling() const { return m_backface_culling; }
+//{{{
+void SplatRenderer::set_backface_culling (bool enable) {
+
+  if (m_backface_culling != enable) {
+    m_backface_culling = enable;
+    m_visibility.set_backface_culling(enable);
+    m_attribute.set_backface_culling(enable);
+    }
+  }
+//}}}
+
+unsigned int SplatRenderer::pointsize_method() const { return m_pointsize_method; }
+//{{{
+void SplatRenderer::set_pointsize_method (unsigned int pointsize_method) {
+
+  if (m_pointsize_method != pointsize_method) {
+    m_pointsize_method = pointsize_method;
+    m_visibility.set_pointsize_method(pointsize_method);
+    m_attribute.set_pointsize_method(pointsize_method);
+    }
+  }
+//}}}
 
 float SplatRenderer::radius_scale() const { return m_radius_scale; }
 void SplatRenderer::set_radius_scale (float radius_scale) { m_radius_scale = radius_scale; }
@@ -417,7 +419,7 @@ void SplatRenderer::render_pass (bool depth_only) {
 //}}}
 
 //{{{
-void SplatRenderer::begin_frame() {
+void SplatRenderer::beginFrame() {
 
   m_fbo.bind();
 
@@ -431,7 +433,7 @@ void SplatRenderer::begin_frame() {
   }
 //}}}
 //{{{
-void SplatRenderer::end_frame() {
+void SplatRenderer::endFrame() {
 
   m_fbo.unbind();
 
@@ -481,9 +483,9 @@ void SplatRenderer::end_frame() {
   }
 //}}}
 //{{{
-void SplatRenderer::render_frame (std::vector<Surfel> const& visible_geometry) {
+void SplatRenderer::renderFrame (std::vector<Surfel> const& visible_geometry) {
 
-  begin_frame();
+  beginFrame();
 
   m_num_pts = static_cast<unsigned int>(visible_geometry.size());
   if (m_num_pts > 0) {
@@ -509,7 +511,7 @@ void SplatRenderer::render_frame (std::vector<Surfel> const& visible_geometry) {
       }
     }
 
-  end_frame();
+  endFrame();
 
   #ifndef NDEBUG
     GLenum gl_error = glGetError();

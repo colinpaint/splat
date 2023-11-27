@@ -61,12 +61,12 @@ namespace {
     }
   //}}}
   //{{{
-  void steiner_circumellipse (float const* v0_ptr, float const* v1_ptr,
-                              float const* v2_ptr, float* p0_ptr, float* t1_ptr, float* t2_ptr) {
+  void steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, float const* v2_ptr,
+                             float* p0_ptr, float* t1_ptr, float* t2_ptr) {
 
     Eigen::Matrix2f Q;
-
     Eigen::Vector3f d0, d1, d2;
+
       {
       using Vec = Eigen::Map<const Eigen::Vector3f>;
       Vec v[] = { Vec(v0_ptr), Vec(v1_ptr), Vec(v2_ptr) };
@@ -89,7 +89,7 @@ namespace {
         A.row(j) = Eigen::Vector3f (p[j].x() * p[j].x(), 2.0f * p[j].x() * p[j].y(), p[j].y() * p[j].y());
 
       Eigen::FullPivLU<Eigen::Matrix3f> lu(A);
-      Eigen::Vector3f res = lu.solve(Eigen::Vector3f::Ones());
+      Eigen::Vector3f res = lu.solve (Eigen::Vector3f::Ones());
 
       Q(0, 0) = res(0);
       Q(1, 1) = res(2);
@@ -97,6 +97,7 @@ namespace {
       }
 
     Eigen::Map<Eigen::Vector3f> p0(p0_ptr), t1(t1_ptr), t2(t2_ptr);
+
       {
       Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> es;
       es.compute (Q);
@@ -119,7 +120,7 @@ namespace {
     Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
 
     Eigen::Vector3f p0, t1, t2;
-    steiner_circumellipse (v[0].data(), v[1].data(), v[2].data(), p0.data(), t1.data(), t2.data());
+    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(), p0.data(), t1.data(), t2.data());
 
     Eigen::Vector3f n_s = t1.cross(t2);
     Eigen::Vector3f n_t = (v[1] - v[0]).cross(v[2] - v[0]);
@@ -415,12 +416,11 @@ namespace {
   //}}}
   //{{{
   void gui() {
+    ImGui::Begin ("Surface Splatting", nullptr);
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
     ImGui::SetWindowSize (ImVec2(350.0f, 415.0f), ImGuiCond_Once);
-    ImGui::Begin ("Surface Splatting", nullptr);
 
     ImGui::PushItemWidth (ImGui::GetContentRegionAvailWidth() * 0.55f);
-
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
     ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
@@ -434,6 +434,7 @@ namespace {
       if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))
         gViz->set_smooth (shadingMethod > 0 ? true : false);
 
+      //{{{  material
       ImGui::Separator();
       int color_material = gViz->color_material() ? 1 : 0;
       if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
@@ -447,7 +448,8 @@ namespace {
       float material_shininess = gViz->material_shininess();
       if (ImGui::DragFloat ("Material shininess", &material_shininess, 0.05f, 1e-12f, 1000.0f))
         gViz->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
-
+      //}}}
+      //{{{  soft z
       ImGui::Separator();
       bool soft_zbuffer = gViz->soft_zbuffer();
       if (ImGui::Checkbox("Soft z-buffer", &soft_zbuffer))
@@ -456,7 +458,8 @@ namespace {
       float soft_zbuffer_epsilon = gViz->soft_zbuffer_epsilon();
       if (ImGui::DragFloat ("Soft z-buffer epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
         gViz->set_soft_zbuffer_epsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
-
+      //}}}
+      //{{{  ewa
       ImGui::Separator();
       bool ewa_filter = gViz->ewa_filter();
       if (ImGui::Checkbox ("EWA filter", &ewa_filter))
@@ -465,6 +468,7 @@ namespace {
       float ewa_radius = gViz->ewa_radius();
       if (ImGui::DragFloat ("EWA radius", &ewa_radius, 1e-3f, 0.1f, 4.0f))
         gViz->set_ewa_radius (ewa_radius);
+      //}}}
 
       ImGui::Separator();
       int point_size = gViz->pointsize_method();
@@ -514,7 +518,7 @@ namespace {
       }
     }
   //}}}
-  void display() { gViz->render_frame (gSurfels); }
+  void display() { gViz->renderFrame (gSurfels); }
   void close() { gViz = nullptr; }
   }
 

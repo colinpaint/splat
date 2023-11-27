@@ -73,7 +73,7 @@ public:
   SplatRenderer(GLviz::Camera const& camera);
   virtual ~SplatRenderer();
 
-  void render_frame (std::vector<Surfel> const& visible_geometry);
+  void renderFrame (std::vector<Surfel> const& visible_geometry);
 
   bool smooth() const;
   void set_smooth (bool enable = true);
@@ -120,8 +120,8 @@ private:
 
   void setup_uniforms (glProgram& program);
 
-  void begin_frame();
-  void end_frame();
+  void beginFrame();
+  void endFrame();
   void render_pass (bool depth_only = false);
 
   // vars
