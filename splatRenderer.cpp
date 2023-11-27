@@ -1,5 +1,5 @@
 //{{{  includes
-#include "splat_renderer.h"
+#include "splatRenderer.h"
 
 #include "glviz/glviz.h"
 #include "glviz/utility.h"

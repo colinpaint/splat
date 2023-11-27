@@ -3,7 +3,7 @@
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
 
-#include "splat_renderer.h"
+#include "splatRenderer.h"
 
 #include <Eigen/Core>
 
@@ -22,10 +22,11 @@ using namespace std;
 const char* path_resources = R"(../resources/)";
 
 namespace {
-  int gModel(1);
   GLviz::Camera gCamera;
-  vector<Surfel> gSurfels;
-  unique_ptr<SplatRenderer> gViz;
+  vector <Surfel> gSurfels;
+  unique_ptr <SplatRenderer> gViz;
+
+  int gModel = 1;
 
   //{{{
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
@@ -161,7 +162,7 @@ namespace {
   //}}}
 
   //{{{
-  void load_triangle_mesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
+  void loadTriangleMmesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
 
     cout << "\nRead " << filename << "." << endl;
     ifstream input (filename);
@@ -184,12 +185,12 @@ namespace {
     }
   //}}}
   //{{{
-  void load_dragon() {
+  void loadDragon() {
     vector <Eigen::Vector3f> vertices, normals;
     vector <array <unsigned int, 3>>  faces;
 
     try {
-      load_triangle_mesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
+      loadTriangleMmesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
       }
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
@@ -202,12 +203,15 @@ namespace {
     }
   //}}}
   //{{{
-  void load_plane (unsigned int n) {
+  void createPlane (unsigned int n) {
 
     const float d = 1.0f / static_cast<float>(2 * n);
-    Surfel s(Eigen::Vector3f::Zero(), 2.0f * d * Eigen::Vector3f::UnitX(), 2.0f * d * Eigen::Vector3f::UnitY(), Eigen::Vector3f::Zero(), 0);
+    Surfel s(Eigen::Vector3f::Zero(),
+             2.0f * d * Eigen::Vector3f::UnitX(),
+             2.0f * d * Eigen::Vector3f::UnitY(),
+             Eigen::Vector3f::Zero(), 0);
 
-    gSurfels.resize(4 * n * n);
+    gSurfels.resize (4 * n * n);
     unsigned int m(0);
 
     for (unsigned int i(0); i <= 2 * n; ++i) {
@@ -257,12 +261,12 @@ namespace {
     }
   //}}}
   //{{{
-  void load_cube() {
+  void createCube() {
 
     Surfel cube[24];
     unsigned int color = 0;
 
-    // Front.
+    //{{{  front
     cube[0].c  = Eigen::Vector3f(-0.5f, 0.0f, 0.5f);
     cube[0].u = 0.5f * Eigen::Vector3f::UnitX();
     cube[0].v = 0.5f * Eigen::Vector3f::UnitY();
@@ -280,8 +284,8 @@ namespace {
     cube[3]   = cube[0];
     cube[3].c = Eigen::Vector3f(0.0f, -0.5f, 0.5f);
     cube[3].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-    // Back.
+    //}}}
+    //{{{  back
     cube[4].c = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
     cube[4].u = 0.5f * Eigen::Vector3f::UnitX();
     cube[4].v = -0.5f * Eigen::Vector3f::UnitY();
@@ -299,8 +303,8 @@ namespace {
     cube[7] = cube[4];
     cube[7].c = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
     cube[7].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    // Top.
+    //}}}
+    //{{{  top
     cube[8].c = Eigen::Vector3f(-0.5f, 0.5f, 0.0f);
     cube[8].u = 0.5f * Eigen::Vector3f::UnitX();
     cube[8].v = -0.5f * Eigen::Vector3f::UnitZ();
@@ -318,8 +322,8 @@ namespace {
     cube[11] = cube[8];
     cube[11].c = Eigen::Vector3f(0.0f, 0.5f, -0.5f);
     cube[11].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    // Bottom.
+    //}}}
+    //{{{  bottom
     cube[12].c = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
     cube[12].u = 0.5f * Eigen::Vector3f::UnitX();
     cube[12].v = 0.5f * Eigen::Vector3f::UnitZ();
@@ -337,8 +341,8 @@ namespace {
     cube[15] = cube[12];
     cube[15].c = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
     cube[15].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-    // Left.
+    //}}}
+    //{{{  left
     cube[16].c = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
     cube[16].u = 0.5f * Eigen::Vector3f::UnitY();
     cube[16].v = -0.5f * Eigen::Vector3f::UnitZ();
@@ -356,8 +360,8 @@ namespace {
     cube[19] = cube[16];
     cube[19].c = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
     cube[19].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    // Right.
+    //}}}
+    //{{{  right
     cube[20].c = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
     cube[20].u = 0.5f * Eigen::Vector3f::UnitY();
     cube[20].v = 0.5f * Eigen::Vector3f::UnitZ();
@@ -375,6 +379,7 @@ namespace {
     cube[23] = cube[20];
     cube[23].c = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
     cube[23].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+    //}}}
 
     gSurfels = vector<Surfel>(cube, cube + 24);
     }
@@ -384,15 +389,15 @@ namespace {
 
     switch (gModel) {
       case 0:
-        load_dragon();
+        loadDragon();
         break;
 
       case 1:
-        load_plane (200);
+        createPlane (200);
         break;
 
       case 2:
-        load_cube();
+        createCube();
         break;
       }
     }
