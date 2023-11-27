@@ -12,6 +12,8 @@ using namespace std;
 
 //{{{
 struct Framebuffer::Impl {
+  virtual bool multisample() const = 0;
+
   virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
   virtual void renderbuffer_storage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) = 0;
 
@@ -20,154 +22,117 @@ struct Framebuffer::Impl {
 
   virtual void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
   virtual void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
-
-  virtual bool multisample() const = 0;
   };
 //}}}
 //{{{
 struct Framebuffer::Default : public Framebuffer::Impl {
+  bool multisample() const { return false; }
+
   //{{{
-  void framebuffer_texture_2d (GLenum target,
-      GLenum attachment, GLuint texture, GLint level)
-  {
-      glFramebufferTexture2D(target, attachment,
-          GL_TEXTURE_2D, texture, level);
-  }
+  void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D, texture, level);
+    }
   //}}}
   //{{{
-  void renderbuffer_storage (GLenum target,
-      GLenum internalformat, GLsizei width, GLsizei height)
-  {
-      glRenderbufferStorage(target, internalformat,
-          width, height);
-  }
+  void renderbuffer_storage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+    glRenderbufferStorage(target, internalformat, width, height);
+    }
   //}}}
 
   //{{{
-  void allocate_depth_texture (GLuint texture,
-      GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D, texture);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F,
-          width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-      glBindTexture(GL_TEXTURE_2D, 0);
-  }
+  void allocate_depth_texture (GLuint texture, GLsizei width, GLsizei height) {
+
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
   //}}}
   //{{{
-  void allocate_rgba_texture (GLuint texture,
-      GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D, texture);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-          width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-      glBindTexture(GL_TEXTURE_2D, 0);
-  }
+  void allocate_rgba_texture (GLuint texture, GLsizei width, GLsizei height) {
+
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
   //}}}
 
   //{{{
-  void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D, texture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-          width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-      glBindTexture(GL_TEXTURE_2D, 0);
-  }
-  //}}}
-  //{{{
-  void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D, texture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F,
-          width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-      glBindTexture(GL_TEXTURE_2D, 0);
-  }
-  //}}}
+  void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height) {
 
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
+  //}}}
   //{{{
-  bool multisample() const
-  {
-      return false;
-  }
+  void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height) {
+
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
   //}}}
   };
 //}}}
 //{{{
 struct Framebuffer::Multisample : public Framebuffer::Impl {
+  bool multisample() const { return true; }
+
   //{{{
-  void framebuffer_texture_2d(GLenum target,
-  GLenum attachment, GLuint texture, GLint level)
-  {
-      glFramebufferTexture2D(target, attachment,
-          GL_TEXTURE_2D_MULTISAMPLE, texture, level);
-  }
+  void framebuffer_texture_2d(GLenum target, GLenum attachment, GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D_MULTISAMPLE, texture, level);
+    }
   //}}}
   //{{{
-  void renderbuffer_storage(GLenum target,
-      GLenum internalformat, GLsizei width, GLsizei height)
-  {
-      glRenderbufferStorageMultisample(target, 4,
-          internalformat, width, height);
-  }
+  void renderbuffer_storage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+    glRenderbufferStorageMultisample(target, 4, internalformat, width, height);
+    }
   //}}}
 
   //{{{
-  void allocate_depth_texture(GLuint texture,
-      GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-      glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4,
-          GL_DEPTH_COMPONENT32F, width, height, GL_TRUE);
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-  }
+  void allocate_depth_texture(GLuint texture, GLsizei width, GLsizei height) {
+
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT32F, width, height, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
   //}}}
   //{{{
-  void allocate_rgba_texture(GLuint texture,
-      GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-      glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F,
-          width, height, GL_TRUE);
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-  }
+  void allocate_rgba_texture(GLuint texture, GLsizei width, GLsizei height) {
+
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F, width, height, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
   //}}}
 
   //{{{
-  void resize_rgba_texture(GLuint texture, GLsizei width, GLsizei height)
-  {
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-      GLint internal_format;
-      glGetTexLevelParameteriv(GL_TEXTURE_2D_MULTISAMPLE, 0,
-          GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
+  void resize_rgba_texture(GLuint texture, GLsizei width, GLsizei height) {
 
-      glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4,
-          internal_format, width, height, GL_TRUE);
-      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-  }
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, texture);
+
+    GLint internal_format;
+    glGetTexLevelParameteriv (GL_TEXTURE_2D_MULTISAMPLE, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
+    glTexImage2DMultisample (GL_TEXTURE_2D_MULTISAMPLE, 4, internal_format, width, height, GL_TRUE);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
   //}}}
   //{{{
-  void resize_depth_texture(GLuint texture, GLsizei width, GLsizei height)
-  {
-      resize_rgba_texture(texture, width, height);
-  }
-  //}}}
-
-  //{{{
-  bool multisample() const
-  {
-      return true;
-  }
+  void resize_depth_texture(GLuint texture, GLsizei width, GLsizei height) {
+    resize_rgba_texture (texture, width, height);
+    }
   //}}}
   };
 //}}}
 
 //{{{
 Framebuffer::Framebuffer()
-    : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl(new Default()) {
+    : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl (new Default()) {
 
   // Create framebuffer object.
   glGenFramebuffers (1, &m_fbo);
@@ -273,8 +238,7 @@ void Framebuffer::set_multisample (bool enable) {
 
     GLint type;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-       GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-
+                                           GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
     remove_and_delete_attachments();
 
     if (m_pimpl->multisample())
@@ -314,23 +278,24 @@ void Framebuffer::reshape (GLint width, GLint height) {
   GLenum attachment[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
   for (unsigned int i(0); i < 2; ++i) {
-    GLint type, name;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i], 
+    GLint type;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+
+    GLint name;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-
     if (type == GL_TEXTURE)
       m_pimpl->resize_rgba_texture (name, width, height);
     }
 
     {
-    GLint type, name;
+    GLint type;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
                                            GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+    GLint name;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
                                            GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-
     switch (type) {
       case GL_TEXTURE:
         m_pimpl->resize_depth_texture(name, width, height);
@@ -362,6 +327,7 @@ void Framebuffer::reshape (GLint width, GLint height) {
   }
 //}}}
 
+// private
 //{{{
 void Framebuffer::initialize() {
 
@@ -390,7 +356,6 @@ void Framebuffer::initialize() {
   #endif
   }
 //}}}
-
 //{{{
 void Framebuffer::remove_and_delete_attachments() {
 

@@ -10,9 +10,9 @@ project (embed VERSION 1.0.0)
 # simple dragon
 project (simple VERSION 1.0.0)
   add_executable (${PROJECT_NAME} simple.cpp)
-  target_link_libraries (${PROJECT_NAME} PRIVATE imgui glviz)
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
 
-# ewa dragon
+# splat dragon
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
                                   framebuffer.h framebuffer.cpp
@@ -22,4 +22,5 @@ project (splat VERSION 1.0.0)
                                   shaders/lighting_glsl.cpp
                                   shaders/attribute_fs_glsl.cpp shaders/attribute_vs_glsl.cpp
                                   shaders/finalization_fs_glsl.cpp shaders/finalization_vs_glsl.cpp)
-  target_link_libraries (${PROJECT_NAME} PRIVATE imgui glviz)
+
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
