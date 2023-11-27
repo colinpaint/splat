@@ -1,6 +1,6 @@
 //{{{  includes
-#include "camera.hpp"
-#include "trackball.hpp"
+#include "camera.h"
+#include "trackball.h"
 
 using namespace Eigen;
 //}}}

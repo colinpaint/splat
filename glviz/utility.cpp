@@ -1,5 +1,5 @@
 //{{{  includes
-#include "utility.hpp"
+#include "utility.h"
 
 #include <GL/glew.h>
 

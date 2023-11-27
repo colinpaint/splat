@@ -1,9 +1,9 @@
 // splat.cpp - splat main
 //{{{  includes
-#include "glviz/glviz.hpp"
-#include "glviz/utility.hpp"
+#include "glviz/glviz.h"
+#include "glviz/utility.h"
 
-#include "splat_renderer.hpp"
+#include "splat_renderer.h"
 
 #include <Eigen/Core>
 

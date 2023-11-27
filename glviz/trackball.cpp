@@ -1,5 +1,5 @@
 //{{{  includes
-#include "trackball.hpp"
+#include "trackball.h"
 
 #include <Eigen/Core>
 

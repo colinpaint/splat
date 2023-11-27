@@ -1,8 +1,8 @@
 //{{{  includes
-#include "glviz.hpp"
-#include "utility.hpp"
+#include "glviz.h"
+#include "utility.h"
 
-#include "camera.hpp"
+#include "camera.h"
 
 #include <imgui.h>
 #include <imgui_impl_sdl.h>

@@ -1,8 +1,8 @@
 //{{{  includes
-#include "splat_renderer.hpp"
+#include "splat_renderer.h"
 
-#include "glviz/glviz.hpp"
-#include "glviz/utility.hpp"
+#include "glviz/glviz.h"
+#include "glviz/utility.h"
 
 #include <iostream>
 #include <cmath>

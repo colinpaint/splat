@@ -1,5 +1,5 @@
 //{{{  includes
-#include "program_finalization.hpp"
+#include "program_finalization.h"
 
 #include <iostream>
 #include <cstdlib>

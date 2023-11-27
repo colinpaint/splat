@@ -1,5 +1,5 @@
 //{{{  includes
-#include "shader.hpp"
+#include "shader.h"
 
 #include <GL/glew.h>
 

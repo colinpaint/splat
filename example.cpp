@@ -1,9 +1,9 @@
 //{{{  includes
-#include "glviz/glviz.hpp"
-#include "glviz/buffer.hpp"
-#include "glviz/program.hpp"
-#include "glviz/shader.hpp"
-#include "glviz/utility.hpp"
+#include "glviz/glviz.h"
+#include "glviz/buffer.h"
+#include "glviz/program.h"
+#include "glviz/shader.h"
+#include "glviz/utility.h"
 
 #include <Eigen/Core>
 

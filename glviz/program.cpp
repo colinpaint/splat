@@ -1,7 +1,6 @@
 //{{{  includes
-#include "program.hpp"
-
-#include "camera.hpp"
+#include "program.h"
+#include "camera.h"
 
 #include <Eigen/Core>
 #include <iostream>

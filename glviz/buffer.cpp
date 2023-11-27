@@ -1,5 +1,5 @@
 //{{{  includes
-#include "buffer.hpp"
+#include "buffer.h"
 
 #include <cassert>
 //}}}

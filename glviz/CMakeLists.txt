@@ -1,12 +1,11 @@
 project (glviz LANGUAGES CXX)
-  add_library (${PROJECT_NAME} glviz.hpp glviz.cpp
-                               camera.hpp camera.cpp
-                               shader.hpp
-                               shader.cpp
-                               trackball.hpp trackball.cpp
-                               program.hpp program.cpp
-                               buffer.hpp buffer.cpp
-                               utility.cpp utility.hpp
+  add_library (${PROJECT_NAME} glviz.h glviz.cpp
+                               camera.h camera.cpp
+                               shader.h shader.cpp
+                               trackball.h trackball.cpp
+                               program.h program.cpp
+                               buffer.h buffer.cpp
+                               utility.h utility.cpp
                                shaders/mesh3_gs_glsl.cpp
                                shaders/mesh3_vs_glsl.cpp
                                shaders/mesh3_fs_glsl.cpp

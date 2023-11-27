@@ -1,8 +1,8 @@
 //{{{  includes
-#include "framebuffer.hpp"
+#include "framebuffer.h"
 
-#include "glviz/glviz.hpp"
-#include "glviz/utility.hpp"
+#include "glviz/glviz.h"
+#include "glviz/utility.h"
 
 #include <iostream>
 #include <cstdlib>

@@ -1,5 +1,5 @@
 //{{{  includes
-#include "program_attribute.hpp"
+#include "program_attribute.h"
 
 #include <iostream>
 #include <cstddef>

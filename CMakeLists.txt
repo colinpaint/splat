@@ -20,10 +20,10 @@ project (example VERSION 1.0.0)
 
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
-                                  framebuffer.hpp framebuffer.cpp
-                                  program_attribute.hpp program_attribute.cpp
-                                  program_finalization.hpp program_finalization.cpp
-                                  splat_renderer.hpp splat_renderer.cpp
+                                  framebuffer.h framebuffer.cpp
+                                  program_attribute.h program_attribute.cpp
+                                  program_finalization.h program_finalization.cpp
+                                  splat_renderer.h splat_renderer.cpp
                                   shaders/lighting_glsl.cpp
                                   shaders/attribute_fs_glsl.cpp
                                   shaders/attribute_vs_glsl.cpp
