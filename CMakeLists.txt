@@ -1,4 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
+#sudo apt install libglew-dev
+#sudo apt install eigen-dev
 #
 add_subdirectory (glviz)
 
@@ -17,12 +19,11 @@ project (example VERSION 1.0.0)
   target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
 
 project (splat VERSION 1.0.0)
-  add_executable (${PROJECT_NAME} config.hpp
-                                  main.cpp
-                                  framebuffer.cpp
-                                  program_attribute.cpp
-                                  program_finalization.cpp
-                                  splat_renderer.cpp
+  add_executable (${PROJECT_NAME} splat.cpp
+                                  framebuffer.hpp framebuffer.cpp
+                                  program_attribute.hpp program_attribute.cpp
+                                  program_finalization.hpp program_finalization.cpp
+                                  splat_renderer.hpp splat_renderer.cpp
                                   shaders/lighting_glsl.cpp
                                   shaders/attribute_fs_glsl.cpp
                                   shaders/attribute_vs_glsl.cpp
