@@ -430,12 +430,13 @@ namespace GLviz {
       }
     }
   //}}}
+
   //{{{
   void ProgramMesh3::initialize_shader_obj() {
 
-    m_mesh3_gs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshGsGlsl.c_str()));
-    m_mesh3_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshVsGlsl.c_str()));
-    m_mesh3_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshFsGlsl.c_str()));
+    m_mesh3_gs_obj.load_from_string (kMeshGsGlsl);
+    m_mesh3_vs_obj.load_from_string (kMeshVsGlsl);
+    m_mesh3_fs_obj.load_from_string (kMeshFsGlsl);
 
     attach_shader (m_mesh3_vs_obj);
     attach_shader (m_mesh3_gs_obj);

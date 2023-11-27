@@ -35,7 +35,6 @@ void glShader::load_from_file (string const& filename) {
   m_source = output.str();
   }
 //}}}
-void glShader::load_from_cstr (char const* source_cstr) { m_source = string(source_cstr); }
 
 //{{{
 void glShader::compile (map<string, int> const& define_list) {

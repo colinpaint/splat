@@ -28,24 +28,24 @@ struct uniform_not_found_error : public std::logic_error {
 //{{{
 class glShader {
 public:
-    virtual ~glShader();
+  virtual ~glShader();
 
-    void load_from_file (std::string const& filename);
-    void load_from_cstr (char const* source_cstr);
+  void load_from_cstr (char const* source_cstr) { m_source = std::string(source_cstr); }
+  void load_from_string (std::string source) { m_source = source; }
+  void load_from_file (std::string const& filename);
 
-    void compile(std::map<std::string, int> const& define_list = std::map<std::string, int>());
-    bool is_compiled() const;
+  void compile(std::map<std::string, int> const& define_list = std::map<std::string, int>());
+  bool is_compiled() const;
 
-    std::string infolog();
-
-protected:
-    glShader();
+  std::string infolog();
 
 protected:
-    GLuint m_shader_obj;
-    std::string m_source;
+  glShader();
 
-    friend class glProgram;
+  GLuint m_shader_obj;
+  std::string m_source;
+
+  friend class glProgram;
   };
 //}}}
 //{{{

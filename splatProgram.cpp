@@ -8,6 +8,28 @@ using namespace std;
 //}}}
 
 namespace {
+  // shaders
+  //{{{
+  const std::string kLightingGlsl =
+    "#version 330\n"
+
+    "vec3 lighting(vec3 normal_eye, vec3 v_eye, vec3 color, float shininess) {\n"
+      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);\n"
+      "float dif = max(dot(light_eye, normal_eye), 0.0);\n"
+      "vec3 refl_eye = reflect(light_eye, normal_eye);\n"
+      "vec3 view_eye = normalize(v_eye);\n"
+
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);\n"
+      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);\n"
+
+      "vec3 res = 0.15 * color;\n"
+      "res += 0.6 * dif * color;\n"
+      "res += 0.1 * spe * vec3(1.0);\n"
+      "res += 0.1 * rim * vec3(1.0);\n"
+      "return res;\n"
+      "}\n";
+  //}}}
+
   //{{{
   const std::string kAttributeVsGlsl =
     "#version 330\n"
@@ -468,6 +490,7 @@ namespace {
       "}\n";
     //}}}
   //}}}
+
   //{{{
   const std::string kFinalizationVsGlsl =
     "#version 330\n"
@@ -597,26 +620,6 @@ namespace {
       "}\n";
     //}}}
   //}}}
-  //{{{
-  const std::string kLightingGlsl =
-    "#version 330\n"
-
-    "vec3 lighting(vec3 normal_eye, vec3 v_eye, vec3 color, float shininess) {\n"
-      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);\n"
-      "float dif = max(dot(light_eye, normal_eye), 0.0);\n"
-      "vec3 refl_eye = reflect(light_eye, normal_eye);\n"
-      "vec3 view_eye = normalize(v_eye);\n"
-
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);\n"
-      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);\n"
-
-      "vec3 res = 0.15 * color;\n"
-      "res += 0.6 * dif * color;\n"
-      "res += 0.1 * spe * vec3(1.0);\n"
-      "res += 0.1 * rim * vec3(1.0);\n"
-      "return res;\n"
-      "}\n";
-  //}}}
   }
 
 //{{{
@@ -688,9 +691,9 @@ void ProgramAttribute::set_color_material(bool enable) {
 //{{{
 void ProgramAttribute::initialize_shader_obj() {
 
-  m_attribute_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kAttributeVsGlsl.c_str()));
-  m_lighting_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kLightingGlsl.c_str()));
-  m_attribute_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kAttributeFsGlsl.c_str()));
+  m_lighting_vs_obj.load_from_string (kLightingGlsl);
+  m_attribute_vs_obj.load_from_string (kAttributeVsGlsl);
+  m_attribute_fs_obj.load_from_string (kAttributeFsGlsl);
   }
 //}}}
 //{{{
@@ -773,9 +776,9 @@ void ProgramFinalization::set_smooth (bool enable) {
 //{{{
 void ProgramFinalization::initialize_shader_obj() {
 
-  m_finalization_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kFinalizationVsGlsl.c_str()));
-  m_finalization_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kFinalizationFsGlsl.c_str()));
-  m_lighting_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kLightingGlsl.c_str()));
+  m_lighting_fs_obj.load_from_string (kLightingGlsl);
+  m_finalization_vs_obj.load_from_string (kFinalizationVsGlsl);
+  m_finalization_fs_obj.load_from_string (kFinalizationFsGlsl);
 
   attach_shader (m_finalization_vs_obj);
   attach_shader (m_finalization_fs_obj);
