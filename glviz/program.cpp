@@ -201,6 +201,113 @@ namespace {
       "EmitVertex();"
       "}\n";
   //}}}
+  //{{{
+  const std::string kMeshVsGlsl =
+    "#version 330\n"
+    "#define SMOOTH 0\n"
+
+    "layout(std140, column_major) uniform Camera {"
+      "mat4 modelview_matrix;"
+      "mat4 modelview_matrix_it;"
+      "mat4 projection_matrix;"
+      "};\n"
+
+    "#define ATTR_POSITION 0\n"
+    "layout(location = ATTR_POSITION) in vec3 position;\n"
+
+    "#if SMOOTH\n"
+      "#define ATTR_NORMAL 1\n"
+      "layout(location = ATTR_NORMAL) in vec3 normal;\n"
+    "#endif\n"
+
+    "out block {\n"
+      "#if SMOOTH\n"
+        "vec3 normal;\n"
+      "#endif\n"
+      "vec3 position;\n"
+      "}\n"
+    "Out;\n"
+
+    "void main() {"
+      "vec4 position_eye = modelview_matrix * vec4(position, 1.0);\n"
+
+      "#if SMOOTH\n"
+        "Out.normal = mat3(modelview_matrix_it) * normal;\n"
+      "#endif\n"
+      "Out.position = vec3(position_eye);"
+      "gl_Position = projection_matrix * position_eye;"
+      "}\n";
+  //}}}
+  //{{{
+  const std::string kMeshFsGlsl =
+    "#version 330\n"
+    "#define SMOOTH     0\n"
+    "#define WIREFRAME  0\n"
+
+    "layout(std140) uniform Material {\n"
+      "vec3 color;\n"
+      "float shininess;\n"
+      "}\n"
+    "material;\n"
+
+    "layout (std140) uniform Wireframe {\n"
+      "vec3 color_wireframe;\n"
+      "ivec2 viewport;\n"
+      "};\n"
+
+    "in block {\n"
+      "#if SMOOTH\n"
+        "vec3 normal;\n"
+      "#else\n"
+        "flat vec3 normal;\n"
+      "#endif\n"
+
+      "vec3 position;\n"
+
+      "#if WIREFRAME\n"
+        "noperspective vec3 distance;\n"
+      "#endif\n"
+      "}\n"
+    "In;\n"
+
+    "#define FRAG_COLOR 0\n"
+    "layout(location = FRAG_COLOR, index = 0) out vec4 frag_color;\n"
+
+    "void main() {\n"
+      "#if SMOOTH\n"
+        "vec3 normal_eye = normalize(In.normal);\n"
+      "#else\n"
+        "vec3 normal_eye = In.normal;\n"
+      "#endif\n"
+
+      "if (!gl_FrontFacing) {\n"
+        "normal_eye = -normal_eye;\n"
+        "}\n"
+
+      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);\n"
+
+      "float dif = max(dot(light_eye, normal_eye), 0.0);\n"
+      "vec3 view_eye = normalize(In.position);\n"
+      "vec3 refl_eye = reflect(light_eye, normal_eye);\n"
+
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);\n"
+      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);\n"
+
+      "vec3 color = 0.15 * material.color;\n"
+      "color += 0.6 * dif * material.color;\n"
+      "color += 0.1 * spe * vec3(1.0);\n"
+      "color += 0.1 * rim * vec3(1.0);\n"
+
+      "#if WIREFRAME\n"
+        "float d = min(In.distance.x, min(In.distance.y, In.distance.z));\n"
+        "float i = exp2(-0.75 * d * d);\n"
+        "color = mix(color, color_wireframe, i);\n"
+      "#endif\n"
+
+      // Gamma correction. Assuming gamma of 2.0 rather than 2.2
+      "frag_color = vec4(sqrt(color), 1.0);\n"
+      "}\n";
+  //}}}
   }
 
 namespace GLviz {
@@ -326,9 +433,9 @@ namespace GLviz {
   //{{{
   void ProgramMesh3::initialize_shader_obj() {
 
-    m_mesh3_vs_obj.load_from_cstr (reinterpret_cast<char const*>(mesh3_vs_glsl));
     m_mesh3_gs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshGsGlsl.c_str()));
-    m_mesh3_fs_obj.load_from_cstr (reinterpret_cast<char const*>(mesh3_fs_glsl));
+    m_mesh3_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshVsGlsl.c_str()));
+    m_mesh3_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kMeshFsGlsl.c_str()));
 
     attach_shader (m_mesh3_vs_obj);
     attach_shader (m_mesh3_gs_obj);
