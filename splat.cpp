@@ -23,6 +23,7 @@ const char* path_resources = R"(../resources/)";
 
 namespace {
   GLviz::Camera gCamera;
+
   vector <Surfel> gSurfels;
   unique_ptr <SplatRenderer> gViz;
 

@@ -3,72 +3,64 @@
 
 namespace GLviz {
   //{{{
-  class glUniformBuffer
-  {
-
+  class glUniformBuffer {
   public:
-      glUniformBuffer();
-      glUniformBuffer(GLsizeiptr size);
+    glUniformBuffer();
+    glUniformBuffer(GLsizeiptr size);
 
-      ~glUniformBuffer();
+    ~glUniformBuffer();
 
-      void bind_buffer_base(GLuint index);
+    void bind_buffer_base(GLuint index);
 
   protected:
-      void bind();
-      void unbind();
+    void bind();
+    void unbind();
 
   private:
-      GLuint m_uniform_buffer_obj;
-  };
+    GLuint m_uniform_buffer_obj;
+    };
   //}}}
   //{{{
-  class glVertexArray
-  {
-
+  class glVertexArray {
   public:
-      glVertexArray();
-      ~glVertexArray();
+    glVertexArray();
+    ~glVertexArray();
 
-      void bind();
-      void unbind();
+    void bind();
+    void unbind();
 
   private:
-      GLuint m_vertex_array_obj;
-  };
+    GLuint m_vertex_array_obj;
+    };
   //}}}
   //{{{
-  class glArrayBuffer
-  {
-
+  class glArrayBuffer {
   public:
-      glArrayBuffer();
-      ~glArrayBuffer();
+    glArrayBuffer();
+    ~glArrayBuffer();
 
-      void bind();
-      void unbind();
+    void bind();
+    void unbind();
 
-      void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
+    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
 
   private:
-      GLuint m_array_buffer_obj;
-  };
+    GLuint m_array_buffer_obj;
+    };
   //}}}
   //{{{
-  class glElementArrayBuffer
-  {
-
+  class glElementArrayBuffer {
   public:
-      glElementArrayBuffer();
-      ~glElementArrayBuffer();
+    glElementArrayBuffer();
+    ~glElementArrayBuffer();
 
-      void bind();
-      void unbind();
+    void bind();
+    void unbind();
 
-      void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
+    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
 
   private:
-      GLuint m_element_array_buffer_obj;
-  };
+    GLuint m_element_array_buffer_obj;
+    };
   //}}}
   }
