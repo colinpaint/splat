@@ -6,6 +6,8 @@ project (imgui VERSION 1.0.0)
   target_include_directories (${PROJECT_NAME} PUBLIC .)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+    target_include_directories (${PROJECT_NAME} PUBLIC ../SDL2/include ../glew/include)
+    target_compile_definitions (${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLEW=1)
   else()
     find_package (SDL2 REQUIRED CONFIG)
     target_include_directories (${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})

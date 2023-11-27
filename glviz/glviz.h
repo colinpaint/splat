@@ -2,7 +2,7 @@
 #include "camera.h"
 
 #include <imgui.h>
-#include <SDL2/SDL_keycode.h>
+#include "SDL_keycode.h"
 
 namespace GLviz {
   int      screen_width();

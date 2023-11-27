@@ -9,7 +9,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <GL/glew.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <iostream>
 #include <cstdlib>

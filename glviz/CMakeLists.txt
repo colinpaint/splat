@@ -10,10 +10,11 @@ project (glviz VERSION 1.0.0)
                                shaders/sphere_fs_glsl.cpp shaders/sphere_vs_glsl.cpp
                                )
   # for Eigen includes
-  target_include_directories (${PROJECT_NAME} PUBLIC ../)
+  target_include_directories (${PROJECT_NAME} PUBLIC ../ ../glew/include ../imgui)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-    target_link_libraries (${PROJECT_NAME} PRIVATE opengl32)
+    target_include_directories (${PROJECT_NAME} PUBLIC ../SDL2/include)
+    target_link_libraries (${PROJECT_NAME} PUBLIC imgui ../SDL2/SDL2-static ../glew/glew32s opengl32 winmm)
   else()
     find_package (OpenGL REQUIRED)
     find_package (SDL2 REQUIRED CONFIG)
