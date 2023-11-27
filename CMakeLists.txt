@@ -4,8 +4,8 @@ add_subdirectory (imgui)
 add_subdirectory (glviz)
 
 # embed file as bin
-project (embed VERSION 1.0.0)
-  add_executable (${PROJECT_NAME} embed.cpp)
+#project (embed VERSION 1.0.0)
+#  add_executable (${PROJECT_NAME} tools/embed.cpp)
 
 # simple dragon
 project (simple VERSION 1.0.0)

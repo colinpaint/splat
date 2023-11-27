@@ -33,7 +33,7 @@ public:
   void load_from_string (const std::string& source) { m_source = source; }
   void load_from_file (std::string const& filename);
 
-  void compile(std::map<std::string, int> const& define_list = std::map<std::string, int>());
+  void compile (std::map<std::string, int> const& define_list = std::map<std::string, int>());
   bool is_compiled() const;
 
   std::string infolog();
@@ -50,19 +50,19 @@ protected:
 //{{{
 class glVertexShader : public glShader {
 public:
-    glVertexShader();
-  };
-//}}}
-//{{{
-class glFragmentShader : public glShader {
-public:
-    glFragmentShader();
+  glVertexShader();
   };
 //}}}
 //{{{
 class glGeometryShader : public glShader {
 public:
-    glGeometryShader();
+  glGeometryShader();
+  };
+//}}}
+//{{{
+class glFragmentShader : public glShader {
+public:
+  glFragmentShader();
   };
 //}}}
 

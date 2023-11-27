@@ -105,111 +105,14 @@ namespace {
       "}\n";
   //}}}
   //{{{
-  const std::string kMeshGsGlsl =
-    "#version 330\n"
-    "#define SMOOTH 0\n"
-    "#define WIREFRAME 0\n"
-
-    "layout(std140, column_major) uniform Camera {"
-      "mat4 modelview_matrix;"
-      "mat4 modelview_matrix_it;"
-      "mat4 projection_matrix;"
-      "};\n"
-
-    "#if WIREFRAME\n"
-      "layout(std140) uniform Wireframe {"
-        "vec3 color_wireframe;"
-        "ivec2 viewport;"
-        "};\n"
-    "#endif\n"
-
-    "layout(triangles) in;\n"
-    "layout(triangle_strip, max_vertices = 3) out;\n"
-
-    "in block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#endif\n"
-      "vec3 position;"
-      "}"
-    "In[];\n"
-
-    "out block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#else\n"
-        "flat vec3 normal;\n"
-      "#endif\n"
-
-      "vec3 position;\n"
-
-      "#if WIREFRAME\n"
-        "noperspective vec3 distance;\n"
-      "#endif\n"
-      "}"
-    "Out;\n"
-
-    "void main() {\n"
-      "#if WIREFRAME\n"
-        "vec2 w0 = (1.0 / gl_in[0].gl_Position.w) * gl_in[0].gl_Position.xy * viewport.xy;"
-        "vec2 w1 = (1.0 / gl_in[1].gl_Position.w) * gl_in[1].gl_Position.xy * viewport.xy;"
-        "vec2 w2 = (1.0 / gl_in[2].gl_Position.w) * gl_in[2].gl_Position.xy * viewport.xy;"
-        "mat3 matA = mat3(vec3(1.0, w0), vec3(1.0, w1), vec3(1.0, w2));"
-        "float area = abs(determinant(matA));\n"
-      "#endif\n"
-
-      "#if !SMOOTH\n"
-        "vec3 normal = normalize(cross(In[1].position - In[0].position, In[2].position - In[0].position));\n"
-      "#endif\n"
-
-      "gl_Position = gl_in[0].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[0].normal;\n"
-      "#else"
-        "Out.normal = normal;\n"
-      "#endif\n"
-      "Out.position = In[0].position;\n"
-
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(area / length(w2 - w1), 0.0, 0.0);\n"
-      "#endif\n"
-      "EmitVertex();"
-
-      "gl_Position = gl_in[1].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[1].normal;\n"
-      "#else\n"
-        "Out.normal = normal;\n"
-      "#endif\n"
-
-      "Out.position = In[1].position;\n"
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(0.0, area / length(w2 - w0), 0.0);\n"
-      "#endif\n"
-      "EmitVertex();"
-
-      "gl_Position = gl_in[2].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[2].normal;\n"
-      "#else\n"
-        "Out.normal = normal;\n"
-      "#endif\n"
-      "Out.position = In[2].position;\n"
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(0.0, 0.0, area / length(w1 - w0));\n"
-      "#endif\n"
-      "EmitVertex();"
-      "}\n";
-  //}}}
-  //{{{
   const std::string kMeshVsGlsl =
     "#version 330\n"
     "#define SMOOTH 0\n"
 
-    "layout(std140, column_major) uniform Camera {"
-      "mat4 modelview_matrix;"
-      "mat4 modelview_matrix_it;"
-      "mat4 projection_matrix;"
+    "layout(std140, column_major) uniform Camera {\n"
+      "mat4 modelview_matrix;\n"
+      "mat4 modelview_matrix_it;\n"
+      "mat4 projection_matrix;\n"
       "};\n"
 
     "#define ATTR_POSITION 0\n"
@@ -228,19 +131,118 @@ namespace {
       "}\n"
     "Out;\n"
 
-    "void main() {"
+    "void main() {\n"
       "vec4 position_eye = modelview_matrix * vec4(position, 1.0);\n"
 
       "#if SMOOTH\n"
         "Out.normal = mat3(modelview_matrix_it) * normal;\n"
       "#endif\n"
-      "Out.position = vec3(position_eye);"
-      "gl_Position = projection_matrix * position_eye;"
+      "Out.position = vec3(position_eye);\n"
+      "gl_Position = projection_matrix * position_eye;\n"
+      "}\n";
+  //}}}
+  //{{{
+  const std::string kMeshGsGlsl =
+    "#version 330\n"
+
+    "#define SMOOTH 0\n"
+    "#define WIREFRAME 0\n"
+
+    "layout(std140, column_major) uniform Camera {\n"
+      "mat4 modelview_matrix;\n"
+      "mat4 modelview_matrix_it;\n"
+      "mat4 projection_matrix;\n"
+      "};\n"
+
+    "#if WIREFRAME\n"
+      "layout(std140) uniform Wireframe {\n"
+        "vec3 color_wireframe;\n"
+        "ivec2 viewport;\n"
+        "};\n"
+    "#endif\n"
+
+    "layout(triangles) in;\n"
+    "layout(triangle_strip, max_vertices = 3) out;\n"
+
+    "in block {\n"
+      "#if SMOOTH\n"
+        "vec3 normal;\n"
+      "#endif\n"
+      "vec3 position;\n"
+      "}\n"
+    "In[];\n"
+
+    "out block {\n"
+      "#if SMOOTH\n"
+        "vec3 normal;\n"
+      "#else\n"
+        "flat vec3 normal;\n"
+      "#endif\n"
+
+      "vec3 position;\n"
+
+      "#if WIREFRAME\n"
+        "noperspective vec3 distance;\n"
+      "#endif\n"
+      "}\n"
+    "Out;\n"
+
+    "void main() {\n"
+      "#if WIREFRAME\n"
+        "vec2 w0 = (1.0 / gl_in[0].gl_Position.w) * gl_in[0].gl_Position.xy * viewport.xy;\n"
+        "vec2 w1 = (1.0 / gl_in[1].gl_Position.w) * gl_in[1].gl_Position.xy * viewport.xy;\n"
+        "vec2 w2 = (1.0 / gl_in[2].gl_Position.w) * gl_in[2].gl_Position.xy * viewport.xy;\n"
+        "mat3 matA = mat3(vec3(1.0, w0), vec3(1.0, w1), vec3(1.0, w2));\n"
+        "float area = abs(determinant(matA));\n"
+      "#endif\n"
+
+      "#if !SMOOTH\n"
+        "vec3 normal = normalize(cross(In[1].position - In[0].position, In[2].position - In[0].position));\n"
+      "#endif\n"
+
+      "gl_Position = gl_in[0].gl_Position;\n"
+      "#if SMOOTH\n"
+        "Out.normal = In[0].normal;\n"
+      "#else\n"
+        "Out.normal = normal;\n"
+      "#endif\n"
+      "Out.position = In[0].position;\n"
+
+      "#if WIREFRAME\n"
+        "Out.distance = vec3(area / length(w2 - w1), 0.0, 0.0);\n"
+      "#endif\n"
+      "EmitVertex();\n"
+
+      "gl_Position = gl_in[1].gl_Position;\n"
+      "#if SMOOTH\n"
+        "Out.normal = In[1].normal;\n"
+      "#else\n"
+        "Out.normal = normal;\n"
+      "#endif\n"
+
+      "Out.position = In[1].position;\n"
+      "#if WIREFRAME\n"
+        "Out.distance = vec3(0.0, area / length(w2 - w0), 0.0);\n"
+      "#endif\n"
+      "EmitVertex();\n"
+
+      "gl_Position = gl_in[2].gl_Position;\n"
+      "#if SMOOTH\n"
+        "Out.normal = In[2].normal;\n"
+      "#else\n"
+        "Out.normal = normal;\n"
+      "#endif\n"
+      "Out.position = In[2].position;\n"
+      "#if WIREFRAME\n"
+        "Out.distance = vec3(0.0, 0.0, area / length(w1 - w0));\n"
+      "#endif\n"
+      "EmitVertex();\n"
       "}\n";
   //}}}
   //{{{
   const std::string kMeshFsGlsl =
     "#version 330\n"
+
     "#define SMOOTH     0\n"
     "#define WIREFRAME  0\n"
 
@@ -311,6 +313,7 @@ namespace {
   }
 
 namespace GLviz {
+  // ProgramSphere
   //{{{
   ProgramSphere::ProgramSphere()
   {
@@ -359,6 +362,7 @@ namespace GLviz {
     }
   //}}}
 
+  // UniformBufferWireframe
   //{{{
   void UniformBufferWireframe::set_buffer_data (float const* color, int const* viewport) {
 
@@ -369,6 +373,7 @@ namespace GLviz {
     }
   //}}}
 
+  // UniformBufferCamera
   UniformBufferCamera::UniformBufferCamera() : glUniformBuffer(48 * sizeof(GLfloat)) { }
   //{{{
   void UniformBufferCamera::set_buffer_data (Camera const& camera) {
@@ -385,6 +390,7 @@ namespace GLviz {
     }
   //}}}
 
+  // UniformBufferMate\nrial
   //{{{
   void UniformBufferMaterial::set_buffer_data (float const* mbuf) {
 
@@ -393,7 +399,11 @@ namespace GLviz {
     unbind();
     }
   //}}}
+
+  // UniformBufferWrireframe
   UniformBufferWireframe::UniformBufferWireframe() : glUniformBuffer(4 * sizeof(GLfloat) + 2 * sizeof(GLint)) { }
+
+  // UniformBufferSphere
   UniformBufferSphere::UniformBufferSphere() : glUniformBuffer(2 * sizeof(GLfloat)) { }
   //{{{
   void UniformBufferSphere::set_buffer_data (float radius, float projection) {
@@ -405,6 +415,7 @@ namespace GLviz {
     }
   //}}}
 
+  // ProgramMesh3
   //{{{
   ProgramMesh3::ProgramMesh3() : glProgram(), m_wireframe(false), m_smooth(false) {
 
@@ -434,8 +445,8 @@ namespace GLviz {
   //{{{
   void ProgramMesh3::initialize_shader_obj() {
 
-    m_mesh3_gs_obj.load_from_string (kMeshGsGlsl);
     m_mesh3_vs_obj.load_from_string (kMeshVsGlsl);
+    m_mesh3_gs_obj.load_from_string (kMeshGsGlsl);
     m_mesh3_fs_obj.load_from_string (kMeshFsGlsl);
 
     attach_shader (m_mesh3_vs_obj);
@@ -447,14 +458,13 @@ namespace GLviz {
   void ProgramMesh3::initialize_program_obj() {
 
     try {
-      map<string, int> defines;
+      map <string, int> defines;
+      defines.insert (make_pair("WIREFRAME", m_wireframe ? 1 : 0));
+      defines.insert (make_pair("SMOOTH", m_smooth ? 1 : 0));
 
-      defines.insert(make_pair("WIREFRAME", m_wireframe ? 1 : 0));
-      defines.insert(make_pair("SMOOTH", m_smooth ? 1 : 0));
-
-      m_mesh3_vs_obj.compile(defines);
-      m_mesh3_gs_obj.compile(defines);
-      m_mesh3_fs_obj.compile(defines);
+      m_mesh3_vs_obj.compile (defines);
+      m_mesh3_gs_obj.compile (defines);
+      m_mesh3_fs_obj.compile (defines);
       }
     catch (shader_compilation_error const& e) {
       cerr << "Error: A shader failed to compile." << endl << e.what() << endl;

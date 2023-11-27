@@ -54,12 +54,11 @@ void glShader::compile (map<string, int> const& define_list) {
 
   // Compile configured source.
   const char* source_cstr = source.c_str();
-
-  glShaderSource(m_shader_obj, 1, &source_cstr, NULL);
-  glCompileShader(m_shader_obj);
+  glShaderSource (m_shader_obj, 1, &source_cstr, NULL);
+  glCompileShader (m_shader_obj);
 
   if (!is_compiled())
-    throw shader_compilation_error(infolog());
+    throw shader_compilation_error (infolog());
   }
 //}}}
 //{{{

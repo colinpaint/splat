@@ -29,7 +29,6 @@ namespace {
       "return res;\n"
       "}\n";
   //}}}
-
   //{{{
   const std::string kAttributeVsGlsl =
     "#version 330\n"
@@ -490,7 +489,6 @@ namespace {
       "}\n";
     //}}}
   //}}}
-
   //{{{
   const std::string kFinalizationVsGlsl =
     "#version 330\n"
@@ -622,6 +620,7 @@ namespace {
   //}}}
   }
 
+// ProgramAttribute
 //{{{
 ProgramAttribute::ProgramAttribute()
     : m_ewa_filter(false), m_backface_culling(false),
@@ -643,7 +642,7 @@ void ProgramAttribute::set_ewa_filter (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_pointsize_method(unsigned int pointsize_method) {
+void ProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
 
   if (m_pointsize_method != pointsize_method) {
     m_pointsize_method = pointsize_method;
@@ -652,7 +651,7 @@ void ProgramAttribute::set_pointsize_method(unsigned int pointsize_method) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_backface_culling(bool enable) {
+void ProgramAttribute::set_backface_culling (bool enable) {
 
   if (m_backface_culling != enable) {
     m_backface_culling = enable;
@@ -661,7 +660,7 @@ void ProgramAttribute::set_backface_culling(bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_visibility_pass(bool enable) {
+void ProgramAttribute::set_visibility_pass (bool enable) {
 
   if (m_visibility_pass != enable) {
     m_visibility_pass = enable;
@@ -670,7 +669,7 @@ void ProgramAttribute::set_visibility_pass(bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_smooth(bool enable) {
+void ProgramAttribute::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
@@ -679,7 +678,7 @@ void ProgramAttribute::set_smooth(bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_color_material(bool enable) {
+void ProgramAttribute::set_color_material (bool enable) {
 
   if (m_color_material != enable) {
     m_color_material = enable;
@@ -754,6 +753,15 @@ ProgramFinalization::ProgramFinalization()
 //}}}
 
 //{{{
+void ProgramFinalization::set_smooth (bool enable) {
+
+  if (m_smooth != enable) {
+    m_smooth = enable;
+    initialize_program_obj();
+    }
+  }
+//}}}
+//{{{
 void ProgramFinalization::set_multisampling (bool enable) {
 
   if (m_multisampling != enable) {
@@ -762,15 +770,6 @@ void ProgramFinalization::set_multisampling (bool enable) {
     }
   }
 
-//}}}
-//{{{
-void ProgramFinalization::set_smooth (bool enable) {
-
-  if (m_smooth != enable) {
-    m_smooth = enable;
-    initialize_program_obj();
-    }
-  }
 //}}}
 
 //{{{
