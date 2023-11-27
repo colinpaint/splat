@@ -8,27 +8,27 @@
 #define POINTSIZE_METHOD   0
 
 layout(std140, column_major) uniform Camera {
-    mat4 modelview_matrix;
-    mat4 modelview_matrix_it;
-    mat4 projection_matrix;
-};
+  mat4 modelview_matrix;
+  mat4 modelview_matrix_it;
+  mat4 projection_matrix;
+  };
 
 layout(std140, column_major) uniform Raycast {
-    mat4 projection_matrix_inv;
-    vec4 viewport;
-};
+  mat4 projection_matrix_inv;
+  vec4 viewport;
+  };
 
 layout(std140) uniform Frustum {
-    vec4 frustum_plane[6];
-};
+  vec4 frustum_plane[6];
+ };
 
 layout(std140) uniform Parameter {
-    vec3 material_color;
-    float material_shininess;
-    float radius_scale;
-    float ewa_radius;
-    float epsilon;
-};
+  vec3 material_color;
+  float material_shininess;
+  float radius_scale;
+  float ewa_radius;
+  float epsilon;
+  };
 
 #define ATTR_CENTER 0
 layout(location = ATTR_CENTER) in vec3 c;
@@ -46,119 +46,114 @@ layout(location = ATTR_PLANE) in vec3 p;
 layout(location = ATTR_COLOR) in vec4 rgba;
 
 out block {
-    flat out vec3 c_eye;
-    flat out vec3 u_eye;
-    flat out vec3 v_eye;
-    flat out vec3 p;
-    flat out vec3 n_eye;
+  flat out vec3 c_eye;
+  flat out vec3 u_eye;
+  flat out vec3 v_eye;
+  flat out vec3 p;
+  flat out vec3 n_eye;
 
-    #if !VISIBILITY_PASS
-        #if EWA_FILTER
-            flat out vec2 c_scr;
-        #endif
-        flat out vec3 color;
-    #endif
-}
+  #if !VISIBILITY_PASS
+      #if EWA_FILTER
+          flat out vec2 c_scr;
+      #endif
+      flat out vec3 color;
+  #endif
+  }
 Out;
 
 #if !VISIBILITY_PASS
-    vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);
+  vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);
 #endif
 
-void
-intersect(in vec4 v1, in vec4 v2, in int p, out int n_pts, out vec4[2] pts) {
-    int i = p / 2;
-    float j = float(-1 + 2 * (p % 2));
+void intersect(in vec4 v1, in vec4 v2, in int p, out int n_pts, out vec4[2] pts) {
+  int i = p / 2;
+  float j = float(-1 + 2 * (p % 2));
 
-    float b1 = v1.w + float(j) * v1[i];
-    float b2 = v2.w + float(j) * v2[i];
+  float b1 = v1.w + float(j) * v1[i];
+  float b2 = v2.w + float(j) * v2[i];
 
-    bool tb1 = b1 > 0.0;
-    bool tb2 = b2 > 0.0;
+  bool tb1 = b1 > 0.0;
+  bool tb2 = b2 > 0.0;
 
-    n_pts = 0;
+  n_pts = 0;
 
-    if (tb1 && tb2) {
-        pts[0] = v2;
-        n_pts = 1;
+  if (tb1 && tb2) {
+    pts[0] = v2;
+    n_pts = 1;
     }
-    else
-    if (tb1 && !tb2) {
-        float a = b1 / (b1 - b2);
-        pts[0] = (1.0 - a) * v1 + a * v2;
-        n_pts = 1;
+  else if (tb1 && !tb2) {
+    float a = b1 / (b1 - b2);
+    pts[0] = (1.0 - a) * v1 + a * v2;
+    n_pts = 1;
     }
-    else
-    if (!tb1 && tb2) {
-        float a = b1 / (b1 - b2);
-        pts[0] = (1.0 - a) * v1 + a * v2;
-        pts[1] = v2;
-        n_pts = 2;
+  else if (!tb1 && tb2) {
+    float a = b1 / (b1 - b2);
+    pts[0] = (1.0 - a) * v1 + a * v2;
+    pts[1] = v2;
+    n_pts = 2;
     }
-}
+  }
 
 void clip_polygon(in vec4 p0[4], out int n_pts, out vec4 p1[8]) {
-    vec4 p[8];
-    int n = 4;
+  vec4 p[8];
+  int n = 4;
 
-    p[0] = p0[0];
-    p[1] = p0[1];
-    p[2] = p0[2];
-    p[3] = p0[3];
+  p[0] = p0[0];
+  p[1] = p0[1];
+  p[2] = p0[2];
+  p[3] = p0[3];
 
-    for (int i = 0; i < 6; ++i) {
-        int k = 0;
+  for (int i = 0; i < 6; ++i) {
+      int k = 0;
 
-        for (int j = 0; j < n; ++j) {
-            int n_pts;
-            vec4 pts[2];
+      for (int j = 0; j < n; ++j) {
+          int n_pts;
+          vec4 pts[2];
 
-            intersect(p[j], p[(j + 1) % n], i, n_pts, pts);
+          intersect(p[j], p[(j + 1) % n], i, n_pts, pts);
 
-            if (n_pts == 1) {
-                p1[k++] = pts[0];
-            }
-            else
-            if (n_pts == 2) {
-                p1[k++] = pts[0];
-                p1[k++] = pts[1];
-            }
-        }
+          if (n_pts == 1) {
+              p1[k++] = pts[0];
+          }
+          else
+          if (n_pts == 2) {
+              p1[k++] = pts[0];
+              p1[k++] = pts[1];
+          }
+      }
 
-        for (int j = 0; j < k; ++j) {
-            p[j] = p1[j];
-        }
+      for (int j = 0; j < k; ++j) {
+          p[j] = p1[j];
+      }
 
-        n = k;
+      n = k;
     }
 
-    n_pts = n;
-}
+  n_pts = n;
+  }
 
 void conic_Q(in vec3 u, in vec3 v, in vec3 c, out mat3 Q1) {
-    mat3 Q0 = mat3(vec3(1.0, 0.0, 0.0),
-        vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, -1.0));
+             mat3 Q0 = mat3(vec3(1.0, 0.0, 0.0),
+             vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, -1.0));
 
-    mat3 Sinv = transpose(mat3(cross(v, c),
-        cross(u, c), cross(u, v)));
-    Sinv[0][1] = -Sinv[0][1];
-    Sinv[1][1] = -Sinv[1][1];
-    Sinv[2][1] = -Sinv[2][1];
+  mat3 Sinv = transpose(mat3(cross(v, c),
+      cross(u, c), cross(u, v)));
+  Sinv[0][1] = -Sinv[0][1];
+  Sinv[1][1] = -Sinv[1][1];
+  Sinv[2][1] = -Sinv[2][1];
 
-    mat3 Pinv = mat3(
-        vec3(projection_matrix_inv[0]),
-        vec3(projection_matrix_inv[1]),
-        vec3(projection_matrix_inv[2]));
-    Pinv[2][2] = -1.0;
+  mat3 Pinv = mat3(
+      vec3(projection_matrix_inv[0]),
+      vec3(projection_matrix_inv[1]),
+      vec3(projection_matrix_inv[2]));
+  Pinv[2][2] = -1.0;
 
-    mat3 Minv = Sinv * Pinv;
-    Q1 = transpose(Minv) * Q0 * Minv;
-}
+  mat3 Minv = Sinv * Pinv;
+  Q1 = transpose(Minv) * Q0 * Minv;
+  }
 
-void
-pointsprite(in vec3 c, in vec3 u, in vec3 v, out vec4 p_scr, out vec2 w) {
+void pointsprite(in vec3 c, in vec3 u, in vec3 v, out vec4 p_scr, out vec2 w) {
 #if POINTSIZE_METHOD == 0
-
     // This method obtains the position and bounds of a splat by
     // clipping and perspectively projecting a bounding polygon.
     mat4 M = projection_matrix * mat4(

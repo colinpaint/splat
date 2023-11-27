@@ -57,9 +57,9 @@ namespace GLviz {
       }
 
     try {
-      set_uniform_block_binding("Camera", 0);
-      set_uniform_block_binding("Material", 1);
-      set_uniform_block_binding("Sphere", 3);
+      set_uniform_block_binding ("Camera", 0);
+      set_uniform_block_binding ("Material", 1);
+      set_uniform_block_binding ("Sphere", 3);
       }
     catch (uniform_not_found_error const& e) {
       cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
