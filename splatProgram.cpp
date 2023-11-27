@@ -12,28 +12,32 @@ namespace {
   const std::string kAttributeVsGlsl =
     "#version 330\n"
 
-    "#define VISIBILITY_PASS    0\n"
-    "#define BACKFACE_CULLING   0\n"
-    "#define SMOOTH             0\n"
-    "#define COLOR_MATERIAL     0\n"
-    "#define EWA_FILTER         0\n"
-    "#define POINTSIZE_METHOD   0\n"
+    "#define VISIBILITY_PASS  0\n"
+    "#define BACKFACE_CULLING 0\n"
+    "#define SMOOTH           0\n"
+    "#define COLOR_MATERIAL   0\n"
+    "#define EWA_FILTER       0\n"
+    "#define POINTSIZE_METHOD 0\n"
 
+    //{{{
     "layout(std140, column_major) uniform Camera {\n"
       "mat4 modelview_matrix;\n"
       "mat4 modelview_matrix_it;\n"
       "mat4 projection_matrix;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140, column_major) uniform Raycast {\n"
       "mat4 projection_matrix_inv;\n"
       "vec4 viewport;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140) uniform Frustum {\n"
       "vec4 frustum_plane[6];\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140) uniform Parameter {\n"
       "vec3 material_color;\n"
       "float material_shininess;\n"
@@ -41,6 +45,7 @@ namespace {
       "float ewa_radius;\n"
       "float epsilon;\n"
       "};\n"
+    //}}}
 
     "#define ATTR_CENTER 0\n"
     "layout(location = ATTR_CENTER) in vec3 c;\n"
@@ -57,6 +62,7 @@ namespace {
     "#define ATTR_COLOR 4\n"
     "layout(location = ATTR_COLOR) in vec4 rgba;\n"
 
+    //{{{
     "out block {\n"
       "flat out vec3 c_eye;\n"
       "flat out vec3 u_eye;\n"
@@ -72,11 +78,12 @@ namespace {
       "#endif\n"
       "}\n"
     "Out;\n"
-
+    //}}}
     "#if !VISIBILITY_PASS\n"
       "vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);\n"
     "#endif\n"
 
+    //{{{
     "void intersect(in vec4 v1, in vec4 v2, in int p, out int n_pts, out vec4[2] pts) {\n"
       "int i = p / 2;\n"
       "float j = float(-1 + 2 * (p % 2));\n"
@@ -105,7 +112,8 @@ namespace {
         "n_pts = 2;\n"
         "}\n"
       "}\n"
-
+    //}}}
+    //{{{
     "void clip_polygon(in vec4 p0[4], out int n_pts, out vec4 p1[8]) {\n"
       "vec4 p[8];\n"
       "int n = 4;\n"
@@ -141,7 +149,8 @@ namespace {
 
       "n_pts = n;\n"
       "}\n"
-
+    //}}}
+    //{{{
     "void conic_Q(in vec3 u, in vec3 v, in vec3 c, out mat3 Q1) {\n"
     "             mat3 Q0 = mat3(vec3(1.0, 0.0, 0.0),\n"
     "             vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, -1.0));\n"
@@ -160,7 +169,10 @@ namespace {
       "Q1 = transpose(Minv) * Q0 * Minv;\n"
       "}\n"
 
+    //}}}
+    //{{{
     "void pointsprite(in vec3 c, in vec3 u, in vec3 v, out vec4 p_scr, out vec2 w) {\n"
+      //{{{
       "#if POINTSIZE_METHOD == 0\n"
         // This method obtains the position and bounds of a splat by
         // clipping and perspectively projecting a bounding polygon.
@@ -199,12 +211,15 @@ namespace {
           "p_scr.z = 0.0;\n"
           "p_scr.w = 1.0;\n"
           "}\n"
-
+      //}}}
+      //{{{
       "#elif POINTSIZE_METHOD == 1\n"
         "p_scr = projection_matrix * vec4(c, 1.0);\n"
         "float p11 = projection_matrix[1][1];\n"
         "float r = max(length(u), length(v));\n"
         "w = vec2(0.0, r * p11 / abs(c.z));\n"
+      //}}}
+      //{{{
       "#elif POINTSIZE_METHOD == 2\n"
         // WHA+07.
         "float r = max(length(u), length(v));\n"
@@ -239,7 +254,8 @@ namespace {
             "p_scr = vec4(1.0, 0.0, 0.0, 0.0);\n"
             "w = vec2(0.0);\n"
         "}\n"
-
+      //}}}
+      //{{{
       "#elif POINTSIZE_METHOD == 3\n"
         // ZRB+04.
         "mat3 Q;\n"
@@ -273,8 +289,11 @@ namespace {
             "w = vec2(0.0);\n"
         "}\n"
       "#endif\n"
+      //}}}
       "}\n"
+    //}}}
 
+    //{{{
     "void main() {\n"
       "vec4 c_eye = modelview_matrix * vec4(c, 1.0);\n"
       "vec3 u_eye = radius_scale * mat3(modelview_matrix) * u;\n"
@@ -331,6 +350,7 @@ namespace {
         "}\n"
       "#endif\n"
       "}\n";
+    //}}}
   //}}}
   //{{{
   const std::string kAttributeFsGlsl =
@@ -340,17 +360,20 @@ namespace {
     "#define SMOOTH           0\n"
     "#define EWA_FILTER       0\n"
 
+    //{{{
     "layout(std140, column_major) uniform Camera {\n"
       "mat4 modelview_matrix;\n"
       "mat4 modelview_matrix_it;\n"
       "mat4 projection_matrix;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140, column_major) uniform Raycast {\n"
       "mat4 projection_matrix_inv;\n"
       "vec4 viewport;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140) uniform Parameter {\n"
       "vec3 material_color;\n"
       "float material_shininess;\n"
@@ -358,9 +381,10 @@ namespace {
       "float ewa_radius;\n"
       "float epsilon;\n"
       "};\n"
+    //}}}
 
     "uniform sampler1D filter_kernel;\n"
-
+    //{{{
     "in block {\n"
       "flat in vec3 c_eye;\n"
       "flat in vec3 u_eye;\n"
@@ -376,6 +400,7 @@ namespace {
       "#endif\n"
       "}\n"
     "In;\n"
+    //}}}
 
     "#define FRAG_COLOR 0\n"
     "layout(location = FRAG_COLOR) out vec4 frag_color;\n"
@@ -387,6 +412,7 @@ namespace {
       "#endif\n"
     "#endif\n"
 
+    //{{{
     "void main() {\n"
       "vec4 p_ndc = vec4(2.0 * (gl_FragCoord.xy - viewport.xy) / (viewport.zw) - 1.0, -1.0, 1.0);\n"
       "vec4 p_eye = projection_matrix_inv * p_ndc;\n"
@@ -397,9 +423,8 @@ namespace {
       "vec2 u = vec2(dot(In.u_eye, d) / dot(In.u_eye, In.u_eye),\n"
                     "dot(In.v_eye, d) / dot(In.v_eye, In.v_eye));\n"
 
-      "if (dot(vec3(u, 1.0), In.p) < 0) {\n"
+      "if (dot(vec3(u, 1.0), In.p) < 0)\n"
         "discard;\n"
-        "}\n"
 
       "float w3d = length(u);\n"
       "float zval = q.z;\n"
@@ -409,18 +434,15 @@ namespace {
         "float dist = min(w2d, w3d);\n"
 
         // Avoid visual artifacts due to wrong z-values for fragments
-        // being part of the low-pass filter, but outside of the
-        // reconstruction filter.
-        "if (w3d > 1.0) {\n"
+        // being part of the low-pass filter, but outside of the reconstruction filter.
+        "if (w3d > 1.0)\n"
           "zval = In.c_eye.z;\n"
-          "}\n"
       "#else\n"
         "float dist = w3d;\n"
       "#endif\n"
 
-      "if (dist > 1.0) {\n"
+      "if (dist > 1.0)\n"
         "discard;\n"
-        "}\n"
 
       "#if !VISIBILITY_PASS\n"
         "#if EWA_FILTER\n"
@@ -444,6 +466,7 @@ namespace {
 
       "gl_FragDepth = (depth + 1.0) / 2.0;\n"
       "}\n";
+    //}}}
   //}}}
   //{{{
   const std::string kFinalizationVsGlsl =
@@ -456,14 +479,14 @@ namespace {
     "layout(location = ATTR_TEXTURE_UV) in vec2 texture_uv;\n"
 
     "out block {\n"
-    "  vec2 texture_uv;\n"
-    "  }\n"
+      "vec2 texture_uv;\n"
+      "}\n"
     "Out;\n"
 
     "void main() {\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  Out.texture_uv = texture_uv;\n"
-    "  }\n";
+      "gl_Position = vec4(position, 1.0);\n"
+      "Out.texture_uv = texture_uv;\n"
+      "}\n";
   //}}}
   //{{{
   const std::string kFinalizationFsGlsl =
@@ -472,17 +495,20 @@ namespace {
     "#define MULTISAMPLING  0\n"
     "#define SMOOTH         0\n"
 
+    //{{{
     "layout(std140, column_major) uniform Camera {\n"
       "mat4 modelview_matrix;\n"
       "mat4 modelview_matrix_it;\n"
       "mat4 projection_matrix;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140, column_major) uniform Raycast {\n"
       "mat4 projection_matrix_inv;\n"
       "vec4 viewport;\n"
       "};\n"
-
+    //}}}
+    //{{{
     "layout(std140) uniform Parameter {\n"
       "vec3 material_color;\n"
       "float material_shininess;\n"
@@ -490,6 +516,7 @@ namespace {
       "float ewa_radius;\n"
       "float epsilon;\n"
       "};\n"
+    //}}}
 
     "#if MULTISAMPLING\n"
       "uniform sampler2DMS color_texture;\n"
@@ -509,14 +536,17 @@ namespace {
       "vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);\n"
     "#endif\n"
 
+    //{{{
     "in block {\n"
       "vec2 texture_uv;\n"
       "}\n"
     "In;\n"
+    //}}}
 
     "#define FRAG_COLOR 0\n"
     "layout(location = FRAG_COLOR) out vec4 frag_color;\n"
 
+    //{{{
     "void main() {\n"
       "vec4 res = vec4(0.0); \n"
       "#if MULTISAMPLING \n"
@@ -565,6 +595,7 @@ namespace {
         "frag_color = sqrt(res);\n"
       "#endif\n"
       "}\n";
+    //}}}
   //}}}
   //{{{
   const std::string kLightingGlsl =
@@ -575,8 +606,10 @@ namespace {
       "float dif = max(dot(light_eye, normal_eye), 0.0);\n"
       "vec3 refl_eye = reflect(light_eye, normal_eye);\n"
       "vec3 view_eye = normalize(v_eye);\n"
+
       "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);\n"
       "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);\n"
+
       "vec3 res = 0.15 * color;\n"
       "res += 0.6 * dif * color;\n"
       "res += 0.1 * spe * vec3(1.0);\n"
