@@ -18,11 +18,11 @@ project (example VERSION 1.0.0)
 
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} config.hpp
-                                  src/main.cpp
-                                  src/framebuffer.cpp
-                                  src/program_attribute.cpp
-                                  src/program_finalization.cpp
-                                  src/splat_renderer.cpp
+                                  main.cpp
+                                  framebuffer.cpp
+                                  program_attribute.cpp
+                                  program_finalization.cpp
+                                  splat_renderer.cpp
                                   shaders/lighting_glsl.cpp
                                   shaders/attribute_fs_glsl.cpp
                                   shaders/attribute_vs_glsl.cpp

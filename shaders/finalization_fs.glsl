@@ -1,40 +1,20 @@
-// This file is part of Surface Splatting.
-//
-// Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
-// Surface Splatting is free software: you can redistribute it and / or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Surface Splatting is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
 #version 330
 
 #define MULTISAMPLING  0
 #define SMOOTH         0
 
-layout(std140, column_major) uniform Camera
-{
+layout(std140, column_major) uniform Camera {
     mat4 modelview_matrix;
     mat4 modelview_matrix_it;
     mat4 projection_matrix;
 };
 
-layout(std140, column_major) uniform Raycast
-{
+layout(std140, column_major) uniform Raycast {
     mat4 projection_matrix_inv;
     vec4 viewport;
 };
 
-layout(std140) uniform Parameter
-{
+layout(std140) uniform Parameter {
     vec3 material_color;
     float material_shininess;
     float radius_scale;
@@ -60,8 +40,7 @@ layout(std140) uniform Parameter
     vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);
 #endif
 
-in block
-{
+in block {
     vec2 texture_uv;
 }
 In;
@@ -69,8 +48,7 @@ In;
 #define FRAG_COLOR 0
 layout(location = FRAG_COLOR) out vec4 frag_color;
 
-void main()
-{
+void main() {
     vec4 res = vec4(0.0);
 #if MULTISAMPLING
     ivec2 itexture_uv = ivec2(textureSize(color_texture) * In.texture_uv);
@@ -96,8 +74,7 @@ void main()
         #endif
     #endif
 
-        if (pixel.a > 0.0)
-        {
+        if (pixel.a > 0.0) {
             #if SMOOTH
             vec4 p_ndc = vec4(
                 2.0 * (gl_FragCoord.xy - viewport.xy) / (viewport.zw) - 1.0,
@@ -114,8 +91,7 @@ void main()
                 res += vec4(pixel.rgb / pixel.a, 1.0f);
             #endif
         }
-        else
-        {
+        else {
             res += vec4(1.0);
         }
     }

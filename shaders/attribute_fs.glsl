@@ -1,41 +1,21 @@
-// This file is part of Surface Splatting.
-//
-// Copyright (C) 2010, 2015 by Sebastian Lipponer.
-// 
-// Surface Splatting is free software: you can redistribute it and / or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Surface Splatting is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-
 #version 330
 
 #define VISIBILITY_PASS  0
 #define SMOOTH           0
 #define EWA_FILTER       0
 
-layout(std140, column_major) uniform Camera
-{
+layout(std140, column_major) uniform Camera {
     mat4 modelview_matrix;
     mat4 modelview_matrix_it;
     mat4 projection_matrix;
 };
 
-layout(std140, column_major) uniform Raycast
-{
+layout(std140, column_major) uniform Raycast {
     mat4 projection_matrix_inv;
     vec4 viewport;
 };
 
-layout(std140) uniform Parameter
-{
+layout(std140) uniform Parameter {
     vec3 material_color;
     float material_shininess;
     float radius_scale;
@@ -45,8 +25,7 @@ layout(std140) uniform Parameter
 
 uniform sampler1D filter_kernel;
 
-in block
-{
+in block {
     flat in vec3 c_eye;
     flat in vec3 u_eye;
     flat in vec3 v_eye;
@@ -72,8 +51,7 @@ layout(location = FRAG_COLOR) out vec4 frag_color;
     #endif
 #endif
 
-void main()
-{
+void main() {
     vec4 p_ndc = vec4(2.0 * (gl_FragCoord.xy - viewport.xy)
         / (viewport.zw) - 1.0, -1.0, 1.0);
     vec4 p_eye = projection_matrix_inv * p_ndc;
@@ -85,8 +63,7 @@ void main()
     vec2 u = vec2(dot(In.u_eye, d) / dot(In.u_eye, In.u_eye),
                   dot(In.v_eye, d) / dot(In.v_eye, In.v_eye));
 
-    if (dot(vec3(u, 1.0), In.p) < 0)
-    {
+    if (dot(vec3(u, 1.0), In.p) < 0) {
         discard;
     }
 
@@ -108,8 +85,7 @@ void main()
         float dist = w3d;
     #endif
 
-    if (dist > 1.0)
-    {
+    if (dist > 1.0) {
         discard;
     }
 

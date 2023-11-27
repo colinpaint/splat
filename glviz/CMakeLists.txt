@@ -1,28 +1,22 @@
 project (glviz LANGUAGES CXX)
-  add_library (${PROJECT_NAME} src/glviz.hpp
-                     src/glviz.cpp
-                     src/camera.hpp
-                     src/camera.cpp
-                     src/shader.cpp
-                     src/trackball.hpp
-                     src/trackball.cpp
-                     src/program.hpp
-                     src/program.cpp
-                     src/buffer.hpp
-                     src/buffer.cpp
-                     src/utility.cpp
-                     src/utility.hpp
-                     src/shader.hpp
-                     shaders/mesh3_gs_glsl.cpp
-                     shaders/mesh3_vs_glsl.cpp
-                     shaders/mesh3_fs_glsl.cpp
-                     shaders/sphere_fs_glsl.cpp
-                     shaders/sphere_vs_glsl.cpp
-                     )
+  add_library (${PROJECT_NAME} glviz.hpp glviz.cpp
+                               camera.hpp camera.cpp
+                               shader.hpp
+                               shader.cpp
+                               trackball.hpp trackball.cpp
+                               program.hpp program.cpp
+                               buffer.hpp buffer.cpp
+                               utility.cpp utility.hpp
+                               shaders/mesh3_gs_glsl.cpp
+                               shaders/mesh3_vs_glsl.cpp
+                               shaders/mesh3_fs_glsl.cpp
+                               shaders/sphere_fs_glsl.cpp
+                               shaders/sphere_vs_glsl.cpp
+                               )
 
   add_subdirectory (imgui)
 
-  target_include_directories (${PROJECT_NAME} PUBLIC . /include ./imgui)
+  target_include_directories (${PROJECT_NAME} PUBLIC . ./imgui)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
     target_link_libraries (${PROJECT_NAME} PRIVATE imgui opengl32)

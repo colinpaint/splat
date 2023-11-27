@@ -1,34 +1,9 @@
-//{{{
-// This file is part of GLviz.
-//
-// Copyright(c) 2014-2018 Sebastian Lipponer
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
-//}}}
-//{{{
-#include "glviz/src/glviz.hpp"
-#include "glviz/src/buffer.hpp"
-#include "glviz/src/program.hpp"
-#include "glviz/src/shader.hpp"
-#include "glviz/src/utility.hpp"
-
-#include "config.hpp"
+//{{{  includes
+#include "glviz/glviz.hpp"
+#include "glviz/buffer.hpp"
+#include "glviz/program.hpp"
+#include "glviz/shader.hpp"
+#include "glviz/utility.hpp"
 
 #include <Eigen/Core>
 
@@ -44,7 +19,7 @@
 using namespace std;
 using namespace Eigen;
 //}}}
-
+const char* path_resources = R"(../resources/)";
 
 namespace {
   GLviz::Camera g_camera;
@@ -216,8 +191,8 @@ namespace {
 
     const float aspect = static_cast<float>(width) / static_cast<float>(height);
 
-    glViewport(0, 0, width, height);
-    g_camera.set_perspective(60.0f, aspect, 0.005f, 5.0f);
+    glViewport (0, 0, width, height);
+    g_camera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
     }
   //}}}
   //{{{
@@ -244,41 +219,35 @@ namespace {
       }
     }
   //}}}
-  //{{{
   void close() { viz = nullptr; }
-  //}}}
   //{{{
   void gui() {
 
     ImGui::Begin("GLviz", nullptr);
-    ImGui::SetWindowPos(ImVec2(3.0f, 3.0f), ImGuiCond_Once);
-    ImGui::SetWindowSize(ImVec2(265.0f, 345.0f), ImGuiCond_Once);
+    ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
+    ImGui::SetWindowSize (ImVec2(265.0f, 345.0f), ImGuiCond_Once);
 
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvailWidth() * 0.55f);
+    ImGui::PushItemWidth (ImGui::GetContentRegionAvailWidth() * 0.55f);
 
-    ImGui::Text("time\t %.3f", g_time);
-    ImGui::Text("fps \t %.1f fps", ImGui::GetIO().Framerate);
+    ImGui::Text ("time\t %.3f", g_time);
+    ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
-    if (ImGui::CollapsingHeader("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-      ImGui::Checkbox("Draw Triangle Mesh", &g_enable_mesh3);
-      ImGui::ColorEdit3("Mesh Color", g_mesh_material);
-      ImGui::DragFloat("Mesh Shininess", &g_mesh_material[3],
-          1e-2f, 1e-12f, 1000.0f);
-      ImGui::Combo("Mesh Shading", &g_shading_method, "Flat\0Phong\0\0");
+    if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+      ImGui::Checkbox ("Draw Triangle Mesh", &g_enable_mesh3);
+      ImGui::ColorEdit3 ("Mesh Color", g_mesh_material);
+      ImGui::DragFloat ("Mesh Shininess", &g_mesh_material[3], 1e-2f, 1e-12f, 1000.0f);
+      ImGui::Combo ("Mesh Shading", &g_shading_method, "Flat\0Phong\0\0");
 
       ImGui::Separator();
-
-      ImGui::Checkbox("Draw Wireframe", &g_enable_wireframe);
-      ImGui::ColorEdit3("Wireframe Color", g_wireframe);
+      ImGui::Checkbox ("Draw Wireframe", &g_enable_wireframe);
+      ImGui::ColorEdit3 ("Wireframe Color", g_wireframe);
       }
 
-    if (ImGui::CollapsingHeader("Points", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-      ImGui::Checkbox("Draw Points", &g_enable_points);
-      ImGui::DragFloat("Points Radius", &g_point_radius,
-          1e-5f, 0.0f, 0.1f, "%.4f");
-      ImGui::ColorEdit3("Points Color", g_points_material);
-      ImGui::DragFloat("Points Shininess", &g_points_material[3],
-          1e-2f, 1e-12f, 1000.0f);
+    if (ImGui::CollapsingHeader ("Points", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+      ImGui::Checkbox ("Draw Points", &g_enable_points);
+      ImGui::DragFloat ("Points Radius", &g_point_radius, 1e-5f, 0.0f, 0.1f, "%.4f");
+      ImGui::ColorEdit3 ("Points Color", g_points_material);
+      ImGui::DragFloat ("Points Shininess", &g_points_material[3], 1e-2f, 1e-12f, 1000.0f);
       }
 
     ImGui::End();
@@ -308,6 +277,7 @@ namespace {
       input.close();
       GLviz::load_raw(filename, g_vertices, g_faces);
       }
+
     else {
       input.close();
       ostringstream fqfn;
@@ -339,7 +309,7 @@ int main (int argc, char* argv[]) {
     }
   catch(runtime_error const& e) {
     cerr << e.what() << endl;
-    exit(EXIT_FAILURE);
+    exit (EXIT_FAILURE);
     }
 
   GLviz::display_callback (display);
