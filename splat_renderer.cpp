@@ -10,6 +10,7 @@
 using namespace Eigen;
 //}}}
 
+// UniformBufferRaycast
 //{{{
 UniformBufferRaycast::UniformBufferRaycast()
     : glUniformBuffer(sizeof(Matrix4f) + sizeof(Vector4f))
@@ -35,6 +36,8 @@ void UniformBufferRaycast::set_buffer_data (Matrix4f const&
     unbind();
 }
 //}}}
+
+// UniformBufferFrustum
 //{{{
 UniformBufferFrustum::UniformBufferFrustum()
     : glUniformBuffer(6 * sizeof(Vector4f))
@@ -50,6 +53,8 @@ void UniformBufferFrustum::set_buffer_data (Vector4f const* frustum_plane)
     unbind();
 }
 //}}}
+
+// UniformBufferParameter
 //{{{
 UniformBufferParameter::UniformBufferParameter()
     : glUniformBuffer(8 * sizeof(float))
@@ -70,6 +75,7 @@ void UniformBufferParameter::set_buffer_data (Vector3f const& color, float shini
 }
 //}}}
 
+// SplatRenderer
 //{{{
 SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
     : m_camera(camera), m_soft_zbuffer(true), m_smooth(false),
@@ -218,52 +224,47 @@ void SplatRenderer::setup_vertex_array_buffer_object() {
 
 bool SplatRenderer::smooth() const { return m_smooth; }
 //{{{
-void SplatRenderer::set_smooth(bool enable)
-{
-    if (m_smooth != enable)
-    {
-        m_smooth = enable;
+void SplatRenderer::set_smooth(bool enable) {
 
-        m_attribute.set_smooth(enable);
-        m_finalization.set_smooth(enable);
+  if (m_smooth != enable) {
+    m_smooth = enable;
 
-        if (m_smooth)
-        {
-            m_fbo.enable_depth_texture();
-            m_fbo.attach_normal_texture();
-        }
-        else
-        {
-            m_fbo.disable_depth_texture();
-            m_fbo.detach_normal_texture();
-        }
+    m_attribute.set_smooth(enable);
+    m_finalization.set_smooth(enable);
+
+    if (m_smooth) {
+      m_fbo.enable_depth_texture();
+      m_fbo.attach_normal_texture();
+      }
+    else {
+      m_fbo.disable_depth_texture();
+      m_fbo.detach_normal_texture();
+      }
     }
-}
+  }
 //}}}
 
 bool SplatRenderer::color_material() const { return m_color_material; }
 //{{{
-void SplatRenderer::set_color_material (bool enable)
-{
-    if (m_color_material != enable)
-    {
-        m_color_material = enable;
-        m_attribute.set_color_material(enable);
+void SplatRenderer::set_color_material (bool enable) {
+
+  if (m_color_material != enable) {
+    m_color_material = enable;
+    m_attribute.set_color_material(enable);
     }
-}
+  }
 //}}}
 
 bool SplatRenderer::backface_culling() const { return m_backface_culling; }
 //{{{
-void SplatRenderer::set_backface_culling (bool enable)
-{
-    if (m_backface_culling != enable)
-    {
-        m_backface_culling = enable;
-        m_visibility.set_backface_culling(enable);
-        m_attribute.set_backface_culling(enable);
+void SplatRenderer::set_backface_culling (bool enable) {
+
+  if (m_backface_culling != enable) {
+    m_backface_culling = enable;
+    m_visibility.set_backface_culling(enable);
+    m_attribute.set_backface_culling(enable);
     }
-}
+  }
 //}}}
 
 bool SplatRenderer::soft_zbuffer() const { return m_soft_zbuffer; }
@@ -296,6 +297,7 @@ void SplatRenderer::set_pointsize_method (unsigned int pointsize_method) {
   }
 //}}}
 
+// EWA
 bool SplatRenderer::ewa_filter() const { return m_ewa_filter; }
 //{{{
 void SplatRenderer::set_ewa_filter (bool enable) {
@@ -306,6 +308,7 @@ void SplatRenderer::set_ewa_filter (bool enable) {
     }
   }
 //}}}
+
 float SplatRenderer::ewa_radius() const { return m_ewa_radius; }
 void SplatRenderer::set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
 
@@ -322,6 +325,7 @@ void SplatRenderer::set_multisample (bool enable)
 }
 //}}}
 
+// material
 float const* SplatRenderer::material_color() const { return m_color.data(); }
 //{{{
 void SplatRenderer::set_material_color (float const* color_ptr) {
@@ -329,6 +333,7 @@ void SplatRenderer::set_material_color (float const* color_ptr) {
   m_color = color;
   }
 //}}}
+
 float SplatRenderer::material_shininess() const { return m_shininess; }
 void SplatRenderer::set_material_shininess (float shininess) { m_shininess = shininess; }
 
@@ -375,8 +380,7 @@ void SplatRenderer::render_pass (bool depth_only) {
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     }
 
-  glProgram &program = depth_only ? m_visibility : m_attribute;
-
+  glProgram& program = depth_only ? m_visibility : m_attribute;
   program.use();
 
   if (depth_only) {
@@ -392,7 +396,7 @@ void SplatRenderer::render_pass (bool depth_only) {
     glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 
-  setup_uniforms(program);
+  setup_uniforms (program);
 
   if (!depth_only && m_soft_zbuffer && m_ewa_filter) {
     glActiveTexture (GL_TEXTURE1);

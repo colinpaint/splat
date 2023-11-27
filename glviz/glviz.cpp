@@ -28,12 +28,12 @@ namespace GLviz {
 
     Camera* m_camera;
 
-    function<void()> m_gui_callback;
-    function<void()> m_display_callback;
-    function<void()> m_close_callback;
-    function<void (unsigned int)> m_timer_callback;
-    function<void (SDL_Keycode)> m_keyboard_callback;
-    function<void (int width, int height)> m_reshape_callback;
+    function<void()> m_guiCallback;
+    function<void()> m_displayCallback;
+    function<void()> m_closeCallback;
+    function<void (unsigned int)> m_timerCallback;
+    function<void (SDL_Keycode)> m_keyboardCallback;
+    function<void (int width, int height)> m_reshapeCallback;
 
     //{{{
     void reshape (int width, int height) {
@@ -41,8 +41,8 @@ namespace GLviz {
       m_screen_width  = width;
       m_screen_height = height;
 
-      if (m_reshape_callback)
-        m_reshape_callback(width, height);
+      if (m_reshapeCallback)
+        m_reshapeCallback (width, height);
     }
     //}}}
     //{{{
@@ -51,19 +51,10 @@ namespace GLviz {
       const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
       const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
 
-      switch (button) {
-        case SDL_BUTTON_LEFT:
-          m_camera->trackball_begin_motion (xf, yf);
-          break;
+      //cout << "mouse " << xf << "," << yf << " " << x << "," << y << " "
+      //                 << m_screen_width << "," << m_screen_height << endl;
 
-        case SDL_BUTTON_RIGHT:
-          m_camera->trackball_begin_motion (xf, yf);
-          break;
-
-        case SDL_BUTTON_MIDDLE:
-          m_camera->trackball_begin_motion (xf, yf);
-          break;
-        }
+      m_camera->trackball_begin_motion (xf, yf);
       }
     //}}}
     //{{{
@@ -71,6 +62,9 @@ namespace GLviz {
 
       const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
       const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
+
+      //cout << "motion " << xf << "," << yf << " " << x << "," << y << " "
+      //                  << m_screen_width << "," << m_screen_height << endl;
 
       if (state & SDL_BUTTON_LMASK)
         m_camera->trackball_end_motion_rotate (xf, yf);
@@ -92,8 +86,8 @@ namespace GLviz {
 
         switch (event.type) {
           case SDL_KEYDOWN:
-            if (!io.WantCaptureKeyboard && m_keyboard_callback)
-              m_keyboard_callback(event.key.keysym.sym);
+            if (!io.WantCaptureKeyboard && m_keyboardCallback)
+              m_keyboardCallback(event.key.keysym.sym);
             break;
 
           case SDL_KEYUP:
@@ -139,29 +133,29 @@ namespace GLviz {
   void set_camera (Camera& camera) { m_camera = &camera; }
 
   //{{{
-  void gui_callback (function<void()> gui_callback) { m_gui_callback = gui_callback; }
+  void guiCallback (function<void()> guiCallback) { m_guiCallback = guiCallback; }
   //}}}
   //{{{
-  void display_callback (function<void ()> display_callback) { m_display_callback = display_callback; }
+  void displayCallback (function<void ()> displayCallback) { m_displayCallback = displayCallback; }
   //}}}
   //{{{
-  void close_callback (function<void ()> close_callback) { m_close_callback = close_callback; }
+  void closeCallback (function<void ()> closeCallback) { m_closeCallback = closeCallback; }
   //}}}
   //{{{
-  void timer_callback (function<void (unsigned int)> timer_callback, unsigned int timer_msec)
+  void timerCallback (function<void (unsigned int)> timerCallback, unsigned int timer_msec)
   {
-      m_timer_callback = timer_callback;
+      m_timerCallback = timerCallback;
       m_timer_msec = timer_msec;
   }
   //}}}
   //{{{
-  void keyboard_callback (function<void (SDL_Keycode)> keyboard_callback) {
-      m_keyboard_callback = keyboard_callback;
+  void keyboardCallback (function<void (SDL_Keycode)> keyboardCallback) {
+      m_keyboardCallback = keyboardCallback;
   }
   //}}}
   //{{{
-  void reshape_callback (function<void (int width, int height)> reshape_callback) {
-    m_reshape_callback = reshape_callback;
+  void reshapeCallback (function<void (int width, int height)> reshapeCallback) {
+    m_reshapeCallback = reshapeCallback;
     }
   //}}}
 
@@ -174,8 +168,7 @@ namespace GLviz {
     glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
     glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
 
-    cout << "  OpenGL version " << context_major_version << "."
-              << context_minor_version << " ";
+    cout << "  OpenGL version " << context_major_version << "." << context_minor_version << " ";
 
     switch (context_profile) {
       case GL_CONTEXT_CORE_PROFILE_BIT:
@@ -187,7 +180,7 @@ namespace GLviz {
         break;
       }
 
-    cout << " profile context." << endl;
+    cout << " profile context" << endl;
     }
   //}}}
   //{{{
@@ -205,24 +198,24 @@ namespace GLviz {
     reshape (m_screen_width, m_screen_height);
 
     while (!process_events()) {
-      if (m_timer_callback) {
+      if (m_timerCallback) {
         const Uint32 time = SDL_GetTicks();
         const Uint32 delta_t_msec = time - last_time;
         if (delta_t_msec >= m_timer_msec) {
          last_time = time;
-          m_timer_callback (delta_t_msec);
+          m_timerCallback (delta_t_msec);
           }
         }
 
-      if (m_display_callback)
-        m_display_callback();
+      if (m_displayCallback)
+        m_displayCallback();
 
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplSDL2_NewFrame (m_sdl_window);
       ImGui::NewFrame();
 
-      if (m_gui_callback)
-        m_gui_callback();
+      if (m_guiCallback)
+        m_guiCallback();
 
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData());
@@ -230,8 +223,8 @@ namespace GLviz {
       SDL_GL_SwapWindow (m_sdl_window);
       }
 
-    if (m_close_callback)
-      m_close_callback();
+    if (m_closeCallback)
+      m_closeCallback();
 
     SDL_GL_DeleteContext (m_gl_context);
     SDL_DestroyWindow (m_sdl_window);
@@ -268,6 +261,7 @@ namespace GLviz {
     //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     // no WSL
+    cout << "multiSample disabled" << endl;
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
@@ -278,8 +272,9 @@ namespace GLviz {
       //{{{  error, return
       cerr << "Failed to create SDL window:" << endl;
       cerr << "Error: " << SDL_GetError() << endl;
+
       SDL_Quit();
-      exit(EXIT_FAILURE);
+      exit (EXIT_FAILURE);
       }
       //}}}
 
@@ -288,6 +283,7 @@ namespace GLviz {
       //{{{  error, return
       cerr << "Failed to initialize OpenGL:" << endl;
       cerr << "Error: " << SDL_GetError() << endl;
+
       SDL_Quit();
       exit(EXIT_FAILURE);
       }
@@ -303,8 +299,7 @@ namespace GLviz {
       if (GLEW_OK != glew_error) {
         //{{{  erro, return
         cerr << "Failed to initialize GLEW:" << endl;
-        cerr << __FILE__ << "(" << __LINE__ << "): "
-                  << glewGetErrorString(glew_error) << endl;
+        cerr << __FILE__ << "(" << __LINE__ << "): " << glewGetErrorString(glew_error) << endl;
         exit(EXIT_FAILURE);
         }
         //}}}
@@ -313,8 +308,7 @@ namespace GLviz {
       // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
-        cerr << __FILE__ << "(" << __LINE__ << "): "
-                  << GLviz::get_gl_error_string(gl_error) << endl;
+        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
       }
 
     // print GLEW version.

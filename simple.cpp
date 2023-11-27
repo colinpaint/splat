@@ -245,7 +245,6 @@ namespace {
       }
     }
   //}}}
-  void close() { viz = nullptr; }
   //{{{
   void gui() {
 
@@ -293,6 +292,7 @@ namespace {
       }
     }
   //}}}
+  void close() { viz = nullptr; }
   }
 
 //{{{
@@ -310,12 +310,12 @@ int main (int argc, char* argv[]) {
     exit (EXIT_FAILURE);
     }
 
-  GLviz::display_callback (display);
-  GLviz::reshape_callback (reshape);
-  GLviz::timer_callback (timer, 15);
-  GLviz::close_callback (close);
-  GLviz::gui_callback (gui);
-  GLviz::keyboard_callback (keyboard);
+  GLviz::displayCallback (display);
+  GLviz::reshapeCallback (reshape);
+  GLviz::timerCallback (timer, 15);
+  GLviz::closeCallback (close);
+  GLviz::guiCallback (gui);
+  GLviz::keyboardCallback (keyboard);
 
   return GLviz::exec (g_camera);
   }

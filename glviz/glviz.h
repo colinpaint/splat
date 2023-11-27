@@ -9,20 +9,18 @@ namespace GLviz {
   int      screen_height();
 
   Camera*  camera();
-  void     set_camera(Camera& camera);
+  void     set_camera (Camera& camera);
 
-  void     display_callback(std::function<void ()> display_callback);
-  void     reshape_callback(std::function<void (int, int)> reshape_callback);
-  void     timer_callback(std::function<void (unsigned int)> timer_callback,
-               unsigned int timer_msec);
-  void     close_callback(std::function<void ()> close_callback);
-  void     gui_callback(std::function<void ()> gui_callback);
-  void     keyboard_callback(std::function<void (SDL_Keycode)>
-               keyboard_callback);
+  void     displayCallback (std::function<void()> displayCallback);
+  void     reshapeCallback (std::function<void (int, int)> reshapeCallback);
+  void     timerCallback (std::function<void (unsigned int)> timerCallback, unsigned int timer_msec);
+  void     closeCallback (std::function<void()> closeCallback);
+  void     guiCallback (std::function<void()> guiCallback);
+  void     keyboardCallback (std::function<void (SDL_Keycode)> keyboardCallback);
 
   void     cout_opengl_version();
   void     cout_glew_version();
 
-  void     GLviz(int screen_width = 960, int screen_height = 540);
-  int      exec(Camera& camera);
+  void     GLviz (int screen_width = 960, int screen_height = 540);
+  int      exec (Camera& camera);
   }

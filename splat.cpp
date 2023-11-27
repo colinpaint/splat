@@ -522,11 +522,11 @@ int main (int argc, char* argv[]) {
 
   load_model();
 
-  GLviz::display_callback (display);
-  GLviz::reshape_callback (reshape);
-  GLviz::close_callback (close);
-  GLviz::gui_callback (gui);
-  GLviz::keyboard_callback (keyboard);
+  GLviz::displayCallback (display);
+  GLviz::reshapeCallback (reshape);
+  GLviz::closeCallback (close);
+  GLviz::guiCallback (gui);
+  GLviz::keyboardCallback (keyboard);
 
   return GLviz::exec (gCamera);
   }

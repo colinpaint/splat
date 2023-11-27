@@ -8,8 +8,8 @@ add_subdirectory (glviz)
 project (embed VERSION 1.0.0)
   add_executable (${PROJECT_NAME} embed.cpp)
 
-project (example VERSION 1.0.0)
-  add_executable (${PROJECT_NAME} example.cpp)
+project (simple VERSION 1.0.0)
+  add_executable (${PROJECT_NAME} simple.cpp)
   target_link_libraries (${PROJECT_NAME} PRIVATE imgui glviz)
 
 project (splat VERSION 1.0.0)
