@@ -321,8 +321,8 @@ namespace GLviz {
   //{{{
   void ProgramSphere::initialize_shader_obj() {
 
-    m_sphere_vs_obj.load_from_cstr (reinterpret_cast<char const*>(kSphereVsGlsl.c_str()));
-    m_sphere_fs_obj.load_from_cstr (reinterpret_cast<char const*>(kSphereFsGlsl.c_str()));
+    m_sphere_vs_obj.load_from_string (kSphereVsGlsl);
+    m_sphere_fs_obj.load_from_string (kSphereFsGlsl);
 
     attach_shader (m_sphere_vs_obj);
     attach_shader (m_sphere_fs_obj);

@@ -30,7 +30,7 @@ class glShader {
 public:
   virtual ~glShader();
 
-  void load_from_string (std::string source) { m_source = source; }
+  void load_from_string (const std::string& source) { m_source = source; }
   void load_from_file (std::string const& filename);
 
   void compile(std::map<std::string, int> const& define_list = std::map<std::string, int>());
