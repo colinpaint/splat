@@ -17,8 +17,7 @@
 // along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
 //}}}
 #pragma once
-#include "program_attribute.h"
-#include "program_finalization.h"
+#include "splatProgram.h"
 #include "glviz/buffer.h"
 #include "framebuffer.h"
 #include <Eigen/Core>
