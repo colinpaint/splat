@@ -44,42 +44,35 @@ namespace GLviz {
   //}}}
 
   //{{{
-  class ProgramMesh3 : public glProgram
-  {
-
+  class ProgramSphere : public glProgram {
   public:
-      ProgramMesh3();
-
-      void set_wireframe(bool enable);
-      void set_smooth(bool enable);
+    ProgramSphere();
 
   private:
-      void initialize_shader_obj();
-      void initialize_program_obj();
+    void initialize_shader_obj();
+    void initialize_program_obj();
 
-  private:
-      glVertexShader   m_mesh3_vs_obj;
-      glGeometryShader m_mesh3_gs_obj;
-      glFragmentShader m_mesh3_fs_obj;
-
-      bool m_wireframe, m_smooth;
-  };
-
+    glVertexShader    m_sphere_vs_obj;
+    glFragmentShader  m_sphere_fs_obj;
+    };
   //}}}
   //{{{
-  class ProgramSphere : public glProgram
-  {
-
+  class ProgramMesh3 : public glProgram {
   public:
-      ProgramSphere();
+    ProgramMesh3();
+
+    void set_wireframe(bool enable);
+    void set_smooth(bool enable);
 
   private:
-      void initialize_shader_obj();
-      void initialize_program_obj();
+    void initialize_shader_obj();
+    void initialize_program_obj();
 
-  private:
-      glVertexShader    m_sphere_vs_obj;
-      glFragmentShader  m_sphere_fs_obj;
-  };
+    glVertexShader   m_mesh3_vs_obj;
+    glGeometryShader m_mesh3_gs_obj;
+    glFragmentShader m_mesh3_fs_obj;
+
+    bool m_wireframe, m_smooth;
+    };
   //}}}
   }

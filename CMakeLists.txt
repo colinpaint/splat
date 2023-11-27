@@ -19,7 +19,6 @@ project (splat VERSION 1.0.0)
                                   program_attribute.h program_attribute.cpp
                                   program_finalization.h program_finalization.cpp
                                   splatRenderer.h splatRenderer.cpp
-                                  shaders/lighting_glsl.cpp
                                   shaders/attribute_fs_glsl.cpp shaders/attribute_vs_glsl.cpp
                                   shaders/finalization_fs_glsl.cpp shaders/finalization_vs_glsl.cpp)
 

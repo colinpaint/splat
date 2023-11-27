@@ -6,8 +6,7 @@ project (glviz VERSION 1.0.0)
                                program.h program.cpp
                                buffer.h buffer.cpp
                                utility.h utility.cpp
-                               shaders/mesh3_gs_glsl.cpp shaders/mesh3_vs_glsl.cpp shaders/mesh3_fs_glsl.cpp
-                               shaders/sphere_fs_glsl.cpp shaders/sphere_vs_glsl.cpp
+                               shaders/mesh3_vs_glsl.cpp shaders/mesh3_fs_glsl.cpp
                                )
   # for Eigen includes
   target_include_directories (${PROJECT_NAME} PUBLIC ../ ../glew/include ../imgui)
