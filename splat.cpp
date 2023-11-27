@@ -22,10 +22,10 @@ using namespace std;
 const char* path_resources = R"(../resources/)";
 
 namespace {
-  GLviz::Camera g_camera;
-  int g_model(1);
-  unique_ptr<SplatRenderer> viz;
-  vector<Surfel> g_surfels;
+  int gModel(1);
+  GLviz::Camera gCamera;
+  vector<Surfel> gSurfels;
+  unique_ptr<SplatRenderer> gViz;
 
   //{{{
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
@@ -198,7 +198,7 @@ namespace {
 
     GLviz::set_vertex_normals_from_triangle_mesh (vertices, faces, normals);
 
-    mesh_to_surfel (vertices, faces, g_surfels);
+    mesh_to_surfel (vertices, faces, gSurfels);
     }
   //}}}
   //{{{
@@ -207,7 +207,7 @@ namespace {
     const float d = 1.0f / static_cast<float>(2 * n);
     Surfel s(Eigen::Vector3f::Zero(), 2.0f * d * Eigen::Vector3f::UnitX(), 2.0f * d * Eigen::Vector3f::UnitY(), Eigen::Vector3f::Zero(), 0);
 
-    g_surfels.resize(4 * n * n);
+    gSurfels.resize(4 * n * n);
     unsigned int m(0);
 
     for (unsigned int i(0); i <= 2 * n; ++i) {
@@ -219,35 +219,35 @@ namespace {
                           -1.0f + 2.0f * d * static_cast<float>(i),
                           0.0f);
           s.rgba = (((j / 2) % 2) == ((i / 2) % 2)) ? 0u : ~0u;
-          g_surfels[m] = s;
+          gSurfels[m] = s;
 
           // Clip border surfels.
           if (j == 2 * n) {
-            g_surfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-            g_surfels[m].rgba = ~s.rgba;
+            gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+            gSurfels[m].rgba = ~s.rgba;
             }
           else if (i == 2 * n) {
-            g_surfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-            g_surfels[m].rgba = ~s.rgba;
+            gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+            gSurfels[m].rgba = ~s.rgba;
             }
           else if (j == 0)
-            g_surfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+            gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
           else if (i == 0)
-            g_surfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+            gSurfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
           else {
             // Duplicate and clip inner surfels.
             if (j % 2 == 0) {
-              g_surfels[m].p = Eigen::Vector3f(1.0, 0.0f, 0.0f);
-              g_surfels[++m] = s;
-              g_surfels[m].p = Eigen::Vector3f(-1.0, 0.0f, 0.0f);
-              g_surfels[m].rgba = ~s.rgba;
+              gSurfels[m].p = Eigen::Vector3f(1.0, 0.0f, 0.0f);
+              gSurfels[++m] = s;
+              gSurfels[m].p = Eigen::Vector3f(-1.0, 0.0f, 0.0f);
+              gSurfels[m].rgba = ~s.rgba;
               }
 
             if (i % 2 == 0) {
-              g_surfels[m].p = Eigen::Vector3f(0.0, 1.0f, 0.0f);
-              g_surfels[++m] = s;
-              g_surfels[m].p = Eigen::Vector3f(0.0, -1.0f, 0.0f);
-              g_surfels[m].rgba = ~s.rgba;
+              gSurfels[m].p = Eigen::Vector3f(0.0, 1.0f, 0.0f);
+              gSurfels[++m] = s;
+              gSurfels[m].p = Eigen::Vector3f(0.0, -1.0f, 0.0f);
+              gSurfels[m].rgba = ~s.rgba;
               }
             }
           ++m;
@@ -376,13 +376,13 @@ namespace {
     cube[23].c = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
     cube[23].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 
-    g_surfels = vector<Surfel>(cube, cube + 24);
+    gSurfels = vector<Surfel>(cube, cube + 24);
     }
   //}}}
   //{{{
   void load_model() {
 
-    switch (g_model) {
+    switch (gModel) {
       case 0:
         load_dragon();
         break;
@@ -398,17 +398,15 @@ namespace {
     }
   //}}}
 
-  void display() { viz->render_frame (g_surfels); }
+  // callbacks
   //{{{
   void reshape (int width, int height) {
 
     const float aspect = static_cast<float>(width) / static_cast<float>(height);
     glViewport (0, 0, width, height);
-    g_camera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
+    gCamera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
     }
   //}}}
-  void close() { viz = nullptr; }
-
   //{{{
   void gui() {
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
@@ -421,64 +419,64 @@ namespace {
 
     ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
-      if (ImGui::Combo ("Models", &g_model, "Dragon\0Plane\0Cube"))
+      if (ImGui::Combo ("Models", &gModel, "Dragon\0Plane\0Cube"))
         load_model();
 
     ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
-      int shading_method = viz->smooth() ? 1 : 0;
-      if (ImGui::Combo ("Shading", &shading_method, "Flat\0Smooth\0\0"))
-        viz->set_smooth (shading_method > 0 ? true : false);
+      int shadingMethod = gViz->smooth() ? 1 : 0;
+      if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))
+        gViz->set_smooth (shadingMethod > 0 ? true : false);
 
       ImGui::Separator();
-      int color_material = viz->color_material() ? 1 : 0;
+      int color_material = gViz->color_material() ? 1 : 0;
       if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
-        viz->set_color_material (color_material > 0 ? true : false);
+        gViz->set_color_material (color_material > 0 ? true : false);
 
       float material_color[3];
-      copy(viz->material_color(), viz->material_color() + 3, material_color);
+      copy(gViz->material_color(), gViz->material_color() + 3, material_color);
       if (ImGui::ColorEdit3 ("Material color", material_color))
-        viz->set_material_color (material_color);
+        gViz->set_material_color (material_color);
 
-      float material_shininess = viz->material_shininess();
+      float material_shininess = gViz->material_shininess();
       if (ImGui::DragFloat ("Material shininess", &material_shininess, 0.05f, 1e-12f, 1000.0f))
-        viz->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
+        gViz->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
 
       ImGui::Separator();
-      bool soft_zbuffer = viz->soft_zbuffer();
+      bool soft_zbuffer = gViz->soft_zbuffer();
       if (ImGui::Checkbox("Soft z-buffer", &soft_zbuffer))
-        viz->set_soft_zbuffer (soft_zbuffer);
+        gViz->set_soft_zbuffer (soft_zbuffer);
 
-      float soft_zbuffer_epsilon = viz->soft_zbuffer_epsilon();
+      float soft_zbuffer_epsilon = gViz->soft_zbuffer_epsilon();
       if (ImGui::DragFloat ("Soft z-buffer epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
-        viz->set_soft_zbuffer_epsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
+        gViz->set_soft_zbuffer_epsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
 
       ImGui::Separator();
-      bool ewa_filter = viz->ewa_filter();
+      bool ewa_filter = gViz->ewa_filter();
       if (ImGui::Checkbox ("EWA filter", &ewa_filter))
-        viz->set_ewa_filter (ewa_filter);
+        gViz->set_ewa_filter (ewa_filter);
 
-      float ewa_radius = viz->ewa_radius();
+      float ewa_radius = gViz->ewa_radius();
       if (ImGui::DragFloat ("EWA radius", &ewa_radius, 1e-3f, 0.1f, 4.0f))
-        viz->set_ewa_radius (ewa_radius);
+        gViz->set_ewa_radius (ewa_radius);
 
       ImGui::Separator();
-      int point_size = viz->pointsize_method();
+      int point_size = gViz->pointsize_method();
       if (ImGui::Combo ("Point size", &point_size, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
-        viz->set_pointsize_method (point_size);
+        gViz->set_pointsize_method (point_size);
 
-      float radius_scale = viz->radius_scale();
+      float radius_scale = gViz->radius_scale();
       if (ImGui::DragFloat ("Radius scale", &radius_scale, 0.001f, 1e-6f, 2.0f))
-        viz->set_radius_scale (min(max( 1e-6f, radius_scale), 2.0f));
+        gViz->set_radius_scale (min(max( 1e-6f, radius_scale), 2.0f));
 
       ImGui::Separator();
-      bool multisample_4x = viz->multisample();
+      bool multisample_4x = gViz->multisample();
       if (ImGui::Checkbox ("Multisample 4x", &multisample_4x))
-        viz->set_multisample (multisample_4x);
+        gViz->set_multisample (multisample_4x);
 
-      bool backface_culling = viz->backface_culling();
+      bool backface_culling = gViz->backface_culling();
       if (ImGui::Checkbox ("Backface culling", &backface_culling))
-        viz->set_backface_culling (backface_culling);
+        gViz->set_backface_culling (backface_culling);
       }
 
     ImGui::End();
@@ -489,27 +487,29 @@ namespace {
 
     switch (key) {
       case SDLK_5:
-        viz->set_smooth (!viz->smooth());
+        gViz->set_smooth (!gViz->smooth());
         break;
 
       case SDLK_c:
-        viz->set_color_material (!viz->color_material());
+        gViz->set_color_material (!gViz->color_material());
         break;
 
       case SDLK_z:
-        viz->set_soft_zbuffer (!viz->soft_zbuffer());
+        gViz->set_soft_zbuffer (!gViz->soft_zbuffer());
         break;
 
       case SDLK_u:
-        viz->set_ewa_filter (!viz->ewa_filter());
+        gViz->set_ewa_filter (!gViz->ewa_filter());
         break;
 
       case SDLK_t:
-        viz->set_pointsize_method ((viz->pointsize_method() + 1) % 4);
+        gViz->set_pointsize_method ((gViz->pointsize_method() + 1) % 4);
         break;
       }
     }
   //}}}
+  void display() { gViz->render_frame (gSurfels); }
+  void close() { gViz = nullptr; }
   }
 
 //{{{
@@ -517,8 +517,8 @@ int main (int argc, char* argv[]) {
 
   GLviz::GLviz (960, 540);
 
-  g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  viz = unique_ptr<SplatRenderer>(new SplatRenderer (g_camera));
+  gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+  gViz = unique_ptr<SplatRenderer>(new SplatRenderer (gCamera));
 
   load_model();
 
@@ -528,6 +528,6 @@ int main (int argc, char* argv[]) {
   GLviz::gui_callback (gui);
   GLviz::keyboard_callback (keyboard);
 
-  return GLviz::exec (g_camera);
+  return GLviz::exec (gCamera);
   }
 //}}}

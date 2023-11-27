@@ -45,8 +45,7 @@ namespace {
 
       vertex_array_buffer.bind();
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-          3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
       vertex_array_v.unbind();
 
       // Setup vertex array vf.
@@ -54,8 +53,7 @@ namespace {
 
       vertex_array_buffer.bind();
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-          3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       index_array_buffer.bind();
       vertex_array_buffer.unbind();
@@ -67,13 +65,11 @@ namespace {
 
       vertex_array_buffer.bind();
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-          3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       normal_array_buffer.bind();
       glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-          3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       index_array_buffer.bind();
       vertex_array_buffer.unbind();
@@ -89,6 +85,7 @@ namespace {
       g_camera.translate(Eigen::Vector3f(0.0f, 0.0f, -2.0f));
       }
     //}}}
+
     //{{{
     void draw_mesh3(GLsizei nf) {
 
@@ -141,13 +138,42 @@ namespace {
     };
   //}}}
   unique_ptr<MyViz> viz;
-  vector<Eigen::Vector3f> g_ref_vertices;
-  vector<Eigen::Vector3f> g_ref_normals;
-  vector<Eigen::Vector3f> g_vertices;
-  vector<Eigen::Vector3f> g_normals;
+  vector <Eigen::Vector3f> g_ref_vertices;
+  vector <Eigen::Vector3f> g_ref_normals;
+  vector <Eigen::Vector3f> g_vertices;
+  vector <Eigen::Vector3f> g_normals;
   vector <array <unsigned int, 3> > g_faces;
 
-  void load_triangle_mesh (string const& filename);
+  //{{{
+  void load_triangle_mesh (string const& filename) {
+
+    cout << "\nRead " << filename << "." << endl;
+    ifstream input (filename);
+
+    if (input.good()) {
+      input.close();
+      GLviz::load_raw (filename, g_vertices, g_faces);
+      }
+
+    else {
+      input.close();
+      ostringstream fqfn;
+      fqfn << path_resources;
+      fqfn << filename;
+      GLviz::load_raw (fqfn.str(), g_vertices, g_faces);
+      }
+
+    cout << "  #vertices " << g_vertices.size() << endl;
+    cout << "  #faces    " << g_faces.size() << endl;
+
+    GLviz::set_vertex_normals_from_triangle_mesh (g_vertices, g_faces, g_normals);
+
+    g_ref_vertices = g_vertices;
+    g_ref_normals = g_normals;
+    }
+  //}}}
+
+  // callbacks
   //{{{
   void display() {
 
@@ -265,34 +291,6 @@ namespace {
       case SDLK_r: g_time = 0.0f; break;
       case SDLK_SPACE: g_stop_simulation = !g_stop_simulation; break;
       }
-    }
-  //}}}
-  //{{{
-  void load_triangle_mesh (string const& filename) {
-
-    cout << "\nRead " << filename << "." << endl;
-    ifstream input(filename);
-
-    if (input.good()) {
-      input.close();
-      GLviz::load_raw(filename, g_vertices, g_faces);
-      }
-
-    else {
-      input.close();
-      ostringstream fqfn;
-      fqfn << path_resources;
-      fqfn << filename;
-      GLviz::load_raw(fqfn.str(), g_vertices, g_faces);
-      }
-
-    cout << "  #vertices " << g_vertices.size() << endl;
-    cout << "  #faces    " << g_faces.size() << endl;
-
-    GLviz::set_vertex_normals_from_triangle_mesh(g_vertices, g_faces, g_normals);
-
-    g_ref_vertices = g_vertices;
-    g_ref_normals = g_normals;
     }
   //}}}
   }
