@@ -14,10 +14,13 @@ using namespace std;
 struct Framebuffer::Impl {
   virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
   virtual void renderbuffer_storage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) = 0;
+
   virtual void allocate_depth_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
   virtual void allocate_rgba_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
+
   virtual void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
   virtual void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
+
   virtual bool multisample() const = 0;
   };
 //}}}
@@ -167,11 +170,11 @@ Framebuffer::Framebuffer()
     : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl(new Default()) {
 
   // Create framebuffer object.
-  glGenFramebuffers(1, &m_fbo);
+  glGenFramebuffers (1, &m_fbo);
 
   // Initialize.
   bind();
-   initialize();
+  initialize();
   unbind();
   }
 //}}}
@@ -260,7 +263,6 @@ void Framebuffer::detach_normal_texture() {
   unbind();
   }
 //}}}
-
 GLuint Framebuffer::normal_texture() { return m_normal; }
 
 //{{{
@@ -289,12 +291,13 @@ void Framebuffer::set_multisample (bool enable) {
     #ifndef NDEBUG
       GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
-          cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string(status) << endl;
+        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string(status) << endl;
 
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error)
-          cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
+        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
     #endif
+
     unbind();
     }
   }
@@ -312,10 +315,10 @@ void Framebuffer::reshape (GLint width, GLint height) {
 
   for (unsigned int i(0); i < 2; ++i) {
     GLint type, name;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i], 
+                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
-        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
-        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
 
     if (type == GL_TEXTURE)
       m_pimpl->resize_rgba_texture (name, width, height);
@@ -324,9 +327,9 @@ void Framebuffer::reshape (GLint width, GLint height) {
     {
     GLint type, name;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-        GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-        GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
 
     switch (type) {
       case GL_TEXTURE:
@@ -348,11 +351,11 @@ void Framebuffer::reshape (GLint width, GLint height) {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string (status) << endl;
+      cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string (status) << endl;
 
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
+      cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
   #endif
 
   unbind();
@@ -396,11 +399,11 @@ void Framebuffer::remove_and_delete_attachments() {
   for (unsigned int i(0); i < 3; ++i) {
     GLint type;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-        attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
 
     GLint name;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-        attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
 
     switch (type) {
       case GL_TEXTURE:
