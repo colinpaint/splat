@@ -22,10 +22,10 @@ glShader::~glShader() { glDeleteShader(m_shader_obj); }
 //{{{
 void glShader::load_from_file (string const& filename) {
 
-  ifstream input(filename.c_str());
+  ifstream input (filename.c_str());
 
   if (input.fail())
-    throw file_open_error("Could not open file " + filename);
+    throw file_open_error ("Could not open file " + filename);
 
   ostringstream output;
   output << input.rdbuf();

@@ -30,7 +30,6 @@ class glShader {
 public:
   virtual ~glShader();
 
-  void load_from_cstr (char const* source_cstr) { m_source = std::string(source_cstr); }
   void load_from_string (std::string source) { m_source = source; }
   void load_from_file (std::string const& filename);
 
