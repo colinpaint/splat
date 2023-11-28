@@ -41,9 +41,9 @@ namespace {
   int g_shading_method(0);
 
   //{{{
-  struct MyViz {
+  struct sVizApp {
     //{{{
-    MyViz() {
+    sVizApp() {
       // Setup vertex array v.
       vertex_array_v.bind();
 
@@ -140,7 +140,8 @@ namespace {
     GLviz::ProgramSphere program_sphere;
     };
   //}}}
-  unique_ptr<MyViz> viz;
+  unique_ptr<sVizApp> gVizApp;
+
   vector <Eigen::Vector3f> g_ref_vertices;
   vector <Eigen::Vector3f> g_ref_normals;
   vector <Eigen::Vector3f> g_vertices;
@@ -166,31 +167,31 @@ namespace {
     glClearDepth (1.0f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    viz->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_vertices.size(), g_vertices.front().data());
-    viz->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
-    viz->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
+    gVizApp->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_vertices.size(), g_vertices.front().data());
+    gVizApp->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
+    gVizApp->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
 
-    viz->uniform_camera.set_buffer_data (gCamera);
+    gVizApp->uniform_camera.set_buffer_data (gCamera);
 
     if (g_enable_mesh3) {
-      viz->uniform_material.set_buffer_data(g_mesh_material);
+      gVizApp->uniform_material.set_buffer_data(g_mesh_material);
 
-      viz->program_mesh3.set_wireframe (g_enable_wireframe);
+      gVizApp->program_mesh3.set_wireframe (g_enable_wireframe);
       int screen[2] = { GLviz::screen_width(), GLviz::screen_height() };
-      viz->uniform_wireframe.set_buffer_data (g_wireframe, screen);
+      gVizApp->uniform_wireframe.set_buffer_data (g_wireframe, screen);
 
-      viz->program_mesh3.set_smooth (g_shading_method != 0);
-      viz->draw_mesh3(static_cast<GLsizei>(3 * g_faces.size()));
+      gVizApp->program_mesh3.set_smooth (g_shading_method != 0);
+      gVizApp->draw_mesh3(static_cast<GLsizei>(3 * g_faces.size()));
       }
 
     if (g_enable_points) {
-      viz->uniform_material.set_buffer_data (g_points_material);
+      gVizApp->uniform_material.set_buffer_data (g_points_material);
       GLviz::Frustum view_frustum = gCamera.get_frustum();
       g_projection_radius = view_frustum.near_() *
                             (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
 
-      viz->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
-      viz->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
+      gVizApp->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
+      gVizApp->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
       }
     }
   //}}}
@@ -282,7 +283,7 @@ namespace {
       }
     }
   //}}}
-  void close() { viz = nullptr; }
+  void close() { gVizApp = nullptr; }
   }
 
 //{{{
@@ -306,8 +307,7 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "simple");
 
   GLviz::GLviz();
-
-  viz = unique_ptr<MyViz>(new MyViz());
+  gVizApp = unique_ptr<sVizApp>(new sVizApp());
 
   try {
     //GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);

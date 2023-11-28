@@ -72,8 +72,6 @@ public:
   SplatRenderer(GLviz::Camera const& camera);
   virtual ~SplatRenderer();
 
-  void renderFrame (std::vector<Surfel> const& visible_geometry);
-
   bool smooth() const;
   void set_smooth (bool enable = true);
 
@@ -110,13 +108,13 @@ public:
   void set_ewa_radius (float ewa_radius);
 
   void resize (int width, int height);
+  void render (std::vector<Surfel> const& visible_geometry);
 
 private:
   void setup_program_objects();
   void setup_filter_kernel();
   void setup_screen_size_quad();
   void setup_vertex_array_buffer_object();
-
   void setupUniforms (glProgram& program);
 
   void beginFrame();

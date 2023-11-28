@@ -1,4 +1,4 @@
-// splat.cpp - splat main
+ // splat.cpp - splat main
 //{{{  includes
 #include <iostream>
 #include <memory>
@@ -26,7 +26,7 @@ namespace {
   GLviz::Camera gCamera;
 
   vector <Surfel> gSurfels;
-  unique_ptr <SplatRenderer> gViz;
+  unique_ptr <SplatRenderer> gSplatRenderer;
 
   int gModel = 0;
 
@@ -381,7 +381,7 @@ namespace {
   //}}}
 
   // callbacks
-  void display() { gViz->renderFrame (gSurfels); }
+  void display() { gSplatRenderer->render (gSurfels); }
   //{{{
   void resize (int width, int height) {
 
@@ -407,63 +407,63 @@ namespace {
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
-      int shadingMethod = gViz->smooth() ? 1 : 0;
+      int shadingMethod = gSplatRenderer->smooth() ? 1 : 0;
       if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))
-        gViz->set_smooth (shadingMethod > 0 ? true : false);
+        gSplatRenderer->set_smooth (shadingMethod > 0 ? true : false);
 
       //{{{  material
       ImGui::Separator();
-      int color_material = gViz->color_material() ? 1 : 0;
+      int color_material = gSplatRenderer->color_material() ? 1 : 0;
       if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
-        gViz->set_color_material (color_material > 0 ? true : false);
+        gSplatRenderer->set_color_material (color_material > 0 ? true : false);
 
       float material_color[3];
-      copy(gViz->material_color(), gViz->material_color() + 3, material_color);
+      copy(gSplatRenderer->material_color(), gSplatRenderer->material_color() + 3, material_color);
       if (ImGui::ColorEdit3 ("Material color", material_color))
-        gViz->set_material_color (material_color);
+        gSplatRenderer->set_material_color (material_color);
 
-      float material_shininess = gViz->material_shininess();
+      float material_shininess = gSplatRenderer->material_shininess();
       if (ImGui::DragFloat ("Material shininess", &material_shininess, 0.05f, 1e-12f, 1000.0f))
-        gViz->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
+        gSplatRenderer->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
       //}}}
       //{{{  soft z
       ImGui::Separator();
-      bool soft_zbuffer = gViz->soft_zbuffer();
+      bool soft_zbuffer = gSplatRenderer->soft_zbuffer();
       if (ImGui::Checkbox("Soft z-buffer", &soft_zbuffer))
-        gViz->set_soft_zbuffer (soft_zbuffer);
+        gSplatRenderer->set_soft_zbuffer (soft_zbuffer);
 
-      float soft_zbuffer_epsilon = gViz->soft_zbuffer_epsilon();
+      float soft_zbuffer_epsilon = gSplatRenderer->soft_zbuffer_epsilon();
       if (ImGui::DragFloat ("Soft z-buffer epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
-        gViz->set_soft_zbuffer_epsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
+        gSplatRenderer->set_soft_zbuffer_epsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
       //}}}
       //{{{  ewa
       ImGui::Separator();
-      bool ewa_filter = gViz->ewa_filter();
+      bool ewa_filter = gSplatRenderer->ewa_filter();
       if (ImGui::Checkbox ("EWA filter", &ewa_filter))
-        gViz->set_ewa_filter (ewa_filter);
+        gSplatRenderer->set_ewa_filter (ewa_filter);
 
-      float ewa_radius = gViz->ewa_radius();
+      float ewa_radius = gSplatRenderer->ewa_radius();
       if (ImGui::DragFloat ("EWA radius", &ewa_radius, 1e-3f, 0.1f, 4.0f))
-        gViz->set_ewa_radius (ewa_radius);
+        gSplatRenderer->set_ewa_radius (ewa_radius);
       //}}}
 
       ImGui::Separator();
-      int point_size = gViz->pointsize_method();
+      int point_size = gSplatRenderer->pointsize_method();
       if (ImGui::Combo ("Point size", &point_size, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
-        gViz->set_pointsize_method (point_size);
+        gSplatRenderer->set_pointsize_method (point_size);
 
-      float radius_scale = gViz->radius_scale();
+      float radius_scale = gSplatRenderer->radius_scale();
       if (ImGui::DragFloat ("Radius scale", &radius_scale, 0.001f, 1e-6f, 2.0f))
-        gViz->set_radius_scale (min(max( 1e-6f, radius_scale), 2.0f));
+        gSplatRenderer->set_radius_scale (min(max( 1e-6f, radius_scale), 2.0f));
 
       ImGui::Separator();
-      bool multisample_4x = gViz->multisample();
+      bool multisample_4x = gSplatRenderer->multisample();
       if (ImGui::Checkbox ("Multisample 4x", &multisample_4x))
-        gViz->set_multisample (multisample_4x);
+        gSplatRenderer->set_multisample (multisample_4x);
 
-      bool backface_culling = gViz->backface_culling();
+      bool backface_culling = gSplatRenderer->backface_culling();
       if (ImGui::Checkbox ("Backface culling", &backface_culling))
-        gViz->set_backface_culling (backface_culling);
+        gSplatRenderer->set_backface_culling (backface_culling);
       }
 
     ImGui::End();
@@ -474,23 +474,23 @@ namespace {
 
     switch (key) {
       case SDLK_5:
-        gViz->set_smooth (!gViz->smooth());
+        gSplatRenderer->set_smooth (!gSplatRenderer->smooth());
         break;
 
       case SDLK_c:
-        gViz->set_color_material (!gViz->color_material());
+        gSplatRenderer->set_color_material (!gSplatRenderer->color_material());
         break;
 
       case SDLK_z:
-        gViz->set_soft_zbuffer (!gViz->soft_zbuffer());
+        gSplatRenderer->set_soft_zbuffer (!gSplatRenderer->soft_zbuffer());
         break;
 
       case SDLK_u:
-        gViz->set_ewa_filter (!gViz->ewa_filter());
+        gSplatRenderer->set_ewa_filter (!gSplatRenderer->ewa_filter());
         break;
 
       case SDLK_t:
-        gViz->set_pointsize_method ((gViz->pointsize_method() + 1) % 4);
+        gSplatRenderer->set_pointsize_method ((gSplatRenderer->pointsize_method() + 1) % 4);
         break;
 
       case SDLK_q:
@@ -500,7 +500,7 @@ namespace {
       }
     }
   //}}}
-  void close() { gViz = nullptr; }
+  void close() { gSplatRenderer = nullptr; }
   }
 
 //{{{
@@ -524,9 +524,8 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "splat");
 
   GLviz::GLviz (960, 540);
-
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  gViz = unique_ptr<SplatRenderer>(new SplatRenderer (gCamera));
+  gSplatRenderer = unique_ptr<SplatRenderer>(new SplatRenderer (gCamera));
 
   loadModel (gModel);
 
