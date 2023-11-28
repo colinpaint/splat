@@ -12,7 +12,7 @@ add_subdirectory (glviz)
 # simple dragon
 project (simple VERSION 1.0.0)
   add_executable (${PROJECT_NAME} simple.cpp)
-  target_link_libraries (${PROJECT_NAME} PRIVATE glviz common)
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
 
 # splat dragon
 project (splat VERSION 1.0.0)
@@ -21,4 +21,4 @@ project (splat VERSION 1.0.0)
                                   splatProgram.h splatProgram.cpp
                                   splatRenderer.h splatRenderer.cpp)
 
-  target_link_libraries (${PROJECT_NAME} PRIVATE glviz common)
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)

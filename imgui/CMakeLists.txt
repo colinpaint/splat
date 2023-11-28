@@ -16,3 +16,5 @@ project (imgui VERSION 1.0.0)
     find_package (SDL2 REQUIRED CONFIG)
     target_include_directories (${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
   endif()
+
+  target_link_libraries (${PROJECT_NAME} PUBLIC common)

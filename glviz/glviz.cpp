@@ -156,7 +156,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  int exec (Camera& camera) {
+  int mainUILoop (Camera& camera) {
 
     m_camera = &camera;
     Uint32 last_time = 0;
@@ -248,7 +248,7 @@ namespace GLviz {
       exit (EXIT_FAILURE);
       }
       //}}}
-    //{{{  report openGL 
+    //{{{  report openGL
     GLint context_major_version, context_minor_version, context_profile;
     glGetIntegerv (GL_MAJOR_VERSION, &context_major_version);
     glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
@@ -261,7 +261,7 @@ namespace GLviz {
     //}}}
 
     //{{{  init, report glew
-      { 
+      {
       glewExperimental = GL_TRUE;
       GLenum glew_error = glewInit();
       if (glew_error != GLEW_OK) {

@@ -326,6 +326,6 @@ int main (int numArgs, char* args[]) {
   GLviz::guiCallback (gui);
   GLviz::keyboardCallback (keyboard);
 
-  return GLviz::exec (gCamera);
+  return GLviz::mainUILoop (gCamera);
   }
 //}}}
