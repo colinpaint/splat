@@ -26,16 +26,18 @@ using namespace std;
 namespace {
   GLviz::Camera g_camera;
 
-  float g_time(0.0f);
   bool g_stop_simulation(true);
   bool g_enable_mesh3(true);
   bool g_enable_wireframe(false);
   bool g_enable_points(false);
+
+  float g_time(0.0f);
   float g_point_radius(0.0014f);
   float g_projection_radius(0.0f);
   float g_wireframe[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   float g_mesh_material[4] = { 0.0f, 0.25f, 1.0f, 8.0f };
   float g_points_material[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
+
   int g_shading_method(0);
 
   //{{{
@@ -94,13 +96,13 @@ namespace {
       program_mesh3.use();
 
       if (g_shading_method == 0) {
-        // Flat.
+        // Flat
         vertex_array_vf.bind();
         glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
         vertex_array_vf.unbind();
         }
       else {
-        // Smooth.
+        // Smooth
         vertex_array_vnf.bind();
         glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
         vertex_array_vnf.unbind();
@@ -122,8 +124,7 @@ namespace {
       vertex_array_v.unbind();
 
       program_sphere.unuse();
-    }
-
+      }
     //}}}
 
     GLviz::glVertexArray vertex_array_v, vertex_array_vf, vertex_array_vnf;
@@ -195,30 +196,6 @@ namespace {
     }
   //}}}
   //{{{
-  void timer (int delta_t_msec) {
-
-    float delta_t_sec = static_cast<float>(delta_t_msec) / 1000.0f;
-
-    if (!g_stop_simulation) {
-      g_time += delta_t_sec;
-
-      const float k = 50.0f;
-      const float a = 0.03f;
-      const float v = 10.0f;
-      for (unsigned int i(0); i < g_vertices.size(); ++i) {
-        const float x = g_ref_vertices[i].x() + g_ref_vertices[i].y() + g_ref_vertices[i].z();
-
-        const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
-        const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
-
-        g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
-        }
-
-      GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
-      }
-    }
-  //}}}
-  //{{{
   void gui() {
 
     ImGui::Begin ("GLviz", nullptr);
@@ -262,6 +239,30 @@ namespace {
 
       case SDLK_r: g_time = 0.0f; break;
       case SDLK_SPACE: g_stop_simulation = !g_stop_simulation; break;
+      }
+    }
+  //}}}
+  //{{{
+  void timer (int delta_t_msec) {
+
+    float delta_t_sec = static_cast<float>(delta_t_msec) / 1000.0f;
+
+    if (!g_stop_simulation) {
+      g_time += delta_t_sec;
+
+      const float k = 50.0f;
+      const float a = 0.03f;
+      const float v = 10.0f;
+      for (unsigned int i(0); i < g_vertices.size(); ++i) {
+        const float x = g_ref_vertices[i].x() + g_ref_vertices[i].y() + g_ref_vertices[i].z();
+
+        const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
+        const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
+
+        g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
+        }
+
+      GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
       }
     }
   //}}}
