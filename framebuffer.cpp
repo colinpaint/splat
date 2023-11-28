@@ -1,11 +1,9 @@
 //{{{  includes
+#include <cstdlib>
 #include "framebuffer.h"
 
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
-
-#include <iostream>
-#include <cstdlib>
 
 using namespace std;
 //}}}
@@ -255,11 +253,11 @@ void Framebuffer::set_multisample (bool enable) {
     #ifndef NDEBUG
       GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
-        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string(status) << endl;
+        cLog::log (LOGERROR,, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string(status)));
 
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error)
-        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
+        cLog::log (LOGERROR,, fmt::format ("{}", GLviz::get_gl_error_string(gl_error)));
     #endif
 
     unbind();
@@ -271,7 +269,7 @@ void Framebuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
 void Framebuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
 
 //{{{
-void Framebuffer::reshape (GLint width, GLint height) {
+void Framebuffer::resize (GLint width, GLint height) {
 
   bind();
 
@@ -316,11 +314,11 @@ void Framebuffer::reshape (GLint width, GLint height) {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string (status) << endl;
+      cLog::log (LOGERROR,, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status)));
 
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
+      cLog::log (LOGERROR,, fmt::format ("{}", GLviz::get_gl_error_string(gl_error)));
   #endif
 
   unbind();
@@ -352,7 +350,7 @@ void Framebuffer::initialize() {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_framebuffer_status_string (status) << endl;
+      cLog::log (LOGERROR,, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status));
   #endif
   }
 //}}}

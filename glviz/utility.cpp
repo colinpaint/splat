@@ -6,18 +6,24 @@
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
+
+#include "../common/date.h"
+#include "../common/cLog.h"
+
+using namespace std;
 //}}}
 
 namespace GLviz {
   //{{{
-  void load_raw  (std::string const& filename, std::vector<Eigen::Vector3f>& vertices,
-                  std::vector<std::array<unsigned int, 3> >& faces) {
+  void loadRaw  (string const& filename, 
+                 vector<Eigen::Vector3f>& vertices,
+                 vector<array<unsigned int, 3>>& faces) {
 
-    std::ifstream input (filename, std::ios::in | std::ios::binary);
+    ifstream input (filename, ios::in | ios::binary);
     if (input.fail()) {
-      std::ostringstream error_message;
-      error_message << "Error: Can not open " << filename << "." << std::endl;
-      throw std::runtime_error (error_message.str().c_str());
+      ostringstream error_message;
+      error_message << "Error: Can not open " << filename << "." << endl;
+      throw runtime_error (error_message.str().c_str());
       }
 
     unsigned int nv;
@@ -38,15 +44,16 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void save_raw (std::string const& filename, std::vector<Eigen::Vector3f>
-                 const& vertices, std::vector<std::array<unsigned int, 3> >& faces) {
+  void saveRaw (string const& filename, 
+                vector<Eigen::Vector3f> const& vertices, 
+                vector<array<unsigned int, 3>>& faces) {
 
-    std::ofstream output(filename, std::ios::out | std::ios::binary);
+    ofstream output(filename, ios::out | ios::binary);
 
     if (output.fail()) {
-      std::ostringstream error_message;
-      error_message << "Error: Can not open " << filename << "." << std::endl;
-      throw std::runtime_error(error_message.str().c_str());
+      ostringstream error_message;
+      error_message << "Error: Can not open " << filename << "." << endl;
+      throw runtime_error(error_message.str().c_str());
       }
 
     unsigned int nv = static_cast<unsigned int>(vertices.size());
@@ -66,17 +73,32 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void setVertexNormalsFromTriangleMesh (std::vector<Eigen::Vector3f>
-                                         const& vertices, std::vector<std::array<unsigned int, 3> > const& faces,
-                                         std::vector<Eigen::Vector3f>& normals) {
+  void loadMesh (string const& filename,
+                 vector<Eigen::Vector3f>& vertices, 
+                 vector<array<unsigned int,3>>& faces) {
+
+    ifstream input (filename);
+    if (input.good()) {
+      input.close();
+      GLviz::loadRaw (filename, vertices, faces);
+      }
+
+    cLog::log (LOGINFO, fmt::format ("loadMesh:{} vertices:{} faces:{}",
+                                     filename, vertices.size(), faces.size()));
+    }
+  //}}}
+  //{{{
+  void setVertexNormalsFromTriangleMesh (vector<Eigen::Vector3f> const& vertices, 
+                                         vector<array<unsigned int,3>> const& faces,
+                                         vector<Eigen::Vector3f>& normals) {
 
     unsigned int nf(static_cast<unsigned int>(faces.size())), nv(static_cast<unsigned int>(vertices.size()));
 
     normals.resize (vertices.size());
-    std::fill (normals.begin(), normals.end(), Eigen::Vector3f::Zero());
+    fill (normals.begin(), normals.end(), Eigen::Vector3f::Zero());
 
     for (unsigned int i(0); i < nf; ++i) {
-      std::array<unsigned int, 3> const& f_i = faces[i];
+      array<unsigned int, 3> const& f_i = faces[i];
 
       Eigen::Vector3f const& p0(vertices[f_i[0]]);
       Eigen::Vector3f const& p1(vertices[f_i[1]]);
@@ -96,9 +118,9 @@ namespace GLviz {
   //}}}
 
   //{{{
-  std::string get_gl_error_string(GLenum gl_error) {
+  string get_gl_error_string(GLenum gl_error) {
 
-     std::string error_string;
+     string error_string;
 
      switch (gl_error) {
       case GL_NO_ERROR:
@@ -133,9 +155,9 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  std::string get_gl_framebuffer_status_string (GLenum framebuffer_status) {
+  string get_gl_framebuffer_status_string (GLenum framebuffer_status) {
 
-    std::string status_string;
+    string status_string;
 
     switch (framebuffer_status) {
       case GL_FRAMEBUFFER_COMPLETE:

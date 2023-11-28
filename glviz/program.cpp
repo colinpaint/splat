@@ -5,14 +5,8 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace Eigen;
-
-extern unsigned char const mesh3_vs_glsl[];
-extern unsigned char const mesh3_gs_glsl[];
-extern unsigned char const mesh3_fs_glsl[];
-
-extern unsigned char const sphere_vs_glsl[];
-extern unsigned char const sphere_fs_glsl[];
+#include "../common/date.h"
+#include "../common/cLog.h"
 
 using namespace std;
 //}}}
@@ -331,14 +325,14 @@ namespace GLviz {
   //{{{
   void UniformBufferCamera::set_buffer_data (Camera const& camera) {
 
-    Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
-    Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();
-    Matrix4f const& projection_matrix = camera.get_projection_matrix();
+    Eigen::Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
+    Eigen::Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();
+    Eigen::Matrix4f const& projection_matrix = camera.get_projection_matrix();
 
     bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(GLfloat), modelview_matrix.data());
-    glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(GLfloat), 16 * sizeof(GLfloat), modelview_matrix_it.data());
-    glBufferSubData(GL_UNIFORM_BUFFER, 32 * sizeof(GLfloat), 16 * sizeof(GLfloat), projection_matrix.data());
+    glBufferSubData (GL_UNIFORM_BUFFER, 0, 16 * sizeof(GLfloat), modelview_matrix.data());
+    glBufferSubData (GL_UNIFORM_BUFFER, 16 * sizeof(GLfloat), 16 * sizeof(GLfloat), modelview_matrix_it.data());
+    glBufferSubData (GL_UNIFORM_BUFFER, 32 * sizeof(GLfloat), 16 * sizeof(GLfloat), projection_matrix.data());
     unbind();
     }
   //}}}

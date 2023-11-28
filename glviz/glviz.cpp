@@ -34,16 +34,16 @@ namespace GLviz {
     function<void()> m_closeCallback;
     function<void (unsigned int)> m_timerCallback;
     function<void (SDL_Keycode)> m_keyboardCallback;
-    function<void (int width, int height)> m_reshapeCallback;
+    function<void (int width, int height)> mResizeCallback;
 
     //{{{
-    void reshape (int width, int height) {
+    void resize (int width, int height) {
 
       m_screen_width  = width;
       m_screen_height = height;
 
-      if (m_reshapeCallback)
-        m_reshapeCallback (width, height);
+      if (mResizeCallback)
+        mResizeCallback (width, height);
     }
     //}}}
     //{{{
@@ -75,13 +75,13 @@ namespace GLviz {
       SDL_Event event;
 
       while (SDL_PollEvent(&event)) {
-        ImGui_ImplSDL2_ProcessEvent(&event);
+        ImGui_ImplSDL2_ProcessEvent (&event);
         ImGuiIO const& io = ImGui::GetIO();
 
         switch (event.type) {
           case SDL_KEYDOWN:
             if (!io.WantCaptureKeyboard && m_keyboardCallback)
-              m_keyboardCallback(event.key.keysym.sym);
+              m_keyboardCallback (event.key.keysym.sym);
             break;
 
           case SDL_KEYUP:
@@ -89,24 +89,24 @@ namespace GLviz {
 
           case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-              reshape(event.window.data1, event.window.data2);
+              resize (event.window.data1, event.window.data2);
             break;
 
           case SDL_MOUSEBUTTONUP:
             if (!io.WantCaptureMouse)
-              SDL_CaptureMouse(SDL_FALSE);
+              SDL_CaptureMouse (SDL_FALSE);
             break;
 
           case SDL_MOUSEBUTTONDOWN:
             if (!io.WantCaptureMouse) {
-              SDL_CaptureMouse(SDL_TRUE);
-              mouse(event.button.button, event.button.state, event.button.x, event.button.y);
+              SDL_CaptureMouse (SDL_TRUE);
+              mouse (event.button.button, event.button.state, event.button.x, event.button.y);
               }
             break;
 
           case SDL_MOUSEMOTION:
             if (!io.WantCaptureMouse)
-              motion(event.motion.state, event.motion.x, event.motion.y);
+              motion (event.motion.state, event.motion.x, event.motion.y);
             break;
 
           case SDL_QUIT:
@@ -148,8 +148,8 @@ namespace GLviz {
   }
   //}}}
   //{{{
-  void reshapeCallback (function<void (int width, int height)> reshapeCallback) {
-    m_reshapeCallback = reshapeCallback;
+  void resizeCallback (function<void (int width, int height)> resizeCallback) {
+    mResizeCallback = resizeCallback;
     }
   //}}}
 
@@ -187,7 +187,7 @@ namespace GLviz {
     m_camera = &camera;
     Uint32 last_time = 0;
 
-    reshape (m_screen_width, m_screen_height);
+    resize (m_screen_width, m_screen_height);
 
     while (!process_events()) {
       if (m_timerCallback) {

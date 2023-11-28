@@ -109,7 +109,7 @@ public:
   float ewa_radius() const;
   void set_ewa_radius (float ewa_radius);
 
-  void reshape (int width, int height);
+  void resize (int width, int height);
 
 private:
   void setup_program_objects();

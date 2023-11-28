@@ -21,7 +21,7 @@ public:
 
   void bind();
   void unbind();
-  void reshape (GLint width, GLint height);
+  void resize (GLint width, GLint height);
 
 private:
   void initialize();

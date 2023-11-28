@@ -340,7 +340,7 @@ void SplatRenderer::set_pointsize_method (unsigned int pointsize_method) {
 float SplatRenderer::radius_scale() const { return m_radius_scale; }
 void SplatRenderer::set_radius_scale (float radius_scale) { m_radius_scale = radius_scale; }
 
-void SplatRenderer::reshape (int width, int height) { m_fbo.reshape(width, height); }
+void SplatRenderer::resize (int width, int height) { m_fbo.resize (width, height); }
 
 //{{{
 void SplatRenderer::setup_uniforms (glProgram& program) {

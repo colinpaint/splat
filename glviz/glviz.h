@@ -12,7 +12,7 @@ namespace GLviz {
   void     set_camera (Camera& camera);
 
   void     displayCallback (std::function<void()> displayCallback);
-  void     reshapeCallback (std::function<void (int, int)> reshapeCallback);
+  void     resizeCallback (std::function<void (int, int)> resizeCallback);
   void     timerCallback (std::function<void (unsigned int)> timerCallback, unsigned int timer_msec);
   void     closeCallback (std::function<void()> closeCallback);
   void     guiCallback (std::function<void()> guiCallback);

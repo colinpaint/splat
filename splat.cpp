@@ -165,35 +165,13 @@ namespace {
   //}}}
 
   //{{{
-  void loadMesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
-
-    cout << "\nRead " << filename << "." << endl;
-    ifstream input (filename);
-
-    if (input.good()) {
-      input.close();
-      GLviz::load_raw (filename, vertices, faces);
-      }
-    else {
-      input.close();
-
-      ostringstream fqfn;
-      fqfn << "../models/";
-      fqfn << filename;
-      GLviz::load_raw (fqfn.str(), vertices, faces);
-      }
-
-    cout << "  #vertices " << vertices.size() << endl;
-    cout << "  #faces    " << faces.size() << endl;
-    }
-  //}}}
-  //{{{
   void loadDragon() {
     vector <Eigen::Vector3f> vertices, normals;
     vector <array <unsigned int, 3>>  faces;
 
     try {
-      loadMesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
+      GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", vertices, faces);
+      GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
       }
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
@@ -408,7 +386,7 @@ namespace {
 
   // callbacks
   //{{{
-  void reshape (int width, int height) {
+  void resize (int width, int height) {
 
     const float aspect = static_cast<float>(width) / static_cast<float>(height);
     glViewport (0, 0, width, height);
@@ -551,7 +529,7 @@ int main (int numArgs, char* args[]) {
   load_model();
 
   GLviz::displayCallback (display);
-  GLviz::reshapeCallback (reshape);
+  GLviz::resizeCallback (resize);
   GLviz::closeCallback (close);
   GLviz::guiCallback (gui);
   GLviz::keyboardCallback (keyboard);
