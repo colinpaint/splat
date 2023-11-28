@@ -22,7 +22,7 @@ project (common VERSION 1.0.0)
 
   else()
     target_compile_definitions (${PROJECT_NAME} PUBLIC _LARGEFILE64_SOURCE _FILE_OFFSET_BITS=64)
-    target_compile_options (${PROJECT_NAME} PUBLIC -Wall
+    target_compile_options (${PROJECT_NAME} PUBLIC -g
                                                    -Wextra
                                                    -Wno-missing-field-initializers
                                                    -Wno-format-security
@@ -30,8 +30,7 @@ project (common VERSION 1.0.0)
                                                    -pedantic
                                                    -flax-vector-conversions
                                                    -ftree-vectorize
-                                                   #-fno-exceptions
-                                                   -march=native
+                                                   #-march=native
                                                    -g
                                                    ${BUILD_LINUX_COMPILE_OPTIONS})
     message (STATUS "linux built with native")
