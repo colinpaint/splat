@@ -353,7 +353,7 @@ void Framebuffer::initialize() {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status));
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status)));
   #endif
   }
 //}}}
