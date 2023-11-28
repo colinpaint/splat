@@ -1,12 +1,5 @@
 // splat.cpp - splat main
 //{{{  includes
-#include "glviz/glviz.h"
-#include "glviz/utility.h"
-
-#include "splatRenderer.h"
-
-#include <Eigen/Core>
-
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -14,8 +7,17 @@
 #include <vector>
 #include <array>
 #include <exception>
-
 #include <thread>
+
+#include "../common/date.h"
+#include "../common/cLog.h"
+
+#include "glviz/glviz.h"
+#include "glviz/utility.h"
+
+#include "splatRenderer.h"
+
+#include <Eigen/Core>
 
 using namespace std;
 //}}}
@@ -114,8 +116,8 @@ namespace {
   //}}}
 
   //{{{
-  void face_to_surfel (vector<Eigen::Vector3f> const& vertices,
-                       array<unsigned int, 3> const& face, Surfel& surfel) {
+  void faceToSurfel (vector <Eigen::Vector3f> const& vertices,
+                     array <unsigned int, 3> const& face, Surfel& surfel) {
 
     Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
 
@@ -142,8 +144,8 @@ namespace {
     }
   //}}}
   //{{{
-  void mesh_to_surfel (vector<Eigen::Vector3f> const& vertices,
-                       vector<array<unsigned int, 3>> const& faces, vector<Surfel>& surfels) {
+  void meshToSurfel (vector <Eigen::Vector3f> const& vertices,
+                     vector <array <unsigned int, 3>> const& faces, vector<Surfel>& surfels) {
 
     surfels.resize (faces.size());
 
@@ -154,7 +156,7 @@ namespace {
 
       threads[i] = thread([b, e, &vertices, &faces, &surfels]() {
         for (size_t j = b; j < e; ++j)
-          face_to_surfel (vertices, faces[j], surfels[j]);
+          faceToSurfel (vertices, faces[j], surfels[j]);
         });
       }
 
@@ -164,7 +166,7 @@ namespace {
   //}}}
 
   //{{{
-  void loadTriangleMmesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
+  void loadTriangleMesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
 
     cout << "\nRead " << filename << "." << endl;
     ifstream input (filename);
@@ -192,7 +194,7 @@ namespace {
     vector <array <unsigned int, 3>>  faces;
 
     try {
-      loadTriangleMmesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
+      loadTriangleMesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
       }
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
@@ -201,7 +203,7 @@ namespace {
 
     GLviz::set_vertex_normals_from_triangle_mesh (vertices, faces, normals);
 
-    mesh_to_surfel (vertices, faces, gSurfels);
+    meshToSurfel (vertices, faces, gSurfels);
     }
   //}}}
   //{{{
@@ -523,7 +525,24 @@ namespace {
   }
 
 //{{{
-int main (int argc, char* argv[]) {
+int main (int numArgs, char* args[]) {
+
+  eLogLevel logLevel = LOGINFO;
+  //{{{  parse commandLine to params
+  // parse params
+  for (int i = 1; i < numArgs; i++) {
+    string param = args[i];
+
+    if (param == "log1")
+      logLevel = LOGINFO1;
+    else if (param == "log2")
+      logLevel = LOGINFO2;
+    else if (param == "log3")
+      logLevel = LOGINFO3;
+    }
+  //}}}
+  cLog::init (logLevel);
+  cLog::log (LOGNOTICE, "splat");
 
   GLviz::GLviz (960, 540);
 

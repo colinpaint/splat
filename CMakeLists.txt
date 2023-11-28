@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.18)
 #
+add_subdirectory (fmt)
+add_subdirectory (common)
 add_subdirectory (imgui)
 add_subdirectory (glviz)
 
@@ -10,7 +12,7 @@ add_subdirectory (glviz)
 # simple dragon
 project (simple VERSION 1.0.0)
   add_executable (${PROJECT_NAME} simple.cpp)
-  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz common)
 
 # splat dragon
 project (splat VERSION 1.0.0)
@@ -19,4 +21,4 @@ project (splat VERSION 1.0.0)
                                   splatProgram.h splatProgram.cpp
                                   splatRenderer.h splatRenderer.cpp)
 
-  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
+  target_link_libraries (${PROJECT_NAME} PRIVATE glviz common)

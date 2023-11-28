@@ -1,7 +1,9 @@
 //{{{  includes
+#include <cstdlib>
+#include <functional>
+
 #include "glviz.h"
 #include "utility.h"
-
 #include "camera.h"
 
 #include <imgui.h>
@@ -11,9 +13,8 @@
 #include <GL/glew.h>
 #include <SDL.h>
 
-#include <iostream>
-#include <cstdlib>
-#include <functional>
+#include "../common/date.h"
+#include "../common/cLog.h"
 
 using namespace std;
 //}}}
@@ -50,10 +51,6 @@ namespace GLviz {
 
       const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
       const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
-
-      //cout << "mouse " << xf << "," << yf << " " << x << "," << y << " "
-      //                 << m_screen_width << "," << m_screen_height << endl;
-
       m_camera->trackball_begin_motion (xf, yf);
       }
     //}}}
@@ -62,9 +59,6 @@ namespace GLviz {
 
       const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
       const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
-
-      //cout << "motion " << xf << "," << yf << " " << x << "," << y << " "
-      //                  << m_screen_width << "," << m_screen_height << endl;
 
       if (state & SDL_BUTTON_LMASK)
         m_camera->trackball_end_motion_rotate (xf, yf);
@@ -160,7 +154,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void cout_opengl_version() {
+  void opengl_version() {
 
     GLint context_major_version, context_minor_version, context_profile;
 
@@ -168,24 +162,22 @@ namespace GLviz {
     glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
     glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
 
-    cout << "  OpenGL version " << context_major_version << "." << context_minor_version << " ";
+    cLog::log (LOGINFO, fmt::format ("OpenGL version {} {}", context_major_version, context_minor_version));
 
     switch (context_profile) {
       case GL_CONTEXT_CORE_PROFILE_BIT:
-        cout << "core";
+        cLog::log (LOGINFO, fmt::format ("- core"));
         break;
 
       case GL_CONTEXT_COMPATIBILITY_PROFILE_BIT:
-        cout << "compatibility";
+        cLog::log (LOGINFO, fmt::format ("- compatibility"));
         break;
       }
-
-    cout << " profile context" << endl;
     }
   //}}}
   //{{{
-  void cout_glew_version() {
-    cout << "  GLEW version " << glewGetString(GLEW_VERSION) << "." << endl;
+  void glew_version() {
+    cLog::log (LOGINFO, fmt::format ("GLEW version {}", (const char*)glewGetString(GLEW_VERSION)));
     }
   //}}}
 
@@ -243,8 +235,7 @@ namespace GLviz {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       //{{{  error,return
         // Initialize GLEW.
-      cerr << "Failed to initialize SDL Video:" << endl;
-      cerr << "Error: " << SDL_GetError() << endl;
+      cLog::log (LOGERROR, fmt::format ("Failed to initialize SDL Video {}", SDL_GetError()));
       SDL_Quit();
       exit(EXIT_FAILURE);
       }
@@ -261,7 +252,7 @@ namespace GLviz {
     //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     // no WSL
-    cout << "multiSample disabled" << endl;
+    cLog::log (LOGINFO, "multiSample disabled");
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
@@ -270,9 +261,7 @@ namespace GLviz {
                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if (!m_sdl_window) {
       //{{{  error, return
-      cerr << "Failed to create SDL window:" << endl;
-      cerr << "Error: " << SDL_GetError() << endl;
-
+      cLog::log (LOGERROR, fmt::format ("Failed to create SDL window: {}", SDL_GetError()));
       SDL_Quit();
       exit (EXIT_FAILURE);
       }
@@ -281,25 +270,23 @@ namespace GLviz {
     m_gl_context = SDL_GL_CreateContext(m_sdl_window);
     if (!m_gl_context) {
       //{{{  error, return
-      cerr << "Failed to initialize OpenGL:" << endl;
-      cerr << "Error: " << SDL_GetError() << endl;
-
+      cLog::log (LOGERROR, fmt::format ("Failed to create initialize OpenGL: {}", SDL_GetError()));
       SDL_Quit();
       exit(EXIT_FAILURE);
       }
       //}}}
 
     // Print OpenGL version.
-    cout_opengl_version();
+    opengl_version();
 
       { // Initialize GLEW.
       glewExperimental = GL_TRUE;
       GLenum glew_error = glewInit();
 
       if (GLEW_OK != glew_error) {
-        //{{{  erro, return
-        cerr << "Failed to initialize GLEW:" << endl;
-        cerr << __FILE__ << "(" << __LINE__ << "): " << glewGetErrorString(glew_error) << endl;
+        //{{{  error, return
+        cLog::log (LOGERROR, fmt::format ("Failed to create initialize GLEW {}",
+                                          (const char*)(glewGetErrorString(glew_error))));
         exit(EXIT_FAILURE);
         }
         //}}}
@@ -308,12 +295,11 @@ namespace GLviz {
       // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
-        cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << endl;
+        cLog::log (LOGERROR, fmt::format ("Gl {}", GLviz::get_gl_error_string (gl_error)));
       }
 
     // print GLEW version.
-    cout_glew_version();
-    cout << endl;
+    glew_version();
 
     // Initialize ImGui.
     ImGui::CreateContext();

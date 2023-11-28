@@ -1,4 +1,13 @@
 //{{{  includes
+#include <cstdlib>
+#include <memory>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <array>
+#include <exception>
+#include <cmath>
+
 #include "glviz/glviz.h"
 #include "glviz/buffer.h"
 #include "glviz/program.h"
@@ -7,14 +16,8 @@
 
 #include <Eigen/Core>
 
-#include <iostream>
-#include <memory>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <array>
-#include <exception>
-#include <cmath>
+#include "../common/date.h"
+#include "../common/cLog.h"
 
 using namespace std;
 using namespace Eigen;
@@ -147,7 +150,7 @@ namespace {
   //{{{
   void load_triangle_mesh (string const& filename) {
 
-    cout << "\nRead " << filename << "." << endl;
+    cLog::log (LOGINFO, fmt::format ("read {}", filename));
     ifstream input (filename);
 
     if (input.good()) {
@@ -163,8 +166,7 @@ namespace {
       GLviz::load_raw (fqfn.str(), g_vertices, g_faces);
       }
 
-    cout << "  #vertices " << g_vertices.size() << endl;
-    cout << "  #faces    " << g_faces.size() << endl;
+    cLog::log (LOGINFO, fmt::format ("vertices:{} faces:{}", g_vertices.size(), g_faces.size()));
 
     GLviz::set_vertex_normals_from_triangle_mesh (g_vertices, g_faces, g_normals);
 
@@ -204,8 +206,8 @@ namespace {
     if (g_enable_points) {
       viz->uniform_material.set_buffer_data (g_points_material);
       GLviz::Frustum view_frustum = g_camera.get_frustum();
-      float g_projection_radius = view_frustum.near_() * 
-                                  (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
+      g_projection_radius = view_frustum.near_() *
+                            (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
 
       viz->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
       viz->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
@@ -296,7 +298,24 @@ namespace {
   }
 
 //{{{
-int main (int argc, char* argv[]) {
+int main (int numArgs, char* args[]) {
+
+  eLogLevel logLevel = LOGINFO;
+  //{{{  parse commandLine to params
+  // parse params
+  for (int i = 1; i < numArgs; i++) {
+    string param = args[i];
+
+    if (param == "log1")
+      logLevel = LOGINFO1;
+    else if (param == "log2")
+      logLevel = LOGINFO2;
+    else if (param == "log3")
+      logLevel = LOGINFO3;
+    }
+  //}}}
+  cLog::init (logLevel);
+  cLog::log (LOGNOTICE, "simple");
 
   GLviz::GLviz();
 
@@ -306,7 +325,7 @@ int main (int argc, char* argv[]) {
     load_triangle_mesh ("stanford_dragon_v40k_f80k.raw");
     }
   catch(runtime_error const& e) {
-    cerr << e.what() << endl;
+    cLog::log (LOGERROR, e.what());
     exit (EXIT_FAILURE);
     }
 
