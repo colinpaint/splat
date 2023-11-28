@@ -53,8 +53,8 @@ namespace GLviz {
     Eigen::Vector3f ori = dir * m_position;
 
     // Translation * Rotation
-    m_modelview_matrix.topLeftCorner(3, 3) = dir;
-    m_modelview_matrix.topRightCorner(3, 1) = m_position;
+    m_modelview_matrix.topLeftCorner (3, 3) = dir;
+    m_modelview_matrix.topRightCorner (3, 1) = m_position;
     }
   //}}}
 
