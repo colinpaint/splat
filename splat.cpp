@@ -28,7 +28,7 @@ namespace {
   vector <Surfel> gSurfels;
   unique_ptr <SplatRenderer> gViz;
 
-  int gModel = 1;
+  int gModel = 0;
 
   //{{{
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
@@ -362,9 +362,9 @@ namespace {
     }
   //}}}
   //{{{
-  void load_model() {
+  void loadModel (int model) {
 
-    switch (gModel) {
+    switch (model) {
       case 0:
         loadDragon();
         break;
@@ -403,7 +403,7 @@ namespace {
     ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
       if (ImGui::Combo ("Models", &gModel, "Dragon\0Plane\0Cube"))
-        load_model();
+        loadModel (gModel);
 
     ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
@@ -528,7 +528,7 @@ int main (int numArgs, char* args[]) {
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
   gViz = unique_ptr<SplatRenderer>(new SplatRenderer (gCamera));
 
-  load_model();
+  loadModel (gModel);
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);

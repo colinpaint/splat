@@ -24,7 +24,7 @@ using namespace std;
 //}}}
 
 namespace {
-  GLviz::Camera g_camera;
+  GLviz::Camera gCamera;
 
   bool g_stop_simulation(true);
   bool g_enable_mesh3(true);
@@ -86,7 +86,7 @@ namespace {
       uniform_wireframe.bind_buffer_base(2);
       uniform_sphere.bind_buffer_base(3);
 
-      g_camera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+      gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
       }
     //}}}
 
@@ -149,6 +149,14 @@ namespace {
 
   // callbacks
   //{{{
+  void resize (int width, int height) {
+
+    glViewport (0, 0, width, height);
+    const float aspect = static_cast<float>(width) / static_cast<float>(height);
+    gCamera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
+    }
+  //}}}
+  //{{{
   void display() {
 
     glEnable (GL_MULTISAMPLE);
@@ -162,7 +170,7 @@ namespace {
     viz->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
     viz->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
 
-    viz->uniform_camera.set_buffer_data (g_camera);
+    viz->uniform_camera.set_buffer_data (gCamera);
 
     if (g_enable_mesh3) {
       viz->uniform_material.set_buffer_data(g_mesh_material);
@@ -177,22 +185,13 @@ namespace {
 
     if (g_enable_points) {
       viz->uniform_material.set_buffer_data (g_points_material);
-      GLviz::Frustum view_frustum = g_camera.get_frustum();
+      GLviz::Frustum view_frustum = gCamera.get_frustum();
       g_projection_radius = view_frustum.near_() *
                             (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
 
       viz->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
       viz->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
       }
-    }
-  //}}}
-  //{{{
-  void resize (int width, int height) {
-
-    const float aspect = static_cast<float>(width) / static_cast<float>(height);
-
-    glViewport (0, 0, width, height);
-    g_camera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
     }
   //}}}
   //{{{
@@ -327,6 +326,6 @@ int main (int numArgs, char* args[]) {
   GLviz::guiCallback (gui);
   GLviz::keyboardCallback (keyboard);
 
-  return GLviz::exec (g_camera);
+  return GLviz::exec (gCamera);
   }
 //}}}
