@@ -82,11 +82,11 @@ namespace {
       d2 = (1.0f / 3.0f) * (v[0] + v[1] + v[2]);
 
       Eigen::Vector2f p[3];
-      for (unsigned int j(0); j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
         p[j] = Eigen::Vector2f (d0.dot(v[j] - d2), d1.dot(v[j] - d2));
 
       Eigen::Matrix3f A;
-      for (unsigned int j(0); j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
         A.row(j) = Eigen::Vector3f (p[j].x() * p[j].x(), 2.0f * p[j].x() * p[j].y(), p[j].y() * p[j].y());
 
       Eigen::FullPivLU<Eigen::Matrix3f> lu(A);
@@ -97,10 +97,10 @@ namespace {
       Q(0, 1) = Q(1, 0) = res(1);
       }
 
-    Eigen::Map<Eigen::Vector3f> p0(p0_ptr), t1(t1_ptr), t2(t2_ptr);
+    Eigen::Map <Eigen::Vector3f> p0(p0_ptr), t1(t1_ptr), t2(t2_ptr);
 
       {
-      Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> es;
+      Eigen::SelfAdjointEigenSolver <Eigen::Matrix2f> es;
       es.compute (Q);
 
       Eigen::Vector2f const& l = es.eigenvalues();
@@ -114,19 +114,21 @@ namespace {
     }
   //}}}
   //{{{
-  void faceToSurfel (vector <Eigen::Vector3f> const& vertices, array <unsigned int, 3> const& face, 
+  void faceToSurfel (vector <Eigen::Vector3f> const& vertices, array <unsigned int, 3> const& face,
                      sSurfel& surfel) {
 
     Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
 
-    Eigen::Vector3f p0, t1, t2;
-    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(), p0.data(), t1.data(), t2.data());
+    Eigen::Vector3f p0;
+    Eigen::Vector3f t1;
+    Eigen::Vector3f t2;
+    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(), 
+                          p0.data(), t1.data(), t2.data());
 
-    Eigen::Vector3f n_s = t1.cross(t2);
-    Eigen::Vector3f n_t = (v[1] - v[0]).cross(v[2] - v[0]);
-
-    if (n_t.dot(n_s) < 0.0f)
-      t1.swap(t2);
+    Eigen::Vector3f n_s = t1.cross (t2);
+    Eigen::Vector3f n_t = (v[1] - v[0]).cross (v[2] - v[0]);
+    if (n_t.dot (n_s) < 0.0f)
+      t1.swap (t2);
 
     surfel.c = p0;
     surfel.u = t1;
@@ -135,14 +137,14 @@ namespace {
 
     float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
     float r, g, b;
-    hsv2rgb(h, 1.0f, 1.0f, r, g, b);
+    hsv2rgb (h, 1.0f, 1.0f, r, g, b);
     surfel.rgba = static_cast<unsigned int>(r * 255.0f)
                 | (static_cast<unsigned int>(g * 255.0f) << 8)
                 | (static_cast<unsigned int>(b * 255.0f) << 16);
     }
   //}}}
   //{{{
-  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, vector <array <unsigned int, 3>> const& faces, 
+  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, vector <array <unsigned int, 3>> const& faces,
                      vector<sSurfel>& surfels) {
 
     surfels.resize (faces.size());
