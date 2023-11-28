@@ -6,19 +6,17 @@
 
 #include <iostream>
 #include <cmath>
-
-using namespace Eigen;
 //}}}
 
 // UniformBufferRaycast
 //{{{
 UniformBufferRaycast::UniformBufferRaycast()
-    : glUniformBuffer(sizeof(Matrix4f) + sizeof(Vector4f))
+    : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f))
 {
 }
 //}}}
 //{{{
-void UniformBufferRaycast::set_buffer_data (Matrix4f const&
+void UniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
     projection_matrix_inv, GLint const* viewport)
 {
     float viewportf[4] = {
@@ -29,9 +27,9 @@ void UniformBufferRaycast::set_buffer_data (Matrix4f const&
     };
 
     bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f),
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Eigen::Matrix4f),
         projection_matrix_inv.data());
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Matrix4f),
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Eigen::Matrix4f),
         4 * sizeof(float), viewportf);
     unbind();
 }
@@ -40,15 +38,15 @@ void UniformBufferRaycast::set_buffer_data (Matrix4f const&
 // UniformBufferFrustum
 //{{{
 UniformBufferFrustum::UniformBufferFrustum()
-    : glUniformBuffer(6 * sizeof(Vector4f))
+    : glUniformBuffer(6 * sizeof(Eigen::Vector4f))
 {
 }
 //}}}
 //{{{
-void UniformBufferFrustum::set_buffer_data (Vector4f const* frustum_plane)
+void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane)
 {
     bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Vector4f),
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f),
         static_cast<void const*>(frustum_plane));
     unbind();
 }
@@ -62,7 +60,7 @@ UniformBufferParameter::UniformBufferParameter()
 }
 //}}}
 //{{{
-void UniformBufferParameter::set_buffer_data (Vector3f const& color, float shininess,
+void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shininess,
     float radius_scale, float ewa_radius, float epsilon)
 {
     bind();
@@ -81,7 +79,7 @@ SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
     : m_camera(camera), m_soft_zbuffer(true), m_smooth(false),
       m_color_material(true), m_ewa_filter(false), m_multisample(false),
       m_pointsize_method(0), m_backface_culling(false),
-      m_color(Vector3f(0.0, 0.25f, 1.0f)), m_epsilon(1.0f * 1e-3f),
+      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)), m_epsilon(1.0f * 1e-3f),
       m_shininess(8.0f), m_radius_scale(1.0f), m_ewa_radius(1.0f)
 {
     m_uniform_camera.bind_buffer_base(0);
@@ -284,7 +282,7 @@ void SplatRenderer::set_color_material (bool enable) {
 float const* SplatRenderer::material_color() const { return m_color.data(); }
 //{{{
 void SplatRenderer::set_material_color (float const* color_ptr) {
-  Map<const Vector3f> color(color_ptr);
+  Eigen::Map<const Eigen::Vector3f> color(color_ptr);
   m_color = color;
   }
 //}}}
@@ -355,9 +353,9 @@ void SplatRenderer::setup_uniforms (glProgram& program) {
 
   m_uniform_raycast.set_buffer_data (m_camera.get_projection_matrix().inverse(), viewport);
 
-  Vector4f frustum_plane[6];
+  Eigen::Vector4f frustum_plane[6];
 
-  Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
+  Eigen::Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
   for (unsigned int i(0); i < 6; ++i)
     frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f
       * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
