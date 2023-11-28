@@ -5,6 +5,9 @@
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
 
+#include "../common/date.h"
+#include "../common/cLog.h"
+
 using namespace std;
 //}}}
 

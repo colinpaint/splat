@@ -113,7 +113,6 @@ namespace {
       }
     }
   //}}}
-
   //{{{
   void faceToSurfel (vector <Eigen::Vector3f> const& vertices,
                      array <unsigned int, 3> const& face, Surfel& surfel) {
@@ -163,7 +162,6 @@ namespace {
       t.join();
     }
   //}}}
-
   //{{{
   void loadDragon() {
     vector <Eigen::Vector3f> vertices, normals;
@@ -171,7 +169,6 @@ namespace {
 
     try {
       GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", vertices, faces);
-      GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
       }
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
@@ -179,10 +176,10 @@ namespace {
       }
 
     GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
-
     meshToSurfel (vertices, faces, gSurfels);
     }
   //}}}
+
   //{{{
   void createPlane (unsigned int n) {
 
