@@ -1,3 +1,4 @@
+// simple.cpp
 //{{{  includes
 #include <cstdlib>
 #include <memory>
@@ -143,7 +144,7 @@ namespace {
   vector <Eigen::Vector3f> g_ref_normals;
   vector <Eigen::Vector3f> g_vertices;
   vector <Eigen::Vector3f> g_normals;
-  vector <array <unsigned int, 3> > g_faces;
+  vector <array <unsigned int,3>> g_faces;
 
   // callbacks
   //{{{
@@ -292,7 +293,7 @@ int main (int numArgs, char* args[]) {
   viz = unique_ptr<MyViz>(new MyViz());
 
   try {
-    //loadMesh ("stanford_dragon_v40k_f80k.raw");
+    //GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);
     GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", g_vertices, g_faces);
     GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
     }

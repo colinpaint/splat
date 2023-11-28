@@ -7,25 +7,6 @@ using namespace std;
 //}}}
 
 namespace GLviz {
-  // glUniformBuffer
-  glUniformBuffer::glUniformBuffer() { glGenBuffers (1, &m_uniform_buffer_obj); }
-  //{{{
-  glUniformBuffer::glUniformBuffer(GLsizeiptr size) : glUniformBuffer() {
-
-    glBindBuffer (GL_UNIFORM_BUFFER, m_uniform_buffer_obj);
-    glBufferData (GL_UNIFORM_BUFFER, size, reinterpret_cast<GLfloat*>(0), GL_DYNAMIC_DRAW);
-    glBindBuffer (GL_UNIFORM_BUFFER, 0);
-    }
-  //}}}
-  glUniformBuffer::~glUniformBuffer() { glDeleteBuffers (1, &m_uniform_buffer_obj); }
-  //{{{
-  void glUniformBuffer::bind_buffer_base (GLuint index) {
-    glBindBufferBase (GL_UNIFORM_BUFFER, index, m_uniform_buffer_obj);
-    }
-  //}}}
-  void glUniformBuffer::bind() { glBindBuffer( GL_UNIFORM_BUFFER, m_uniform_buffer_obj); }
-  void glUniformBuffer::unbind() { glBindBuffer (GL_UNIFORM_BUFFER, 0); }
-
   // glVertexArray
   glVertexArray::glVertexArray() { glGenVertexArrays (1, &m_vertex_array_obj); }
   glVertexArray::~glVertexArray() { glDeleteVertexArrays (1, &m_vertex_array_obj); }
@@ -46,6 +27,25 @@ namespace GLviz {
     unbind();
     }
   //}}}
+
+  // glUniformBuffer
+  glUniformBuffer::glUniformBuffer() { glGenBuffers (1, &m_uniform_buffer_obj); }
+  //{{{
+  glUniformBuffer::glUniformBuffer(GLsizeiptr size) : glUniformBuffer() {
+
+    glBindBuffer (GL_UNIFORM_BUFFER, m_uniform_buffer_obj);
+    glBufferData (GL_UNIFORM_BUFFER, size, reinterpret_cast<GLfloat*>(0), GL_DYNAMIC_DRAW);
+    glBindBuffer (GL_UNIFORM_BUFFER, 0);
+    }
+  //}}}
+  glUniformBuffer::~glUniformBuffer() { glDeleteBuffers (1, &m_uniform_buffer_obj); }
+  //{{{
+  void glUniformBuffer::bind_buffer_base (GLuint index) {
+    glBindBufferBase (GL_UNIFORM_BUFFER, index, m_uniform_buffer_obj);
+    }
+  //}}}
+  void glUniformBuffer::bind() { glBindBuffer( GL_UNIFORM_BUFFER, m_uniform_buffer_obj); }
+  void glUniformBuffer::unbind() { glBindBuffer (GL_UNIFORM_BUFFER, 0); }
 
   // glElementArrayBuffer
   glElementArrayBuffer::glElementArrayBuffer() { glGenBuffers (1, &m_element_array_buffer_obj); }

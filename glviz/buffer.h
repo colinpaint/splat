@@ -3,24 +3,6 @@
 
 namespace GLviz {
   //{{{
-  class glUniformBuffer {
-  public:
-    glUniformBuffer();
-    glUniformBuffer(GLsizeiptr size);
-
-    ~glUniformBuffer();
-
-    void bind_buffer_base(GLuint index);
-
-  protected:
-    void bind();
-    void unbind();
-
-  private:
-    GLuint m_uniform_buffer_obj;
-    };
-  //}}}
-  //{{{
   class glVertexArray {
   public:
     glVertexArray();
@@ -46,6 +28,24 @@ namespace GLviz {
 
   private:
     GLuint m_array_buffer_obj;
+    };
+  //}}}
+  //{{{
+  class glUniformBuffer {
+  public:
+    glUniformBuffer();
+    glUniformBuffer(GLsizeiptr size);
+
+    ~glUniformBuffer();
+
+    void bind_buffer_base(GLuint index);
+
+  protected:
+    void bind();
+    void unbind();
+
+  private:
+    GLuint m_uniform_buffer_obj;
     };
   //}}}
   //{{{
