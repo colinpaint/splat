@@ -1,9 +1,13 @@
 project (imgui VERSION 1.0.0)
   file (GLOB HEADER_FILES *.h)
   file (GLOB SOURCE_FILES *.cpp)
-  add_library (${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
+  add_library (${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES}
+                               backends/imgui_impl_opengl3_loader.h
+                               backends/imgui_impl_opengl3.cpp
+                               backends/imgui_impl_sdl2.h
+                               backends/imgui_impl_sdl2.cpp)
 
-  target_include_directories (${PROJECT_NAME} PUBLIC .)
+  target_include_directories (${PROJECT_NAME} PUBLIC . backends)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
     target_include_directories (${PROJECT_NAME} PRIVATE ../SDL2/include ../glew/include)

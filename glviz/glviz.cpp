@@ -7,7 +7,7 @@
 #include "camera.h"
 
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 
 #include <GL/glew.h>
@@ -156,28 +156,6 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void openglVersion() {
-
-    GLint context_major_version, context_minor_version, context_profile;
-
-    glGetIntegerv (GL_MAJOR_VERSION, &context_major_version);
-    glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
-    glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
-
-    cLog::log (LOGINFO, fmt::format ("OpenGL {}.{} {}",
-                                     context_major_version, context_minor_version,
-                                     (context_profile == GL_CONTEXT_CORE_PROFILE_BIT) ? "core" :
-                                       (context_profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) ?
-                                         "compatibility" : "unknown"));
-    }
-  //}}}
-  //{{{
-  void glewVersion() {
-    cLog::log (LOGINFO, fmt::format ("GLEW version {}", (const char*)glewGetString(GLEW_VERSION)));
-    }
-  //}}}
-
-  //{{{
   int exec (Camera& camera) {
 
     m_camera = &camera;
@@ -270,9 +248,20 @@ namespace GLviz {
       exit (EXIT_FAILURE);
       }
       //}}}
-    openglVersion();
+    //{{{  report openGL 
+    GLint context_major_version, context_minor_version, context_profile;
+    glGetIntegerv (GL_MAJOR_VERSION, &context_major_version);
+    glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
+    glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
+    cLog::log (LOGINFO, fmt::format ("openGL {}.{} {}",
+                                     context_major_version, context_minor_version,
+                                     (context_profile == GL_CONTEXT_CORE_PROFILE_BIT) ? "core" :
+                                       (context_profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) ?
+                                         "compatibility" : "unknown"));
+    //}}}
 
-      { // Initialize GLEW.
+    //{{{  init, report glew
+      { 
       glewExperimental = GL_TRUE;
       GLenum glew_error = glewInit();
       if (glew_error != GLEW_OK) {
@@ -289,12 +278,15 @@ namespace GLviz {
       if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
         cLog::log (LOGERROR, fmt::format ("Gl {}", GLviz::getGlErrorString (gl_error)));
       }
-    glewVersion();
+    cLog::log (LOGINFO, fmt::format ("glew {}", (const char*)glewGetString(GLEW_VERSION)));
+    //}}}
 
-    // Initialize ImGui.
+    //{{{  init, report imGui.
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL (m_sdl_window, m_gl_context);
     ImGui_ImplOpenGL3_Init();
+    cLog::log (LOGINFO, fmt::format ("imGui {}", ImGui::GetVersion()));
+    //}}}
     }
   //}}}
   }

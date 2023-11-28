@@ -397,15 +397,15 @@ namespace {
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
     ImGui::SetWindowSize (ImVec2(350.0f, 415.0f), ImGuiCond_Once);
 
-    ImGui::PushItemWidth (ImGui::GetContentRegionAvailWidth() * 0.55f);
+    ImGui::PushItemWidth (ImGui::GetContentRegionAvail().x * 0.55f);
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
-    ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
+    ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
       if (ImGui::Combo ("Models", &gModel, "Dragon\0Plane\0Cube"))
         loadModel (gModel);
 
-    ImGui::SetNextTreeNodeOpen (true, ImGuiCond_Once);
+    ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
       int shadingMethod = gViz->smooth() ? 1 : 0;
       if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))

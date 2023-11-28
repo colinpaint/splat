@@ -201,7 +201,7 @@ namespace {
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
     ImGui::SetWindowSize (ImVec2(265.0f, 345.0f), ImGuiCond_Once);
 
-    ImGui::PushItemWidth (ImGui::GetContentRegionAvailWidth() * 0.55f);
+    ImGui::PushItemWidth (ImGui::GetContentRegionAvail().x * 0.55f);
 
     ImGui::Text ("time\t %.3f", g_time);
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
