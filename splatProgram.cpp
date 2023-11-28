@@ -46,15 +46,15 @@ namespace {
       "};",
 
     "#define ATTR_CENTER 0",
-    "layout(location = ATTR_CENTER) in vec3 c;",
+    "layout (location = ATTR_CENTER) in vec3 c;",
     "#define ATTR_T1 1",
-    "layout(location = ATTR_T1) in vec3 u;",
+    "layout (location = ATTR_T1) in vec3 u;",
     "#define ATTR_T2 2",
-    "layout(location = ATTR_T2) in vec3 v;",
+    "layout (location = ATTR_T2) in vec3 v;",
     "#define ATTR_PLANE 3",
-    "layout(location = ATTR_PLANE) in vec3 p;",
+    "layout (location = ATTR_PLANE) in vec3 p;",
     "#define ATTR_COLOR 4",
-    "layout(location = ATTR_COLOR) in vec4 rgba;",
+    "layout (location = ATTR_COLOR) in vec4 rgba;",
 
     //{{{
     "out block {",
@@ -78,7 +78,7 @@ namespace {
     "#endif",
 
     //{{{
-    "void intersect(in vec4 v1, in vec4 v2, in int p, out int n_pts, out vec4[2] pts) {",
+    "void intersect (in vec4 v1, in vec4 v2, in int p, out int n_pts, out vec4[2] pts) {",
       "int i = p / 2;",
       "float j = float(-1 + 2 * (p % 2));",
 
@@ -108,7 +108,7 @@ namespace {
       "}",
     //}}}
     //{{{
-    "void clip_polygon(in vec4 p0[4], out int n_pts, out vec4 p1[8]) {",
+    "void clip_polygon (in vec4 p0[4], out int n_pts, out vec4 p1[8]) {",
       "vec4 p[8];",
       "int n = 4;",
 
@@ -145,7 +145,7 @@ namespace {
       "}",
     //}}}
     //{{{
-    "void conic_Q(in vec3 u, in vec3 v, in vec3 c, out mat3 Q1) {",
+    "void conic_Q (in vec3 u, in vec3 v, in vec3 c, out mat3 Q1) {",
     "             mat3 Q0 = mat3(vec3(1.0, 0.0, 0.0),",
     "             vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, -1.0));",
 
@@ -165,7 +165,7 @@ namespace {
 
     //}}}
     //{{{
-    "void pointsprite(in vec3 c, in vec3 u, in vec3 v, out vec4 p_scr, out vec2 w) {",
+    "void pointsprite (in vec3 c, in vec3 u, in vec3 v, out vec4 p_scr, out vec2 w) {",
       //{{{
       "#if POINTSIZE_METHOD == 0",
         // This method obtains the position and bounds of a splat by
