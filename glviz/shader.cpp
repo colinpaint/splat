@@ -10,17 +10,22 @@
 #include <memory>
 #include <iostream>
 
-#include <Eigen/Dense>
-
 using namespace std;
-using namespace Eigen;
 //}}}
 
 glShader::glShader() {}
 glShader::~glShader() { glDeleteShader(m_shader_obj); }
 
 //{{{
-void glShader::load_from_file (string const& filename) {
+void glShader::loadStrings (const vector <string>& source) {
+
+  m_source = "";
+  for (auto& line : source)
+    m_source += line + '\n';
+  }
+//}}}
+//{{{
+void glShader::loadFile (string const& filename) {
 
   ifstream input (filename.c_str());
   if (input.fail())

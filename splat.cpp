@@ -21,7 +21,6 @@
 
 using namespace std;
 //}}}
-const char* path_resources = R"(../resources/)";
 
 namespace {
   GLviz::Camera gCamera;
@@ -166,7 +165,7 @@ namespace {
   //}}}
 
   //{{{
-  void loadTriangleMesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
+  void loadMesh (string const& filename, vector<Eigen::Vector3f>& vertices, vector<array<unsigned int, 3>>& faces) {
 
     cout << "\nRead " << filename << "." << endl;
     ifstream input (filename);
@@ -179,7 +178,7 @@ namespace {
       input.close();
 
       ostringstream fqfn;
-      fqfn << path_resources;
+      fqfn << "../models/";
       fqfn << filename;
       GLviz::load_raw (fqfn.str(), vertices, faces);
       }
@@ -194,14 +193,14 @@ namespace {
     vector <array <unsigned int, 3>>  faces;
 
     try {
-      loadTriangleMesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
+      loadMesh ("stanford_dragon_v344k_f688k.raw", vertices, faces);
       }
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
       exit (EXIT_FAILURE);
       }
 
-    GLviz::set_vertex_normals_from_triangle_mesh (vertices, faces, normals);
+    GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
 
     meshToSurfel (vertices, faces, gSurfels);
     }

@@ -8,13 +8,13 @@
 #include <exception>
 #include <cmath>
 
+#include <Eigen/Core>
+
 #include "glviz/glviz.h"
 #include "glviz/buffer.h"
 #include "glviz/program.h"
 #include "glviz/shader.h"
 #include "glviz/utility.h"
-
-#include <Eigen/Core>
 
 #include "../common/date.h"
 #include "../common/cLog.h"
@@ -22,7 +22,6 @@
 using namespace std;
 using namespace Eigen;
 //}}}
-const char* path_resources = R"(../resources/)";
 
 namespace {
   GLviz::Camera g_camera;
@@ -148,27 +147,25 @@ namespace {
   vector <array <unsigned int, 3> > g_faces;
 
   //{{{
-  void load_triangle_mesh (string const& filename) {
+  void loadMesh (string const& filename) {
 
-    cLog::log (LOGINFO, fmt::format ("read {}", filename));
+    cLog::log (LOGINFO, fmt::format ("loadMesh:{}", filename));
+
     ifstream input (filename);
-
     if (input.good()) {
       input.close();
       GLviz::load_raw (filename, g_vertices, g_faces);
       }
-
     else {
       input.close();
       ostringstream fqfn;
-      fqfn << path_resources;
+      fqfn << "../models/";
       fqfn << filename;
       GLviz::load_raw (fqfn.str(), g_vertices, g_faces);
       }
 
-    cLog::log (LOGINFO, fmt::format ("vertices:{} faces:{}", g_vertices.size(), g_faces.size()));
-
-    GLviz::set_vertex_normals_from_triangle_mesh (g_vertices, g_faces, g_normals);
+    cLog::log (LOGINFO, fmt::format ("- vertices:{} faces:{}", g_vertices.size(), g_faces.size()));
+    GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
 
     g_ref_vertices = g_vertices;
     g_ref_normals = g_normals;
@@ -243,7 +240,7 @@ namespace {
         g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
         }
 
-      GLviz::set_vertex_normals_from_triangle_mesh (g_vertices, g_faces, g_normals);
+      GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
       }
     }
   //}}}
@@ -322,7 +319,8 @@ int main (int numArgs, char* args[]) {
   viz = unique_ptr<MyViz>(new MyViz());
 
   try {
-    load_triangle_mesh ("stanford_dragon_v40k_f80k.raw");
+    //loadMesh ("stanford_dragon_v40k_f80k.raw");
+    loadMesh ("stanford_dragon_v344k_f688k.raw");
     }
   catch(runtime_error const& e) {
     cLog::log (LOGERROR, e.what());

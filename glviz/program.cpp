@@ -2,7 +2,6 @@
 #include "program.h"
 #include "camera.h"
 
-#include <Eigen/Core>
 #include <iostream>
 #include <cstdlib>
 
@@ -19,63 +18,271 @@ using namespace std;
 //}}}
 namespace {
   //{{{
-  const std::string kSphereVsGlsl =
-    "#version 330\n"
+  const vector<string> kMeshVsGlsl = {
+    "#version 330",
+    "#define SMOOTH 0",
+
+    "layout(std140, column_major) uniform Camera {",
+      "mat4 modelview_matrix;",
+      "mat4 modelview_matrix_it;",
+      "mat4 projection_matrix;",
+      "};",
+
+    "#define ATTR_POSITION 0",
+    "layout(location = ATTR_POSITION) in vec3 position;",
+
+    "#if SMOOTH",
+      "#define ATTR_NORMAL 1",
+      "layout(location = ATTR_NORMAL) in vec3 normal;",
+    "#endif",
+
+    "out block {",
+      "#if SMOOTH",
+        "vec3 normal;",
+      "#endif",
+      "vec3 position;",
+      "}",
+    "Out;",
+
+    "void main() {",
+      "vec4 position_eye = modelview_matrix * vec4(position, 1.0);",
+
+      "#if SMOOTH",
+        "Out.normal = mat3(modelview_matrix_it) * normal;",
+      "#endif",
+
+      "Out.position = vec3(position_eye);",
+      "gl_Position = projection_matrix * position_eye;",
+      "}"
+    };
+  //}}}
+  //{{{
+  const vector<string> kMeshGsGlsl = {
+    "#version 330",
+    "#define SMOOTH 0",
+    "#define WIREFRAME 0",
 
     "layout(std140, column_major) uniform Camera {"
       "mat4 modelview_matrix;"
       "mat4 modelview_matrix_it;"
       "mat4 projection_matrix;"
-      "};\n"
+      "};",
+
+    "#if WIREFRAME",
+      "layout(std140) uniform Wireframe {"
+        "vec3 color_wireframe;"
+        "ivec2 viewport;"
+        "};",
+    "#endif",
+
+    "layout(triangles) in;",
+    "layout(triangle_strip, max_vertices = 3) out;",
+
+    "in block {",
+      "#if SMOOTH",
+        "vec3 normal;",
+      "#endif",
+      "vec3 position;",
+      "}",
+    "In[];",
+
+    "out block {",
+      "#if SMOOTH",
+        "vec3 normal;",
+      "#else",
+        "flat vec3 normal;",
+      "#endif",
+
+      "vec3 position;",
+
+      "#if WIREFRAME",
+        "noperspective vec3 distance;",
+      "#endif",
+      "}",
+    "Out;",
+
+    "void main() {",
+      "#if WIREFRAME",
+        "vec2 w0 = (1.0 / gl_in[0].gl_Position.w) * gl_in[0].gl_Position.xy * viewport.xy;",
+        "vec2 w1 = (1.0 / gl_in[1].gl_Position.w) * gl_in[1].gl_Position.xy * viewport.xy;",
+        "vec2 w2 = (1.0 / gl_in[2].gl_Position.w) * gl_in[2].gl_Position.xy * viewport.xy;",
+        "mat3 matA = mat3(vec3(1.0, w0), vec3(1.0, w1), vec3(1.0, w2));",
+        "float area = abs(determinant(matA));",
+      "#endif",
+
+      "#if !SMOOTH",
+        "vec3 normal = normalize(cross(In[1].position - In[0].position, In[2].position - In[0].position));",
+      "#endif",
+
+      "gl_Position = gl_in[0].gl_Position;",
+      "#if SMOOTH",
+        "Out.normal = In[0].normal;",
+      "#else",
+        "Out.normal = normal;",
+      "#endif",
+      "Out.position = In[0].position;",
+
+      "#if WIREFRAME",
+        "Out.distance = vec3(area / length(w2 - w1), 0.0, 0.0);",
+      "#endif",
+      "EmitVertex();",
+
+      "gl_Position = gl_in[1].gl_Position;",
+      "#if SMOOTH",
+        "Out.normal = In[1].normal;",
+      "#else",
+        "Out.normal = normal;",
+      "#endif",
+
+      "Out.position = In[1].position;",
+      "#if WIREFRAME",
+        "Out.distance = vec3(0.0, area / length(w2 - w0), 0.0);",
+      "#endif",
+      "EmitVertex();",
+
+      "gl_Position = gl_in[2].gl_Position;",
+      "#if SMOOTH",
+        "Out.normal = In[2].normal;",
+      "#else",
+        "Out.normal = normal;",
+      "#endif",
+      "Out.position = In[2].position;",
+      "#if WIREFRAME",
+        "Out.distance = vec3(0.0, 0.0, area / length(w1 - w0));",
+      "#endif",
+      "EmitVertex();",
+      "}"
+    };
+  //}}}
+  //{{{
+  const vector<string> kMeshFsGlsl = {
+    "#version 330",
+    "#define SMOOTH 0",
+    "#define WIREFRAME 0",
+
+    "layout(std140) uniform Material {"
+      "vec3 color;"
+      "float shininess;"
+      "}",
+    "material;",
+
+    "layout (std140) uniform Wireframe {"
+      "vec3 color_wireframe;"
+      "ivec2 viewport;"
+      "};",
+
+    "in block {",
+      "#if SMOOTH",
+        "vec3 normal;",
+      "#else",
+        "flat vec3 normal;",
+      "#endif",
+
+      "vec3 position;",
+
+      "#if WIREFRAME",
+        "noperspective vec3 distance;",
+      "#endif",
+      "}",
+    "In;",
+
+    "#define FRAG_COLOR 0",
+    "layout(location = FRAG_COLOR, index = 0) out vec4 frag_color;",
+
+    "void main() {",
+      "#if SMOOTH",
+        "vec3 normal_eye = normalize(In.normal);",
+      "#else",
+        "vec3 normal_eye = In.normal;",
+      "#endif",
+
+      "if (!gl_FrontFacing)",
+        "normal_eye = -normal_eye;",
+
+      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);",
+
+      "float dif = max(dot(light_eye, normal_eye), 0.0);",
+      "vec3 view_eye = normalize(In.position);",
+      "vec3 refl_eye = reflect(light_eye, normal_eye);",
+
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);",
+      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);",
+
+      "vec3 color = 0.15 * material.color;",
+      "color += 0.6 * dif * material.color;",
+      "color += 0.1 * spe * vec3(1.0);",
+      "color += 0.1 * rim * vec3(1.0);",
+
+      "#if WIREFRAME",
+        "float d = min(In.distance.x, min(In.distance.y, In.distance.z));",
+        "float i = exp2(-0.75 * d * d);",
+        "color = mix(color, color_wireframe, i);",
+      "#endif",
+
+      // Gamma correction. Assuming gamma of 2.0 rather than 2.2
+      "frag_color = vec4(sqrt(color), 1.0);",
+      "}"
+    };
+  //}}}
+  //{{{
+  const vector<string> kSphereVsGlsl = {
+    "#version 330",
+
+    "layout(std140, column_major) uniform Camera {"
+      "mat4 modelview_matrix;"
+      "mat4 modelview_matrix_it;"
+      "mat4 projection_matrix;"
+      "};",
 
     "layout(std140) uniform Sphere {"
       "float sphere_radius;"
       "float projection_radius;"
-      "};\n"
+      "};",
 
-    "#define ATTR_POSITION 0\n"
-    "layout(location = ATTR_POSITION) in vec3 center;\n"
+    "#define ATTR_POSITION 0",
+    "layout(location = ATTR_POSITION) in vec3 center;",
 
     "out block {"
       "flat vec3 center_eye;"
       "}"
-    "Out;\n"
+    "Out;",
 
     "void main() {"
       "vec4 center_eye = modelview_matrix * vec4(center, 1.0);"
       "gl_Position = projection_matrix * center_eye;"
       "Out.center_eye = vec3(center_eye);"
       "gl_PointSize = 2.0 * (sphere_radius / -center_eye.z) * projection_radius;"
-      "}\n";
+      "}"
+    };
   //}}}
   //{{{
-  const std::string kSphereFsGlsl =
-    "#version 330\n"
+  const vector<string> kSphereFsGlsl = {
+    "#version 330",
 
     "layout(std140, column_major) uniform Camera {"
       "mat4 modelview_matrix;"
       "mat4 modelview_matrix_it;"
       "mat4 projection_matrix;"
-      "};\n"
+      "};",
 
     "layout(std140) uniform Sphere {"
       "float sphere_radius;"
       "float projection_radius;"
-      "};\n"
+      "};",
 
     "layout(std140) uniform Material {"
       "vec3 color;"
       "float shininess;"
       "}"
-    "material;\n"
+    "material;",
 
     "in block {"
       "flat vec3 center_eye;"
       "}"
-    "In;\n"
+    "In;",
 
-    "#define FRAG_COLOR 0\n"
-    "layout(location = FRAG_COLOR, index = 0) out vec4 frag_color;\n"
+    "#define FRAG_COLOR 0",
+    "layout(location = FRAG_COLOR, index = 0) out vec4 frag_color;",
 
     "void main() {"
       "vec2 p = gl_PointCoord * 2.0 - vec2(1.0);"
@@ -102,266 +309,12 @@ namespace {
 
       // Gamma correction. Assuming gamma of 2.0 rather than 2.2
       "frag_color = vec4(sqrt(color), 1.0);"
-      "}\n";
-  //}}}
-  //{{{
-  const std::string kMeshVsGlsl =
-    "#version 330\n"
-    "#define SMOOTH 0\n"
-
-    "layout(std140, column_major) uniform Camera {\n"
-      "mat4 modelview_matrix;\n"
-      "mat4 modelview_matrix_it;\n"
-      "mat4 projection_matrix;\n"
-      "};\n"
-
-    "#define ATTR_POSITION 0\n"
-    "layout(location = ATTR_POSITION) in vec3 position;\n"
-
-    "#if SMOOTH\n"
-      "#define ATTR_NORMAL 1\n"
-      "layout(location = ATTR_NORMAL) in vec3 normal;\n"
-    "#endif\n"
-
-    "out block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#endif\n"
-      "vec3 position;\n"
-      "}\n"
-    "Out;\n"
-
-    "void main() {\n"
-      "vec4 position_eye = modelview_matrix * vec4(position, 1.0);\n"
-
-      "#if SMOOTH\n"
-        "Out.normal = mat3(modelview_matrix_it) * normal;\n"
-      "#endif\n"
-      "Out.position = vec3(position_eye);\n"
-      "gl_Position = projection_matrix * position_eye;\n"
-      "}\n";
-  //}}}
-  //{{{
-  const std::string kMeshGsGlsl =
-    "#version 330\n"
-
-    "#define SMOOTH 0\n"
-    "#define WIREFRAME 0\n"
-
-    "layout(std140, column_major) uniform Camera {\n"
-      "mat4 modelview_matrix;\n"
-      "mat4 modelview_matrix_it;\n"
-      "mat4 projection_matrix;\n"
-      "};\n"
-
-    "#if WIREFRAME\n"
-      "layout(std140) uniform Wireframe {\n"
-        "vec3 color_wireframe;\n"
-        "ivec2 viewport;\n"
-        "};\n"
-    "#endif\n"
-
-    "layout(triangles) in;\n"
-    "layout(triangle_strip, max_vertices = 3) out;\n"
-
-    "in block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#endif\n"
-      "vec3 position;\n"
-      "}\n"
-    "In[];\n"
-
-    "out block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#else\n"
-        "flat vec3 normal;\n"
-      "#endif\n"
-
-      "vec3 position;\n"
-
-      "#if WIREFRAME\n"
-        "noperspective vec3 distance;\n"
-      "#endif\n"
-      "}\n"
-    "Out;\n"
-
-    "void main() {\n"
-      "#if WIREFRAME\n"
-        "vec2 w0 = (1.0 / gl_in[0].gl_Position.w) * gl_in[0].gl_Position.xy * viewport.xy;\n"
-        "vec2 w1 = (1.0 / gl_in[1].gl_Position.w) * gl_in[1].gl_Position.xy * viewport.xy;\n"
-        "vec2 w2 = (1.0 / gl_in[2].gl_Position.w) * gl_in[2].gl_Position.xy * viewport.xy;\n"
-        "mat3 matA = mat3(vec3(1.0, w0), vec3(1.0, w1), vec3(1.0, w2));\n"
-        "float area = abs(determinant(matA));\n"
-      "#endif\n"
-
-      "#if !SMOOTH\n"
-        "vec3 normal = normalize(cross(In[1].position - In[0].position, In[2].position - In[0].position));\n"
-      "#endif\n"
-
-      "gl_Position = gl_in[0].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[0].normal;\n"
-      "#else\n"
-        "Out.normal = normal;\n"
-      "#endif\n"
-      "Out.position = In[0].position;\n"
-
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(area / length(w2 - w1), 0.0, 0.0);\n"
-      "#endif\n"
-      "EmitVertex();\n"
-
-      "gl_Position = gl_in[1].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[1].normal;\n"
-      "#else\n"
-        "Out.normal = normal;\n"
-      "#endif\n"
-
-      "Out.position = In[1].position;\n"
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(0.0, area / length(w2 - w0), 0.0);\n"
-      "#endif\n"
-      "EmitVertex();\n"
-
-      "gl_Position = gl_in[2].gl_Position;\n"
-      "#if SMOOTH\n"
-        "Out.normal = In[2].normal;\n"
-      "#else\n"
-        "Out.normal = normal;\n"
-      "#endif\n"
-      "Out.position = In[2].position;\n"
-      "#if WIREFRAME\n"
-        "Out.distance = vec3(0.0, 0.0, area / length(w1 - w0));\n"
-      "#endif\n"
-      "EmitVertex();\n"
-      "}\n";
-  //}}}
-  //{{{
-  const std::string kMeshFsGlsl =
-    "#version 330\n"
-
-    "#define SMOOTH     0\n"
-    "#define WIREFRAME  0\n"
-
-    "layout(std140) uniform Material {\n"
-      "vec3 color;\n"
-      "float shininess;\n"
-      "}\n"
-    "material;\n"
-
-    "layout (std140) uniform Wireframe {\n"
-      "vec3 color_wireframe;\n"
-      "ivec2 viewport;\n"
-      "};\n"
-
-    "in block {\n"
-      "#if SMOOTH\n"
-        "vec3 normal;\n"
-      "#else\n"
-        "flat vec3 normal;\n"
-      "#endif\n"
-
-      "vec3 position;\n"
-
-      "#if WIREFRAME\n"
-        "noperspective vec3 distance;\n"
-      "#endif\n"
-      "}\n"
-    "In;\n"
-
-    "#define FRAG_COLOR 0\n"
-    "layout(location = FRAG_COLOR, index = 0) out vec4 frag_color;\n"
-
-    "void main() {\n"
-      "#if SMOOTH\n"
-        "vec3 normal_eye = normalize(In.normal);\n"
-      "#else\n"
-        "vec3 normal_eye = In.normal;\n"
-      "#endif\n"
-
-      "if (!gl_FrontFacing) {\n"
-        "normal_eye = -normal_eye;\n"
-        "}\n"
-
-      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);\n"
-
-      "float dif = max(dot(light_eye, normal_eye), 0.0);\n"
-      "vec3 view_eye = normalize(In.position);\n"
-      "vec3 refl_eye = reflect(light_eye, normal_eye);\n"
-
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);\n"
-      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);\n"
-
-      "vec3 color = 0.15 * material.color;\n"
-      "color += 0.6 * dif * material.color;\n"
-      "color += 0.1 * spe * vec3(1.0);\n"
-      "color += 0.1 * rim * vec3(1.0);\n"
-
-      "#if WIREFRAME\n"
-        "float d = min(In.distance.x, min(In.distance.y, In.distance.z));\n"
-        "float i = exp2(-0.75 * d * d);\n"
-        "color = mix(color, color_wireframe, i);\n"
-      "#endif\n"
-
-      // Gamma correction. Assuming gamma of 2.0 rather than 2.2
-      "frag_color = vec4(sqrt(color), 1.0);\n"
-      "}\n";
+      "}"
+    };
   //}}}
   }
 
 namespace GLviz {
-  // ProgramSphere
-  //{{{
-  ProgramSphere::ProgramSphere()
-  {
-      initialize_shader_obj();
-      initialize_program_obj();
-  }
-  //}}}
-  //{{{
-  void ProgramSphere::initialize_shader_obj() {
-
-    m_sphere_vs_obj.load_from_string (kSphereVsGlsl);
-    m_sphere_fs_obj.load_from_string (kSphereFsGlsl);
-
-    attach_shader (m_sphere_vs_obj);
-    attach_shader (m_sphere_fs_obj);
-    }
-  //}}}
-  //{{{
-  void ProgramSphere::initialize_program_obj() {
-
-    try {
-      m_sphere_vs_obj.compile();
-      m_sphere_fs_obj.compile();
-      }
-    catch (shader_compilation_error const& e) {
-      cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
-      exit(EXIT_FAILURE);
-      }
-
-    try {
-      link();
-      }
-    catch (shader_link_error const& e) {
-      cerr << "Error: A program failed to link." << endl << e.what() << endl;
-      exit(EXIT_FAILURE);
-      }
-
-    try {
-      set_uniform_block_binding ("Camera", 0);
-      set_uniform_block_binding ("Material", 1);
-      set_uniform_block_binding ("Sphere", 3);
-      }
-    catch (uniform_not_found_error const& e) {
-      cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
-      }
-    }
-  //}}}
-
   // UniformBufferWireframe
   //{{{
   void UniformBufferWireframe::set_buffer_data (float const* color, int const* viewport) {
@@ -445,9 +398,9 @@ namespace GLviz {
   //{{{
   void ProgramMesh3::initialize_shader_obj() {
 
-    m_mesh3_vs_obj.load_from_string (kMeshVsGlsl);
-    m_mesh3_gs_obj.load_from_string (kMeshGsGlsl);
-    m_mesh3_fs_obj.load_from_string (kMeshFsGlsl);
+    m_mesh3_vs_obj.loadStrings (kMeshVsGlsl);
+    m_mesh3_gs_obj.loadStrings (kMeshGsGlsl);
+    m_mesh3_fs_obj.loadStrings (kMeshFsGlsl);
 
     attach_shader (m_mesh3_vs_obj);
     attach_shader (m_mesh3_gs_obj);
@@ -485,6 +438,55 @@ namespace GLviz {
 
       if (m_wireframe)
         set_uniform_block_binding("Wireframe", 2);
+      }
+    catch (uniform_not_found_error const& e) {
+      cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
+      }
+    }
+  //}}}
+
+  // ProgramSphere
+  //{{{
+  ProgramSphere::ProgramSphere() {
+
+    initialize_shader_obj();
+    initialize_program_obj();
+    }
+  //}}}
+  //{{{
+  void ProgramSphere::initialize_shader_obj() {
+
+    m_sphere_vs_obj.loadStrings (kSphereVsGlsl);
+    m_sphere_fs_obj.loadStrings (kSphereFsGlsl);
+
+    attach_shader (m_sphere_vs_obj);
+    attach_shader (m_sphere_fs_obj);
+    }
+  //}}}
+  //{{{
+  void ProgramSphere::initialize_program_obj() {
+
+    try {
+      m_sphere_vs_obj.compile();
+      m_sphere_fs_obj.compile();
+      }
+    catch (shader_compilation_error const& e) {
+      cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
+      exit(EXIT_FAILURE);
+      }
+
+    try {
+      link();
+      }
+    catch (shader_link_error const& e) {
+      cerr << "Error: A program failed to link." << endl << e.what() << endl;
+      exit(EXIT_FAILURE);
+      }
+
+    try {
+      set_uniform_block_binding ("Camera", 0);
+      set_uniform_block_binding ("Material", 1);
+      set_uniform_block_binding ("Sphere", 3);
       }
     catch (uniform_not_found_error const& e) {
       cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;

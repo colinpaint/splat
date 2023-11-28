@@ -1,8 +1,9 @@
 #pragma once
-#include <GL/glew.h>
-#include <string>
+#include <vector>
 #include <map>
+#include <string>
 #include <stdexcept>
+#include <GL/glew.h>
 
 //{{{
 struct file_open_error : public std::runtime_error {
@@ -30,8 +31,8 @@ class glShader {
 public:
   virtual ~glShader();
 
-  void load_from_string (const std::string& source) { m_source = source; }
-  void load_from_file (std::string const& filename);
+  void loadStrings (const std::vector <std::string>& source);
+  void loadFile (std::string const& filename);
 
   void compile (std::map<std::string, int> const& define_list = std::map<std::string, int>());
   bool is_compiled() const;

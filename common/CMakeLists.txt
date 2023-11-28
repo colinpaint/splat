@@ -8,9 +8,7 @@ project (common VERSION 1.0.0)
   target_link_libraries (${PROJECT_NAME} PUBLIC fmt)
 
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-    target_compile_options (${PROJECT_NAME} PUBLIC /W4
-                                                   /fp:fast
-                                                   /EHsc
+    target_compile_options (${PROJECT_NAME} PUBLIC /W3  # /W4 Eigen problems
                                                    ${BUILD_MSVC_COMPILE_OPTIONS})
     if (USE_AVX512)
       message (STATUS "windows built with AVX X2 AVX512")
@@ -32,7 +30,7 @@ project (common VERSION 1.0.0)
                                                    -pedantic
                                                    -flax-vector-conversions
                                                    -ftree-vectorize
-                                                   -fno-exceptions
+                                                   #-fno-exceptions
                                                    -march=native
                                                    -g
                                                    ${BUILD_LINUX_COMPILE_OPTIONS})

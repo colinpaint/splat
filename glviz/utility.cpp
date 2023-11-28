@@ -13,11 +13,11 @@ namespace GLviz {
   void load_raw  (std::string const& filename, std::vector<Eigen::Vector3f>& vertices,
                   std::vector<std::array<unsigned int, 3> >& faces) {
 
-    std::ifstream input(filename, std::ios::in | std::ios::binary);
+    std::ifstream input (filename, std::ios::in | std::ios::binary);
     if (input.fail()) {
       std::ostringstream error_message;
       error_message << "Error: Can not open " << filename << "." << std::endl;
-      throw std::runtime_error(error_message.str().c_str());
+      throw std::runtime_error (error_message.str().c_str());
       }
 
     unsigned int nv;
@@ -25,14 +25,14 @@ namespace GLviz {
     vertices.resize(nv);
 
     for (unsigned int i(0); i < nv; ++i)
-        input.read(reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
+      input.read (reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
 
     unsigned int nf;
-    input.read(reinterpret_cast<char*>(&nf), sizeof(unsigned int));
-    faces.resize(nf);
+    input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+    faces.resize (nf);
 
     for (unsigned int i(0); i < nf; ++i)
-        input.read(reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
+      input.read (reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
 
     input.close();
     }
@@ -66,9 +66,9 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void set_vertex_normals_from_triangle_mesh (std::vector<Eigen::Vector3f>
-         const& vertices, std::vector<std::array<unsigned int, 3> > const& faces,
-         std::vector<Eigen::Vector3f>& normals) {
+  void setVertexNormalsFromTriangleMesh (std::vector<Eigen::Vector3f>
+                                         const& vertices, std::vector<std::array<unsigned int, 3> > const& faces,
+                                         std::vector<Eigen::Vector3f>& normals) {
 
     unsigned int nf(static_cast<unsigned int>(faces.size())), nv(static_cast<unsigned int>(vertices.size()));
 

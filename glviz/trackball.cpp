@@ -1,8 +1,6 @@
 //{{{  includes
 #include "trackball.h"
 
-#include <Eigen/Core>
-
 using namespace std;
 //}}}
 
@@ -14,11 +12,11 @@ const float trackball_size = 1.0f;
 
 //{{{
 Eigen::Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y) {
-// Ok, simulate a track-ball.  
-// Project the points onto the virtual trackball, then figure out the axis of rotation, 
+// Ok, simulate a track-ball.
+// Project the points onto the virtual trackball, then figure out the axis of rotation,
 // which is the cross product of P1 P2 and O P1 (O is the center of the ball, 0,0,0)
 // This is a deformed trackball-- is a trackball in the center,
-// - but is deformed into a hyperbolic sheet of rotation away from the center. 
+// - but is deformed into a hyperbolic sheet of rotation away from the center.
 // This particular function was chosen after trying out several variations.
 // It is assumed that the arguments to this routine are in the range (-1.0 ... 1.0)
 

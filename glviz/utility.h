@@ -12,7 +12,7 @@ namespace GLviz {
   void save_raw (std::string const& filename, std::vector<Eigen::Vector3f>
                  const& vertices, std::vector<std::array<unsigned int, 3> >& faces);
 
-  void set_vertex_normals_from_triangle_mesh (std::vector<Eigen::Vector3f>
+  void setVertexNormalsFromTriangleMesh (std::vector<Eigen::Vector3f>
     const& vertices, std::vector<std::array<unsigned int, 3> > const& faces,
     std::vector<Eigen::Vector3f>& normals);
 
