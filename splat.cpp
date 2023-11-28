@@ -1,4 +1,4 @@
- // splat.cpp - splat main
+// splat.cpp - splat main
 //{{{  includes
 #include <iostream>
 #include <memory>
@@ -25,7 +25,7 @@ using namespace std;
 namespace {
   GLviz::Camera gCamera;
 
-  vector <Surfel> gSurfels;
+  vector <sSurfel> gSurfels;
   unique_ptr <SplatRenderer> gSplatRenderer;
 
   int gModel = 0;
@@ -114,8 +114,8 @@ namespace {
     }
   //}}}
   //{{{
-  void faceToSurfel (vector <Eigen::Vector3f> const& vertices,
-                     array <unsigned int, 3> const& face, Surfel& surfel) {
+  void faceToSurfel (vector <Eigen::Vector3f> const& vertices, array <unsigned int, 3> const& face, 
+                     sSurfel& surfel) {
 
     Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
 
@@ -142,8 +142,8 @@ namespace {
     }
   //}}}
   //{{{
-  void meshToSurfel (vector <Eigen::Vector3f> const& vertices,
-                     vector <array <unsigned int, 3>> const& faces, vector<Surfel>& surfels) {
+  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, vector <array <unsigned int, 3>> const& faces, 
+                     vector<sSurfel>& surfels) {
 
     surfels.resize (faces.size());
 
@@ -184,10 +184,10 @@ namespace {
   void createPlane (unsigned int n) {
 
     const float d = 1.0f / static_cast<float>(2 * n);
-    Surfel surfel (Eigen::Vector3f::Zero(),
-                   2.0f * d * Eigen::Vector3f::UnitX(),
-                   2.0f * d * Eigen::Vector3f::UnitY(),
-                   Eigen::Vector3f::Zero(), 0);
+    sSurfel surfel (Eigen::Vector3f::Zero(),
+                    2.0f * d * Eigen::Vector3f::UnitX(),
+                    2.0f * d * Eigen::Vector3f::UnitY(),
+                    Eigen::Vector3f::Zero(), 0);
 
     gSurfels.resize (4 * n * n);
 
@@ -240,7 +240,7 @@ namespace {
   //{{{
   void createCube() {
 
-    Surfel cube[24];
+    sSurfel cube[24];
     unsigned int color = 0;
 
     //{{{  front
@@ -358,7 +358,7 @@ namespace {
     cube[23].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
     //}}}
 
-    gSurfels = vector<Surfel>(cube, cube + 24);
+    gSurfels = vector <sSurfel> (cube, cube + 24);
     }
   //}}}
   //{{{

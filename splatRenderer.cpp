@@ -213,7 +213,7 @@ void SplatRenderer::set_radius_scale (float radius_scale) { m_radius_scale = rad
 
 void SplatRenderer::resize (int width, int height) { m_fbo.resize (width, height); }
 //{{{
-void SplatRenderer::render (std::vector<Surfel> const& visible_geometry) {
+void SplatRenderer::render (std::vector<sSurfel> const& visible_geometry) {
 
   beginFrame();
 
@@ -221,7 +221,7 @@ void SplatRenderer::render (std::vector<Surfel> const& visible_geometry) {
   if (m_num_pts > 0) {
     glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
     glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBufferData (GL_ARRAY_BUFFER, sizeof(Surfel) * m_num_pts, &visible_geometry.front(), GL_DYNAMIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof(sSurfel) * m_num_pts, &visible_geometry.front(), GL_DYNAMIC_DRAW);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     if (m_multisample) {
@@ -343,23 +343,23 @@ void SplatRenderer::setup_vertex_array_buffer_object() {
 
   // Center c.
   glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(0));
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(0));
 
   // Tagent vector u.
   glEnableVertexAttribArray (1);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(12));
+  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(12));
 
   // Tangent vector v.
   glEnableVertexAttribArray (2);
-  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(24));
+  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(24));
 
   // Clipping plane p.
   glEnableVertexAttribArray (3);
-  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(Surfel), reinterpret_cast<const GLfloat*>(36));
+  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(36));
 
   // Color rgba.
   glEnableVertexAttribArray (4);
-  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Surfel), reinterpret_cast<const GLbyte*>(48));
+  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(sSurfel), reinterpret_cast<const GLbyte*>(48));
 
   glBindVertexArray (0);
   }
@@ -454,21 +454,21 @@ void SplatRenderer::endFrame() {
 //{{{
 void SplatRenderer::render_pass (bool depth_only) {
 
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_PROGRAM_POINT_SIZE);
+  glEnable (GL_DEPTH_TEST);
+  glEnable (GL_PROGRAM_POINT_SIZE);
 
   if (!depth_only && m_soft_zbuffer) {
-    glEnable(GL_BLEND);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glEnable (GL_BLEND);
+    glBlendEquationSeparate (GL_FUNC_ADD, GL_FUNC_ADD);
+    glBlendFuncSeparate (GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     }
 
   glProgram& program = depth_only ? m_visibility : m_attribute;
   program.use();
 
   if (depth_only) {
-    glDepthMask(GL_TRUE);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask (GL_TRUE);
+    glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     }
   else {
     if (m_soft_zbuffer)

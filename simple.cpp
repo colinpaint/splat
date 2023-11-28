@@ -310,8 +310,8 @@ int main (int numArgs, char* args[]) {
   gVizApp = unique_ptr<sVizApp>(new sVizApp());
 
   try {
-    //GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);
-    GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", g_vertices, g_faces);
+    GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);
+    //GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", g_vertices, g_faces);
     GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
     }
   catch(runtime_error const& e) {

@@ -25,18 +25,18 @@
 #include <vector>
 
 //{{{
-struct Surfel {
-  Surfel() { }
+struct sSurfel {
+  sSurfel() { }
+  sSurfel(Eigen::Vector3f c_,
+          Eigen::Vector3f u_, Eigen::Vector3f v_,
+          Eigen::Vector3f p_, unsigned int rgba_) : c(c_), u(u_), v(v_), p(p_), rgba(rgba_) {}
 
-  Surfel(Eigen::Vector3f c_, Eigen::Vector3f u_, Eigen::Vector3f v_,
-         Eigen::Vector3f p_, unsigned int rgba_)
-      : c(c_), u(u_), v(v_), p(p_), rgba(rgba_) { }
+  Eigen::Vector3f c; // ellipse center point
+  Eigen::Vector3f u; // ellipse major axis
+  Eigen::Vector3f v; // ellipse minor axis
+  Eigen::Vector3f p; // Clipping plane
 
-  Eigen::Vector3f c,      // Position of the ellipse center point.
-                  u, v,   // Ellipse major and minor axis.
-                  p;      // Clipping plane.
-
-  unsigned int    rgba;   // Color.
+  unsigned int rgba;   // Color.
   };
 //}}}
 
@@ -108,7 +108,7 @@ public:
   void set_ewa_radius (float ewa_radius);
 
   void resize (int width, int height);
-  void render (std::vector<Surfel> const& visible_geometry);
+  void render (std::vector<sSurfel> const& visible_geometry);
 
 private:
   void setup_program_objects();
