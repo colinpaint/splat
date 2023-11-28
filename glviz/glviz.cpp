@@ -129,6 +129,16 @@ namespace GLviz {
   void set_camera (Camera& camera) { m_camera = &camera; }
 
   //{{{
+  void setFullScreen (bool enable) {
+
+    if (enable)
+      SDL_SetWindowFullscreen (m_sdl_window, SDL_WINDOW_FULLSCREEN);
+    else
+      SDL_SetWindowFullscreen (m_sdl_window, 0);
+    }
+  //}}}
+
+  //{{{
   void guiCallback (function<void()> guiCallback) { m_guiCallback = guiCallback; }
   //}}}
   //{{{

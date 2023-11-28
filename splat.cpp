@@ -29,6 +29,7 @@ namespace {
   unique_ptr <SplatRenderer> gSplatRenderer;
 
   int gModel = 0;
+  bool gFullScreen = false;
 
   //{{{
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
@@ -122,7 +123,7 @@ namespace {
     Eigen::Vector3f p0;
     Eigen::Vector3f t1;
     Eigen::Vector3f t2;
-    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(), 
+    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(),
                           p0.data(), t1.data(), t2.data());
 
     Eigen::Vector3f n_s = t1.cross (t2);
@@ -493,6 +494,11 @@ namespace {
 
       case SDLK_t:
         gSplatRenderer->set_pointsize_method ((gSplatRenderer->pointsize_method() + 1) % 4);
+        break;
+
+      case SDLK_f:
+        gFullScreen = !gFullScreen;
+        GLviz::setFullScreen (gFullScreen);
         break;
 
       case SDLK_q:

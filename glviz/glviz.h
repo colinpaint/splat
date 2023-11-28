@@ -11,6 +11,8 @@ namespace GLviz {
   Camera*  camera();
   void set_camera (Camera& camera);
 
+  void setFullScreen (bool enable);
+
   void displayCallback (std::function<void()> displayCallback);
   void resizeCallback (std::function<void (int, int)> resizeCallback);
   void timerCallback (std::function<void (unsigned int)> timerCallback, unsigned int timer_msec);

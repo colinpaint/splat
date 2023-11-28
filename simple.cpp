@@ -39,6 +39,7 @@ namespace {
   float g_points_material[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
 
   int g_shading_method(0);
+  bool gFullScreen = false;
 
   //{{{
   struct sVizApp {
@@ -250,6 +251,11 @@ namespace {
         break;
       case SDLK_SPACE:
         g_stop_simulation = !g_stop_simulation;
+        break;
+
+      case SDLK_f:
+        gFullScreen = !gFullScreen;
+        GLviz::setFullScreen (gFullScreen);
         break;
 
       case SDLK_q:
