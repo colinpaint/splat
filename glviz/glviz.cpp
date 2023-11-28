@@ -111,7 +111,8 @@ namespace GLviz {
             break;
 
           case SDL_QUIT:
-            quit = true;
+            SDL_Quit();
+            exit (EXIT_SUCCESS);
             break;
           }
         }
@@ -145,8 +146,8 @@ namespace GLviz {
   //}}}
   //{{{
   void keyboardCallback (function<void (SDL_Keycode)> keyboardCallback) {
-      m_keyboardCallback = keyboardCallback;
-  }
+    m_keyboardCallback = keyboardCallback;
+    }
   //}}}
   //{{{
   void resizeCallback (function<void (int width, int height)> resizeCallback) {
@@ -189,7 +190,7 @@ namespace GLviz {
         const Uint32 time = SDL_GetTicks();
         const Uint32 delta_t_msec = time - last_time;
         if (delta_t_msec >= m_timer_msec) {
-         last_time = time;
+          last_time = time;
           m_timerCallback (delta_t_msec);
           }
         }
@@ -231,7 +232,7 @@ namespace GLviz {
         // Initialize GLEW.
       cLog::log (LOGERROR, fmt::format ("Failed to initialize SDL Video {}", SDL_GetError()));
       SDL_Quit();
-      exit(EXIT_FAILURE);
+      exit (EXIT_FAILURE);
       }
       //}}}
 
@@ -266,7 +267,7 @@ namespace GLviz {
       //{{{  error, return
       cLog::log (LOGERROR, fmt::format ("Failed to create initialize OpenGL: {}", SDL_GetError()));
       SDL_Quit();
-      exit(EXIT_FAILURE);
+      exit (EXIT_FAILURE);
       }
       //}}}
     openglVersion();

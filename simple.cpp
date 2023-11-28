@@ -232,13 +232,30 @@ namespace {
   void keyboard (SDL_Keycode key) {
 
     switch (key) {
-      case SDLK_1: g_enable_mesh3 = !g_enable_mesh3; break;
-      case SDLK_2: g_enable_points = !g_enable_points;  break;
-      case SDLK_5: g_shading_method = (g_shading_method + 1) % 2; break;
-      case SDLK_w: g_enable_wireframe = !g_enable_wireframe;  break;
+      case SDLK_1:
+        g_enable_mesh3 = !g_enable_mesh3;
+        break;
+      case SDLK_2:
+        g_enable_points = !g_enable_points;
+        break;
+      case SDLK_5:
+        g_shading_method = (g_shading_method + 1) % 2;
+        break;
+      case SDLK_w:
+        g_enable_wireframe = !g_enable_wireframe;
+        break;
 
-      case SDLK_r: g_time = 0.0f; break;
-      case SDLK_SPACE: g_stop_simulation = !g_stop_simulation; break;
+      case SDLK_r:
+        g_time = 0.0f;
+        break;
+      case SDLK_SPACE:
+        g_stop_simulation = !g_stop_simulation;
+        break;
+
+      case SDLK_q:
+      case SDLK_ESCAPE:
+        exit (EXIT_SUCCESS);
+        break;
       }
     }
   //}}}

@@ -124,8 +124,9 @@ private:
   void render_pass (bool depth_only = false);
 
   // vars
-  GLviz::Camera const& m_camera;
+  bool mQuit = false;
 
+  GLviz::Camera const& m_camera;
   GLuint m_rect_vertices_vbo, m_rect_texture_uv_vbo, m_rect_vao, m_filter_kernel;
 
   GLuint m_vbo, m_vao;

@@ -381,6 +381,7 @@ namespace {
   //}}}
 
   // callbacks
+  void display() { gViz->renderFrame (gSurfels); }
   //{{{
   void resize (int width, int height) {
 
@@ -391,6 +392,7 @@ namespace {
   //}}}
   //{{{
   void gui() {
+
     ImGui::Begin ("Surface Splatting", nullptr);
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
     ImGui::SetWindowSize (ImVec2(350.0f, 415.0f), ImGuiCond_Once);
@@ -490,10 +492,14 @@ namespace {
       case SDLK_t:
         gViz->set_pointsize_method ((gViz->pointsize_method() + 1) % 4);
         break;
+
+      case SDLK_q:
+      case SDLK_ESCAPE:
+        exit (EXIT_SUCCESS);
+        break;
       }
     }
   //}}}
-  void display() { gViz->renderFrame (gSurfels); }
   void close() { gViz = nullptr; }
   }
 
