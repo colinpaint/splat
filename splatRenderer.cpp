@@ -1,76 +1,60 @@
 //{{{  includes
+#include <iostream>
+#include <cmath>
+
 #include "splatRenderer.h"
 
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
 
-#include <iostream>
-#include <cmath>
+#include "../common/date.h"
+#include "../common/cLog.h"
 //}}}
 
 // UniformBufferRaycast
-//{{{
-UniformBufferRaycast::UniformBufferRaycast()
-    : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f))
-{
-}
-//}}}
+UniformBufferRaycast::UniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 //{{{
 void UniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
-    projection_matrix_inv, GLint const* viewport)
-{
-    float viewportf[4] = {
-        static_cast<float>(viewport[0]),
-        static_cast<float>(viewport[1]),
-        static_cast<float>(viewport[2]),
-        static_cast<float>(viewport[3])
+                                            projection_matrix_inv, GLint const* viewport) {
+
+  float viewportf[4] = {
+    static_cast<float>(viewport[0]),
+    static_cast<float>(viewport[1]),
+    static_cast<float>(viewport[2]),
+    static_cast<float>(viewport[3])
     };
 
-    bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Eigen::Matrix4f),
-        projection_matrix_inv.data());
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Eigen::Matrix4f),
-        4 * sizeof(float), viewportf);
-    unbind();
-}
+  bind();
+  glBufferSubData (GL_UNIFORM_BUFFER, 0, sizeof(Eigen::Matrix4f), projection_matrix_inv.data());
+  glBufferSubData (GL_UNIFORM_BUFFER, sizeof(Eigen::Matrix4f), 4 * sizeof(float), viewportf);
+  unbind();
+  }
 //}}}
 
 // UniformBufferFrustum
+UniformBufferFrustum::UniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
 //{{{
-UniformBufferFrustum::UniformBufferFrustum()
-    : glUniformBuffer(6 * sizeof(Eigen::Vector4f))
-{
-}
-//}}}
-//{{{
-void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane)
-{
-    bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f),
-        static_cast<void const*>(frustum_plane));
-    unbind();
-}
+void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
+
+  bind();
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), static_cast<void const*>(frustum_plane));
+  unbind();
+  }
 //}}}
 
 // UniformBufferParameter
-//{{{
-UniformBufferParameter::UniformBufferParameter()
-    : glUniformBuffer(8 * sizeof(float))
-{
-}
-//}}}
+UniformBufferParameter::UniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
 //{{{
 void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shininess,
-    float radius_scale, float ewa_radius, float epsilon)
-{
-    bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
-    glBufferSubData(GL_UNIFORM_BUFFER, 12, sizeof(float), &shininess);
-    glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(float), &radius_scale);
-    glBufferSubData(GL_UNIFORM_BUFFER, 20, sizeof(float), &ewa_radius);
-    glBufferSubData(GL_UNIFORM_BUFFER, 24, sizeof(float), &epsilon);
-    unbind();
-}
+                                              float radius_scale, float ewa_radius, float epsilon) {
+  bind();
+  glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
+  glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shininess);
+  glBufferSubData (GL_UNIFORM_BUFFER, 16, sizeof(float), &radius_scale);
+  glBufferSubData (GL_UNIFORM_BUFFER, 20, sizeof(float), &ewa_radius);
+  glBufferSubData (GL_UNIFORM_BUFFER, 24, sizeof(float), &epsilon);
+  unbind();
+  }
 //}}}
 
 // SplatRenderer
@@ -80,31 +64,31 @@ SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
       m_color_material(true), m_ewa_filter(false), m_multisample(false),
       m_pointsize_method(0), m_backface_culling(false),
       m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)), m_epsilon(1.0f * 1e-3f),
-      m_shininess(8.0f), m_radius_scale(1.0f), m_ewa_radius(1.0f)
-{
-    m_uniform_camera.bind_buffer_base(0);
-    m_uniform_raycast.bind_buffer_base(1);
-    m_uniform_frustum.bind_buffer_base(2);
-    m_uniform_parameter.bind_buffer_base(3);
+      m_shininess(8.0f), m_radius_scale(1.0f), m_ewa_radius(1.0f) {
 
-    setup_program_objects();
-    setup_filter_kernel();
-    setup_screen_size_quad();
-    setup_vertex_array_buffer_object();
-}
+  m_uniform_camera.bind_buffer_base (0);
+  m_uniform_raycast.bind_buffer_base (1);
+  m_uniform_frustum.bind_buffer_base (2);
+  m_uniform_parameter.bind_buffer_base (3);
+
+  setup_program_objects();
+  setup_filter_kernel();
+  setup_screen_size_quad();
+  setup_vertex_array_buffer_object();
+  }
 //}}}
 //{{{
-SplatRenderer::~SplatRenderer()
-{
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
+SplatRenderer::~SplatRenderer() {
 
-    glDeleteBuffers(1, &m_rect_vertices_vbo);
-    glDeleteBuffers(1, &m_rect_texture_uv_vbo);
-    glDeleteVertexArrays(1, &m_rect_vao);
+  glDeleteVertexArrays (1, &m_vao);
+  glDeleteBuffers (1, &m_vbo);
 
-    glDeleteTextures(1, &m_filter_kernel);
-}
+  glDeleteBuffers (1, &m_rect_vertices_vbo);
+  glDeleteBuffers (1, &m_rect_texture_uv_vbo);
+  glDeleteVertexArrays (1, &m_rect_vao);
+
+  glDeleteTextures (1, &m_filter_kernel);
+  }
 //}}}
 
 //{{{
@@ -121,8 +105,8 @@ void SplatRenderer::setup_program_objects() {
   m_attribute.set_ewa_filter (m_ewa_filter);
   m_attribute.set_smooth (m_smooth);
 
-  m_finalization.set_multisampling (m_multisample);
-  m_finalization.set_smooth (m_smooth);
+  m_Final.set_multisampling (m_multisample);
+  m_Final.set_smooth (m_smooth);
   }
 //}}}
 //{{{
@@ -261,7 +245,7 @@ void SplatRenderer::set_multisample (bool enable)
     if (m_multisample != enable)
     {
         m_multisample = enable;
-        m_finalization.set_multisampling(enable);
+        m_Final.set_multisampling(enable);
         m_fbo.set_multisample(enable);
     }
 }
@@ -299,7 +283,7 @@ void SplatRenderer::set_smooth(bool enable) {
     m_smooth = enable;
 
     m_attribute.set_smooth(enable);
-    m_finalization.set_smooth(enable);
+    m_Final.set_smooth(enable);
 
     if (m_smooth) {
       m_fbo.enable_depth_texture();
@@ -343,7 +327,7 @@ void SplatRenderer::set_radius_scale (float radius_scale) { m_radius_scale = rad
 void SplatRenderer::resize (int width, int height) { m_fbo.resize (width, height); }
 
 //{{{
-void SplatRenderer::setup_uniforms (glProgram& program) {
+void SplatRenderer::setupUniforms (glProgram& program) {
 
   m_uniform_camera.set_buffer_data(m_camera);
 
@@ -362,7 +346,6 @@ void SplatRenderer::setup_uniforms (glProgram& program) {
 
   for (unsigned int i(0); i < 6; ++i)
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
-
   m_uniform_frustum.set_buffer_data (frustum_plane);
 
   m_uniform_parameter.set_buffer_data (m_color, m_shininess, m_radius_scale, m_ewa_radius, m_epsilon);
@@ -396,12 +379,12 @@ void SplatRenderer::render_pass (bool depth_only) {
     glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 
-  setup_uniforms (program);
+  setupUniforms (program);
 
   if (!depth_only && m_soft_zbuffer && m_ewa_filter) {
     glActiveTexture (GL_TEXTURE1);
     glBindTexture (GL_TEXTURE_1D, m_filter_kernel);
-    program.set_uniform_1i ("filter_kernel", 1);
+    program.setUniform1i ("filter_kernel", 1);
     }
 
   glBindVertexArray (m_vao);
@@ -442,7 +425,6 @@ void SplatRenderer::endFrame() {
     if (m_smooth) {
       glActiveTexture (GL_TEXTURE1);
       glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
-
       glActiveTexture (GL_TEXTURE2);
       glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
       }
@@ -454,25 +436,23 @@ void SplatRenderer::endFrame() {
     if (m_smooth) {
       glActiveTexture (GL_TEXTURE1);
       glBindTexture (GL_TEXTURE_2D, m_fbo.normal_texture());
-
       glActiveTexture (GL_TEXTURE2);
       glBindTexture (GL_TEXTURE_2D, m_fbo.depth_texture());
       }
     }
 
-  m_finalization.use();
+  m_Final.use();
 
   try {
-    setup_uniforms(m_finalization);
-    m_finalization.set_uniform_1i ("color_texture", 0);
-
+    setupUniforms (m_Final);
+    m_Final.setUniform1i ("color_texture", 0);
     if (m_smooth) {
-      m_finalization.set_uniform_1i ("normal_texture", 1);
-      m_finalization.set_uniform_1i ("depth_texture", 2);
+      m_Final.setUniform1i ("normal_texture", 1);
+      m_Final.setUniform1i ("depth_texture", 2);
       }
     }
   catch (uniform_not_found_error const& e) {
-    std::cerr << "Warning: Failed to set a uniform variable." << std::endl << e.what() << std::endl;
+    cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
     }
 
   glBindVertexArray (m_rect_vao);
@@ -514,7 +494,7 @@ void SplatRenderer::renderFrame (std::vector<Surfel> const& visible_geometry) {
   #ifndef NDEBUG
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      std::cerr << __FILE__ << "(" << __LINE__ << "): " << GLviz::get_gl_error_string(gl_error) << std::endl;
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
   #endif
   }
 //}}}

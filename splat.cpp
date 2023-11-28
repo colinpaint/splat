@@ -9,6 +9,8 @@
 #include <exception>
 #include <thread>
 
+#include <Eigen/Core>
+
 #include "../common/date.h"
 #include "../common/cLog.h"
 
@@ -16,8 +18,6 @@
 #include "glviz/utility.h"
 
 #include "splatRenderer.h"
-
-#include <Eigen/Core>
 
 using namespace std;
 //}}}
@@ -184,33 +184,32 @@ namespace {
   void createPlane (unsigned int n) {
 
     const float d = 1.0f / static_cast<float>(2 * n);
-    Surfel s(Eigen::Vector3f::Zero(),
-             2.0f * d * Eigen::Vector3f::UnitX(),
-             2.0f * d * Eigen::Vector3f::UnitY(),
-             Eigen::Vector3f::Zero(), 0);
+    Surfel surfel (Eigen::Vector3f::Zero(),
+                   2.0f * d * Eigen::Vector3f::UnitX(),
+                   2.0f * d * Eigen::Vector3f::UnitY(),
+                   Eigen::Vector3f::Zero(), 0);
 
     gSurfels.resize (4 * n * n);
-    unsigned int m(0);
 
-    for (unsigned int i(0); i <= 2 * n; ++i) {
-      for (unsigned int j(0); j <= 2 * n; ++j) {
-        unsigned int k(i * (2 * n + 1) + j);
-
+    unsigned int m = 0;
+    for (unsigned int i = 0; i <= 2 * n; ++i) {
+      for (unsigned int j = 0; j <= 2 * n; ++j) {
+        unsigned int k = i * (2 * n + 1) + j;
         if (k % 2 == 1) {
-          s.c = Eigen::Vector3f (-1.0f + 2.0f * d * static_cast<float>(j),
-                          -1.0f + 2.0f * d * static_cast<float>(i),
-                          0.0f);
-          s.rgba = (((j / 2) % 2) == ((i / 2) % 2)) ? 0u : ~0u;
-          gSurfels[m] = s;
+          surfel.c = Eigen::Vector3f (-1.0f + 2.0f * d * static_cast<float>(j),
+                                      -1.0f + 2.0f * d * static_cast<float>(i),
+                                      0.0f);
+          surfel.rgba = (((j / 2) % 2) == ((i / 2) % 2)) ? 0u : ~0u;
+          gSurfels[m] = surfel;
 
-          // Clip border surfels.
+          // Clip border surfels
           if (j == 2 * n) {
             gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-            gSurfels[m].rgba = ~s.rgba;
+            gSurfels[m].rgba = ~surfel.rgba;
             }
           else if (i == 2 * n) {
             gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-            gSurfels[m].rgba = ~s.rgba;
+            gSurfels[m].rgba = ~surfel.rgba;
             }
           else if (j == 0)
             gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
@@ -220,16 +219,16 @@ namespace {
             // Duplicate and clip inner surfels.
             if (j % 2 == 0) {
               gSurfels[m].p = Eigen::Vector3f(1.0, 0.0f, 0.0f);
-              gSurfels[++m] = s;
+              gSurfels[++m] = surfel;
               gSurfels[m].p = Eigen::Vector3f(-1.0, 0.0f, 0.0f);
-              gSurfels[m].rgba = ~s.rgba;
+              gSurfels[m].rgba = ~surfel.rgba;
               }
 
             if (i % 2 == 0) {
               gSurfels[m].p = Eigen::Vector3f(0.0, 1.0f, 0.0f);
-              gSurfels[++m] = s;
+              gSurfels[++m] = surfel;
               gSurfels[m].p = Eigen::Vector3f(0.0, -1.0f, 0.0f);
-              gSurfels[m].rgba = ~s.rgba;
+              gSurfels[m].rgba = ~surfel.rgba;
               }
             }
           ++m;

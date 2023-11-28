@@ -15,7 +15,35 @@ using namespace std;
 
 namespace GLviz {
   //{{{
-  void loadRaw  (string const& filename, 
+  void saveRaw (string const& filename,
+                vector<Eigen::Vector3f> const& vertices,
+                vector<array<unsigned int, 3>>& faces) {
+
+    ofstream output(filename, ios::out | ios::binary);
+
+    if (output.fail()) {
+      ostringstream error_message;
+      error_message << "Error: Can not open " << filename << "." << endl;
+      throw runtime_error(error_message.str().c_str());
+      }
+
+    unsigned int nv = static_cast<unsigned int>(vertices.size());
+    output.write (reinterpret_cast<char const*>(&nv), sizeof(unsigned int));
+
+    for (unsigned int i(0); i < nv; ++i)
+      output.write (reinterpret_cast<char const*>(vertices[i].data()), 3 * sizeof(float));
+
+    unsigned int nf = static_cast<unsigned int>(faces.size());
+    output.write (reinterpret_cast<char const*>(&nf), sizeof(unsigned int));
+
+    for (unsigned int i(0); i < nf; ++i)
+      output.write (reinterpret_cast<char const*>(faces[i].data()), 3 * sizeof(unsigned int));
+
+    output.close();
+    }
+  //}}}
+  //{{{
+  void loadRaw  (string const& filename,
                  vector<Eigen::Vector3f>& vertices,
                  vector<array<unsigned int, 3>>& faces) {
 
@@ -44,37 +72,8 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void saveRaw (string const& filename, 
-                vector<Eigen::Vector3f> const& vertices, 
-                vector<array<unsigned int, 3>>& faces) {
-
-    ofstream output(filename, ios::out | ios::binary);
-
-    if (output.fail()) {
-      ostringstream error_message;
-      error_message << "Error: Can not open " << filename << "." << endl;
-      throw runtime_error(error_message.str().c_str());
-      }
-
-    unsigned int nv = static_cast<unsigned int>(vertices.size());
-    output.write (reinterpret_cast<char const*>(&nv), sizeof(unsigned int));
-
-    for (unsigned int i(0); i < nv; ++i)
-      output.write (reinterpret_cast<char const*>(vertices[i].data()), 3 * sizeof(float));
-
-    unsigned int nf = static_cast<unsigned int>(faces.size());
-    output.write (reinterpret_cast<char const*>(&nf), sizeof(unsigned int));
-
-    for (unsigned int i(0); i < nf; ++i)
-      output.write (reinterpret_cast<char const*>(faces[i].data()), 3 * sizeof(unsigned int));
-
-    output.close();
-    }
-  //}}}
-
-  //{{{
   void loadMesh (string const& filename,
-                 vector<Eigen::Vector3f>& vertices, 
+                 vector<Eigen::Vector3f>& vertices,
                  vector<array<unsigned int,3>>& faces) {
 
     ifstream input (filename);
@@ -87,8 +86,9 @@ namespace GLviz {
                                      filename, vertices.size(), faces.size()));
     }
   //}}}
+
   //{{{
-  void setVertexNormalsFromTriangleMesh (vector<Eigen::Vector3f> const& vertices, 
+  void setVertexNormalsFromTriangleMesh (vector<Eigen::Vector3f> const& vertices,
                                          vector<array<unsigned int,3>> const& faces,
                                          vector<Eigen::Vector3f>& normals) {
 
@@ -118,7 +118,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  string get_gl_error_string(GLenum gl_error) {
+  string getGlErrorString (GLenum gl_error) {
 
      string error_string;
 
@@ -155,7 +155,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  string get_gl_framebuffer_status_string (GLenum framebuffer_status) {
+  string getGlFramebufferStatusString (GLenum framebuffer_status) {
 
     string status_string;
 

@@ -1,35 +1,17 @@
 //{{{  includes
-#include "splatProgram.h"
-
 #include <iostream>
 #include <cstddef>
+
+#include "splatProgram.h"
+
+#include "../common/date.h"
+#include "../common/cLog.h"
 
 using namespace std;
 //}}}
 
 namespace {
   // shaders
-  //{{{
-  const vector<string> kLightingGlsl = {
-    "#version 330",
-
-    "vec3 lighting(vec3 normal_eye, vec3 v_eye, vec3 color, float shininess) {",
-      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);",
-      "float dif = max(dot(light_eye, normal_eye), 0.0);",
-      "vec3 refl_eye = reflect(light_eye, normal_eye);",
-      "vec3 view_eye = normalize(v_eye);",
-
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);",
-      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);",
-
-      "vec3 res = 0.15 * color;",
-      "res += 0.6 * dif * color;",
-      "res += 0.1 * spe * vec3(1.0);",
-      "res += 0.1 * rim * vec3(1.0);",
-      "return res;",
-      "}",
-    };
-  //}}}
   //{{{
   const vector<string> kAttributeVsGlsl = {
     "#version 330",
@@ -40,46 +22,37 @@ namespace {
     "#define EWA_FILTER 0",
     "#define POINTSIZE_METHOD 0",
 
-    //{{{
-    "layout(std140, column_major) uniform Camera {",
-      "mat4 modelview_matrix;",
-      "mat4 modelview_matrix_it;",
-      "mat4 projection_matrix;",
+    "layout (std140, column_major) uniform Camera {"
+      "mat4 modelview_matrix;"
+      "mat4 modelview_matrix_it;"
+      "mat4 projection_matrix;"
       "};",
-    //}}}
-    //{{{
-    "layout(std140, column_major) uniform Raycast {",
-      "mat4 projection_matrix_inv;",
-      "vec4 viewport;",
+
+    "layout (std140, column_major) uniform Raycast {"
+      "mat4 projection_matrix_inv;"
+      "vec4 viewport;"
       "};",
-    //}}}
-    //{{{
-    "layout(std140) uniform Frustum {",
-      "vec4 frustum_plane[6];",
+
+    "layout (std140) uniform Frustum {"
+      "vec4 frustum_plane[6];"
       "};",
-    //}}}
-    //{{{
-    "layout(std140) uniform Parameter {",
-      "vec3 material_color;",
-      "float material_shininess;",
-      "float radius_scale;",
-      "float ewa_radius;",
-      "float epsilon;",
+
+    "layout (std140) uniform Parameter {"
+      "vec3 material_color;"
+      "float material_shininess;"
+      "float radius_scale;"
+      "float ewa_radius;"
+      "float epsilon;"
       "};",
-    //}}}
 
     "#define ATTR_CENTER 0",
     "layout(location = ATTR_CENTER) in vec3 c;",
-
     "#define ATTR_T1 1",
     "layout(location = ATTR_T1) in vec3 u;",
-
     "#define ATTR_T2 2",
     "layout(location = ATTR_T2) in vec3 v;",
-
     "#define ATTR_PLANE 3",
     "layout(location = ATTR_PLANE) in vec3 p;",
-
     "#define ATTR_COLOR 4",
     "layout(location = ATTR_COLOR) in vec4 rgba;",
 
@@ -101,7 +74,7 @@ namespace {
     "Out;",
     //}}}
     "#if !VISIBILITY_PASS",
-      "vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
+      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
     "#endif",
 
     //{{{
@@ -323,7 +296,7 @@ namespace {
 
       "vec4 p_scr;",
       "vec2 w;",
-      "pointsprite(c_eye.xyz, u_eye, v_eye, p_scr, w);",
+      "pointsprite (c_eye.xyz, u_eye, v_eye, p_scr, w);",
 
       "#if !VISIBILITY_PASS",
         "#if SMOOTH",
@@ -334,9 +307,9 @@ namespace {
           "#endif",
         "#else",
           "#if COLOR_MATERIAL",
-            "Out.color = lighting(n_eye, vec3(c_eye), material_color, material_shininess);",
+            "Out.color = lighting (n_eye, vec3(c_eye), material_color, material_shininess);",
           "#else",
-            "Out.color = lighting(n_eye, vec3(c_eye), vec3(rgba), material_shininess);",
+            "Out.color = lighting (n_eye, vec3(c_eye), vec3(rgba), material_shininess);",
           "#endif",
         "#endif",
       "#endif",
@@ -381,36 +354,32 @@ namespace {
     "#define SMOOTH 0",
     "#define EWA_FILTER 0",
 
-    //{{{
-    "layout(std140, column_major) uniform Camera {",
-      "mat4 modelview_matrix;",
-      "mat4 modelview_matrix_it;",
-      "mat4 projection_matrix;",
+    "layout (std140, column_major) uniform Camera {"
+      "mat4 modelview_matrix;"
+      "mat4 modelview_matrix_it;"
+      "mat4 projection_matrix;"
       "};",
-    //}}}
-    //{{{
-    "layout(std140, column_major) uniform Raycast {",
-      "mat4 projection_matrix_inv;",
-      "vec4 viewport;",
+
+    "layout (std140, column_major) uniform Raycast {"
+      "mat4 projection_matrix_inv;"
+      "vec4 viewport;"
       "};",
-    //}}}
-    //{{{
-    "layout(std140) uniform Parameter {",
-      "vec3 material_color;",
-      "float material_shininess;",
-      "float radius_scale;",
-      "float ewa_radius;",
-      "float epsilon;",
+
+    "layout (std140) uniform Parameter {"
+      "vec3 material_color;"
+      "float material_shininess;"
+      "float radius_scale;"
+      "float ewa_radius;"
+      "float epsilon;"
       "};",
-    //}}}
 
     "uniform sampler1D filter_kernel;",
-    //{{{
-    "in block {",
-      "flat in vec3 c_eye;",
-      "flat in vec3 u_eye;",
-      "flat in vec3 v_eye;",
-      "flat in vec3 p;",
+
+    "in block {"
+      "flat in vec3 c_eye;"
+      "flat in vec3 u_eye;"
+      "flat in vec3 v_eye;"
+      "flat in vec3 p;"
       "flat in vec3 n_eye;",
 
       "#if !VISIBILITY_PASS",
@@ -421,15 +390,14 @@ namespace {
       "#endif",
       "}",
     "In;",
-    //}}}
 
     "#define FRAG_COLOR 0",
-    "layout(location = FRAG_COLOR) out vec4 frag_color;",
+    "layout (location = FRAG_COLOR) out vec4 frag_color;",
 
     "#if !VISIBILITY_PASS",
       "#if SMOOTH",
         "#define FRAG_NORMAL 1",
-          "layout(location = FRAG_NORMAL) out vec4 frag_normal;",
+          "layout (location = FRAG_NORMAL) out vec4 frag_normal;",
       "#endif",
     "#endif",
 
@@ -491,7 +459,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kFinalizationVsGlsl = {
+  const vector<string> kFinalVsGlsl = {
     "#version 330",
 
     "#define ATTR_POSITION 0",
@@ -500,35 +468,35 @@ namespace {
     "#define ATTR_TEXTURE_UV 1",
     "layout(location = ATTR_TEXTURE_UV) in vec2 texture_uv;",
 
-    "out block {",
-      "vec2 texture_uv;",
-      "}",
+    "out block {"
+      "vec2 texture_uv;"
+      "}"
     "Out;",
 
-    "void main() {",
-      "gl_Position = vec4(position, 1.0);",
-      "Out.texture_uv = texture_uv;",
-      "}",
+    "void main() {"
+      "gl_Position = vec4(position, 1.0);"
+      "Out.texture_uv = texture_uv;"
+      "}"
     };
   //}}}
   //{{{
-  const vector<string> kFinalizationFsGlsl = {
+  const vector<string> kFinalFsGlsl = {
     "#version 330",
     "#define MULTISAMPLING 0",
     "#define SMOOTH 0",
 
-    "layout(std140, column_major) uniform Camera {",
+    "layout (std140, column_major) uniform Camera {",
       "mat4 modelview_matrix;",
       "mat4 modelview_matrix_it;",
       "mat4 projection_matrix;",
       "};",
 
-    "layout(std140, column_major) uniform Raycast {",
+    "layout (std140, column_major) uniform Raycast {",
       "mat4 projection_matrix_inv;",
       "vec4 viewport;",
       "};",
 
-    "layout(std140) uniform Parameter {",
+    "layout (std140) uniform Parameter {",
       "vec3 material_color;",
       "float material_shininess;",
       "float radius_scale;",
@@ -551,7 +519,7 @@ namespace {
         "uniform sampler2D depth_texture;",
       "#endif",
 
-      "vec3 lighting(vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
+      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
     "#endif",
 
     "in block {",
@@ -611,8 +579,29 @@ namespace {
       "#else",
         "frag_color = sqrt(res);",
       "#endif",
-      "}",
+      "}"
     //}}}
+    };
+  //}}}
+  //{{{
+  const vector<string> kLightingGlsl = {
+    "#version 330",
+
+    "vec3 lighting (vec3 normal_eye, vec3 v_eye, vec3 color, float shininess) {"
+      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);"
+      "float dif = max(dot(light_eye, normal_eye), 0.0);"
+      "vec3 refl_eye = reflect(light_eye, normal_eye);"
+      "vec3 view_eye = normalize(v_eye);"
+
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);"
+      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);"
+
+      "vec3 res = 0.15 * color;"
+      "res += 0.6 * dif * color;"
+      "res += 0.1 * spe * vec3(1.0);"
+      "res += 0.1 * rim * vec3(1.0);"
+      "return res;"
+      "}"
     };
   //}}}
   }
@@ -624,8 +613,8 @@ ProgramAttribute::ProgramAttribute()
       m_visibility_pass(true), m_smooth(false), m_color_material(false),
       m_pointsize_method(0) {
 
-  initialize_shader_obj();
-  initialize_program_obj();
+  initShader();
+  initProgram();
   }
 //}}}
 
@@ -634,7 +623,7 @@ void ProgramAttribute::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
@@ -643,7 +632,7 @@ void ProgramAttribute::set_ewa_filter (bool enable) {
 
   if (m_ewa_filter != enable) {
     m_ewa_filter = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
@@ -652,7 +641,7 @@ void ProgramAttribute::set_backface_culling (bool enable) {
 
   if (m_backface_culling != enable) {
     m_backface_culling = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
@@ -661,7 +650,7 @@ void ProgramAttribute::set_visibility_pass (bool enable) {
 
   if (m_visibility_pass != enable) {
     m_visibility_pass = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
@@ -670,7 +659,7 @@ void ProgramAttribute::set_color_material (bool enable) {
 
   if (m_color_material != enable) {
     m_color_material = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
@@ -679,21 +668,21 @@ void ProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
 
   if (m_pointsize_method != pointsize_method) {
     m_pointsize_method = pointsize_method;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
 
 //{{{
-void ProgramAttribute::initialize_shader_obj() {
+void ProgramAttribute::initShader() {
 
-  m_lighting_vs_obj.loadStrings (kLightingGlsl);
-  m_attribute_vs_obj.loadStrings (kAttributeVsGlsl);
-  m_attribute_fs_obj.loadStrings (kAttributeFsGlsl);
+  m_attribute_vs_obj.load (kAttributeVsGlsl);
+  m_attribute_fs_obj.load (kAttributeFsGlsl);
+  m_lighting_vs_obj.load (kLightingGlsl);
   }
 //}}}
 //{{{
-void ProgramAttribute::initialize_program_obj() {
+void ProgramAttribute::initProgram() {
 
   try {
     detach_all();
@@ -715,7 +704,7 @@ void ProgramAttribute::initialize_program_obj() {
     m_lighting_vs_obj.compile (defines);
     }
   catch (shader_compilation_error const& e) {
-    cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
+    cLog::log(LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -723,77 +712,77 @@ void ProgramAttribute::initialize_program_obj() {
     link();
     }
   catch (shader_link_error const& e) {
-    cerr << "Error: A program failed to link." << endl << e.what() << endl;
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
   try {
-    set_uniform_block_binding ("Camera", 0);
-    set_uniform_block_binding ("Raycast", 1);
-    set_uniform_block_binding ("Frustum", 2);
-    set_uniform_block_binding ("Parameter", 3);
+    setUniformBlockBind ("Camera", 0);
+    setUniformBlockBind ("Raycast", 1);
+    setUniformBlockBind ("Frustum", 2);
+    setUniformBlockBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to set uniform {}", e.what()));
     }
   }
 //}}}
 
-// ProgramFinalization
+// ProgramFinal
 //{{{
-ProgramFinalization::ProgramFinalization()
+ProgramFinal::ProgramFinal()
     : m_smooth(false), m_multisampling(false) {
 
-  initialize_shader_obj();
-  initialize_program_obj();
+  initShader();
+  initProgram();
   }
 //}}}
 
 //{{{
-void ProgramFinalization::set_smooth (bool enable) {
+void ProgramFinal::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 //}}}
 //{{{
-void ProgramFinalization::set_multisampling (bool enable) {
+void ProgramFinal::set_multisampling (bool enable) {
 
   if (m_multisampling != enable) {
     m_multisampling = enable;
-    initialize_program_obj();
+    initProgram();
     }
   }
 
 //}}}
 
 //{{{
-void ProgramFinalization::initialize_shader_obj() {
+void ProgramFinal::initShader() {
 
-  m_lighting_fs_obj.loadStrings (kLightingGlsl);
-  m_finalization_vs_obj.loadStrings (kFinalizationVsGlsl);
-  m_finalization_fs_obj.loadStrings (kFinalizationFsGlsl);
+  m_Final_vs_obj.load (kFinalVsGlsl);
+  m_Final_fs_obj.load (kFinalFsGlsl);
+  m_lighting_fs_obj.load (kLightingGlsl);
 
-  attach_shader (m_finalization_vs_obj);
-  attach_shader (m_finalization_fs_obj);
+  attach_shader (m_Final_vs_obj);
+  attach_shader (m_Final_fs_obj);
   attach_shader (m_lighting_fs_obj);
   }
 //}}}
 //{{{
-void ProgramFinalization::initialize_program_obj() {
+void ProgramFinal::initProgram() {
 
   try {
     map<string, int> defines;
     defines.insert (make_pair ("SMOOTH", m_smooth ? 1 : 0));
     defines.insert (make_pair ("MULTISAMPLING", m_multisampling ? 1 : 0));
-    m_finalization_vs_obj.compile (defines);
-    m_finalization_fs_obj.compile (defines);
+    m_Final_vs_obj.compile (defines);
+    m_Final_fs_obj.compile (defines);
     m_lighting_fs_obj.compile (defines);
     }
   catch (shader_compilation_error const& e) {
-    cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -801,17 +790,17 @@ void ProgramFinalization::initialize_program_obj() {
     link();
     }
   catch (shader_link_error const& e) {
-    cerr << "Error: A program failed to link." << endl << e.what() << endl;
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
   try {
-    set_uniform_block_binding ("Camera", 0);
-    set_uniform_block_binding ("Raycast", 1);
-    set_uniform_block_binding ("Parameter", 3);
+    setUniformBlockBind ("Camera", 0);
+    setUniformBlockBind ("Raycast", 1);
+    setUniformBlockBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to set uniform {}", e.what()));
     }
   }
 //}}}

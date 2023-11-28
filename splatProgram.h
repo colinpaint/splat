@@ -13,10 +13,11 @@ public:
   void set_color_material (bool enable = true);
 
 private:
-  void initialize_shader_obj();
-  void initialize_program_obj();
+  void initShader();
+  void initProgram();
 
-  glVertexShader m_attribute_vs_obj, m_lighting_vs_obj;
+  glVertexShader m_attribute_vs_obj;
+  glVertexShader m_lighting_vs_obj;
   glFragmentShader m_attribute_fs_obj;
 
   bool m_ewa_filter;
@@ -27,19 +28,20 @@ private:
   unsigned int m_pointsize_method;
   };
 
-class ProgramFinalization : public glProgram {
+class ProgramFinal : public glProgram {
 public:
-  ProgramFinalization();
+  ProgramFinal();
 
-  void set_multisampling(bool enable);
-  void set_smooth(bool enable);
+  void set_multisampling (bool enable);
+  void set_smooth (bool enable);
 
 private:
-  void initialize_shader_obj();
-  void initialize_program_obj();
+  void initShader();
+  void initProgram();
 
-  glVertexShader    m_finalization_vs_obj;
-  glFragmentShader  m_finalization_fs_obj, m_lighting_fs_obj;
+  glVertexShader m_Final_vs_obj;
+  glFragmentShader m_Final_fs_obj;
+  glFragmentShader m_lighting_fs_obj;
 
   bool m_smooth, m_multisampling;
   };

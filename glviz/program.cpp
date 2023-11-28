@@ -366,8 +366,8 @@ namespace GLviz {
   //{{{
   ProgramMesh3::ProgramMesh3() : glProgram(), m_wireframe(false), m_smooth(false) {
 
-    initialize_shader_obj();
-    initialize_program_obj();
+    initShader();
+    initProgram();
     }
   //}}}
   //{{{
@@ -375,7 +375,7 @@ namespace GLviz {
 
     if (m_wireframe != enable) {
       m_wireframe = enable;
-      initialize_program_obj();
+      initProgram();
       }
     }
   //}}}
@@ -384,17 +384,17 @@ namespace GLviz {
 
     if (m_smooth != enable) {
       m_smooth = enable;
-      initialize_program_obj();
+      initProgram();
       }
     }
   //}}}
 
   //{{{
-  void ProgramMesh3::initialize_shader_obj() {
+  void ProgramMesh3::initShader() {
 
-    m_mesh3_vs_obj.loadStrings (kMeshVsGlsl);
-    m_mesh3_gs_obj.loadStrings (kMeshGsGlsl);
-    m_mesh3_fs_obj.loadStrings (kMeshFsGlsl);
+    m_mesh3_vs_obj.load (kMeshVsGlsl);
+    m_mesh3_gs_obj.load (kMeshGsGlsl);
+    m_mesh3_fs_obj.load (kMeshFsGlsl);
 
     attach_shader (m_mesh3_vs_obj);
     attach_shader (m_mesh3_gs_obj);
@@ -402,7 +402,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void ProgramMesh3::initialize_program_obj() {
+  void ProgramMesh3::initProgram() {
 
     try {
       map <string, int> defines;
@@ -427,14 +427,14 @@ namespace GLviz {
       }
 
     try {
-      set_uniform_block_binding("Camera", 0);
-      set_uniform_block_binding("Material", 1);
-
+      setUniformBlockBind ("Camera", 0);
+      setUniformBlockBind ("Material", 1);
       if (m_wireframe)
-        set_uniform_block_binding("Wireframe", 2);
+        setUniformBlockBind ("Wireframe", 2);
       }
     catch (uniform_not_found_error const& e) {
-      cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to set uniform {}",
+                                         e.what()));
       }
     }
   //}}}
@@ -443,29 +443,29 @@ namespace GLviz {
   //{{{
   ProgramSphere::ProgramSphere() {
 
-    initialize_shader_obj();
-    initialize_program_obj();
+    initShader();
+    initProgram();
     }
   //}}}
   //{{{
-  void ProgramSphere::initialize_shader_obj() {
+  void ProgramSphere::initShader() {
 
-    m_sphere_vs_obj.loadStrings (kSphereVsGlsl);
-    m_sphere_fs_obj.loadStrings (kSphereFsGlsl);
+    m_sphere_vs_obj.load (kSphereVsGlsl);
+    m_sphere_fs_obj.load (kSphereFsGlsl);
 
     attach_shader (m_sphere_vs_obj);
     attach_shader (m_sphere_fs_obj);
     }
   //}}}
   //{{{
-  void ProgramSphere::initialize_program_obj() {
+  void ProgramSphere::initProgram() {
 
     try {
       m_sphere_vs_obj.compile();
       m_sphere_fs_obj.compile();
       }
     catch (shader_compilation_error const& e) {
-      cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to compile {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -473,17 +473,17 @@ namespace GLviz {
       link();
       }
     catch (shader_link_error const& e) {
-      cerr << "Error: A program failed to link." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to link {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
     try {
-      set_uniform_block_binding ("Camera", 0);
-      set_uniform_block_binding ("Material", 1);
-      set_uniform_block_binding ("Sphere", 3);
+      setUniformBlockBind ("Camera", 0);
+      setUniformBlockBind ("Material", 1);
+      setUniformBlockBind ("Sphere", 3);
       }
     catch (uniform_not_found_error const& e) {
-      cerr << "Warning: Failed to set a uniform variable." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to set uniform {}", e.what()));
       }
     }
   //}}}

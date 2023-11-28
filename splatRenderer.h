@@ -117,7 +117,7 @@ private:
   void setup_screen_size_quad();
   void setup_vertex_array_buffer_object();
 
-  void setup_uniforms (glProgram& program);
+  void setupUniforms (glProgram& program);
 
   void beginFrame();
   void endFrame();
@@ -132,7 +132,7 @@ private:
   unsigned int m_num_pts;
 
   ProgramAttribute m_visibility, m_attribute;
-  ProgramFinalization m_finalization;
+  ProgramFinal m_Final;
 
   Framebuffer m_fbo;
 

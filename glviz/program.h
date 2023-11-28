@@ -52,8 +52,8 @@ namespace GLviz {
     void set_smooth(bool enable);
 
   private:
-    void initialize_shader_obj();
-    void initialize_program_obj();
+    void initShader();
+    void initProgram();
 
     glVertexShader   m_mesh3_vs_obj;
     glGeometryShader m_mesh3_gs_obj;
@@ -68,8 +68,8 @@ namespace GLviz {
     ProgramSphere();
 
   private:
-    void initialize_shader_obj();
-    void initialize_program_obj();
+    void initShader();
+    void initProgram();
 
     glVertexShader    m_sphere_vs_obj;
     glFragmentShader  m_sphere_fs_obj;

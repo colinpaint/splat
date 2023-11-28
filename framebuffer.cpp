@@ -256,11 +256,11 @@ void Framebuffer::set_multisample (bool enable) {
     #ifndef NDEBUG
       GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string(status)));
+        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
 
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_error_string(gl_error)));
+        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
     #endif
 
     unbind();
@@ -317,11 +317,11 @@ void Framebuffer::resize (GLint width, GLint height) {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
 
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_error_string(gl_error)));
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
   #endif
 
   unbind();
@@ -353,7 +353,7 @@ void Framebuffer::initialize() {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::get_gl_framebuffer_status_string (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
   #endif
   }
 //}}}

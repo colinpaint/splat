@@ -28,11 +28,12 @@ private:
   void remove_and_delete_attachments();
 
   GLuint m_fbo;
-  GLuint m_color, m_normal, m_depth;
+  GLuint m_color;
+  GLuint m_normal;
+  GLuint m_depth;
 
   struct Impl;
   struct Default;
   struct Multisample;
-
   std::unique_ptr<Impl> m_pimpl;
   };

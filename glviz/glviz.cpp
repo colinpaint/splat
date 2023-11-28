@@ -21,7 +21,8 @@ using namespace std;
 
 namespace GLviz {
   namespace {
-    int m_screen_width, m_screen_height;
+    int m_screen_width;
+    int m_screen_height;
     unsigned int m_timer_msec = 16;
 
     SDL_Window* m_sdl_window;
@@ -154,7 +155,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void opengl_version() {
+  void openglVersion() {
 
     GLint context_major_version, context_minor_version, context_profile;
 
@@ -162,21 +163,15 @@ namespace GLviz {
     glGetIntegerv (GL_MINOR_VERSION, &context_minor_version);
     glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &context_profile);
 
-    cLog::log (LOGINFO, fmt::format ("OpenGL version {} {}", context_major_version, context_minor_version));
-
-    switch (context_profile) {
-      case GL_CONTEXT_CORE_PROFILE_BIT:
-        cLog::log (LOGINFO, fmt::format ("- core"));
-        break;
-
-      case GL_CONTEXT_COMPATIBILITY_PROFILE_BIT:
-        cLog::log (LOGINFO, fmt::format ("- compatibility"));
-        break;
-      }
+    cLog::log (LOGINFO, fmt::format ("OpenGL {}.{} {}",
+                                     context_major_version, context_minor_version,
+                                     (context_profile == GL_CONTEXT_CORE_PROFILE_BIT) ? "core" :
+                                       (context_profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) ?
+                                         "compatibility" : "unknown"));
     }
   //}}}
   //{{{
-  void glew_version() {
+  void glewVersion() {
     cLog::log (LOGINFO, fmt::format ("GLEW version {}", (const char*)glewGetString(GLEW_VERSION)));
     }
   //}}}
@@ -231,7 +226,6 @@ namespace GLviz {
     m_screen_width = screen_width;
     m_screen_height = screen_height;
 
-    // Initialize SDL.
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       //{{{  error,return
         // Initialize GLEW.
@@ -253,8 +247,8 @@ namespace GLviz {
 
     // no WSL
     cLog::log (LOGINFO, "multiSample disabled");
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    //SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 1);
+    //SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
     m_sdl_window = SDL_CreateWindow ("GLviz", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                      m_screen_width, m_screen_height,
@@ -267,7 +261,7 @@ namespace GLviz {
       }
       //}}}
 
-    m_gl_context = SDL_GL_CreateContext(m_sdl_window);
+    m_gl_context = SDL_GL_CreateContext (m_sdl_window);
     if (!m_gl_context) {
       //{{{  error, return
       cLog::log (LOGERROR, fmt::format ("Failed to create initialize OpenGL: {}", SDL_GetError()));
@@ -275,15 +269,12 @@ namespace GLviz {
       exit(EXIT_FAILURE);
       }
       //}}}
-
-    // Print OpenGL version.
-    opengl_version();
+    openglVersion();
 
       { // Initialize GLEW.
       glewExperimental = GL_TRUE;
       GLenum glew_error = glewInit();
-
-      if (GLEW_OK != glew_error) {
+      if (glew_error != GLEW_OK) {
         //{{{  error, return
         cLog::log (LOGERROR, fmt::format ("Failed to create initialize GLEW {}",
                                           (const char*)(glewGetErrorString(glew_error))));
@@ -295,15 +286,13 @@ namespace GLviz {
       // glGetString(GL_EXTENSIONS), which causes a GL_INVALID_ENUM error.
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error && GL_INVALID_ENUM != gl_error)
-        cLog::log (LOGERROR, fmt::format ("Gl {}", GLviz::get_gl_error_string (gl_error)));
+        cLog::log (LOGERROR, fmt::format ("Gl {}", GLviz::getGlErrorString (gl_error)));
       }
-
-    // print GLEW version.
-    glew_version();
+    glewVersion();
 
     // Initialize ImGui.
     ImGui::CreateContext();
-    ImGui_ImplSDL2_InitForOpenGL(m_sdl_window, m_gl_context);
+    ImGui_ImplSDL2_InitForOpenGL (m_sdl_window, m_gl_context);
     ImGui_ImplOpenGL3_Init();
     }
   //}}}
