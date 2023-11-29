@@ -414,7 +414,7 @@ namespace GLviz {
       m_mesh3_fs_obj.compile (defines);
       }
     catch (shader_compilation_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to compile {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed compile {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -422,7 +422,7 @@ namespace GLviz {
       link();
       }
     catch (shader_link_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to link {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed link {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -433,7 +433,7 @@ namespace GLviz {
         setUniformBlockBind ("Wireframe", 2);
       }
     catch (uniform_not_found_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to set uniform {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed setUniformBlockBind {}", e.what()));
       }
     }
   //}}}
@@ -464,7 +464,7 @@ namespace GLviz {
       m_sphere_fs_obj.compile();
       }
     catch (shader_compilation_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to compile {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed compile {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -472,7 +472,7 @@ namespace GLviz {
       link();
       }
     catch (shader_link_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to link {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed link {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -482,7 +482,7 @@ namespace GLviz {
       setUniformBlockBind ("Sphere", 3);
       }
     catch (uniform_not_found_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed to set uniform {}", e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed setUniformBlockBind {}", e.what()));
       }
     }
   //}}}

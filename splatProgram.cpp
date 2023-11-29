@@ -710,7 +710,7 @@ void ProgramAttribute::initProgram() {
     mLightingVs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
-    cLog::log(LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to compile {}", e.what()));
+    cLog::log(LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -718,7 +718,7 @@ void ProgramAttribute::initProgram() {
     link();
     }
   catch (shader_link_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to link {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -729,7 +729,7 @@ void ProgramAttribute::initProgram() {
     setUniformBlockBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to set uniform {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed setUniformBlockBind {}", e.what()));
     }
   }
 //}}}
@@ -790,7 +790,7 @@ void ProgramFinal::initProgram() {
     m_lighting_fs_obj.compile (defines);
     }
   catch (shader_compilation_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to compile {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -798,7 +798,7 @@ void ProgramFinal::initProgram() {
     link();
     }
   catch (shader_link_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to link {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -808,7 +808,7 @@ void ProgramFinal::initProgram() {
     setUniformBlockBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed to set uniform {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed setUniformBlockBindto {}", e.what()));
     }
   }
 //}}}
