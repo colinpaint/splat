@@ -1,5 +1,9 @@
 // splat.cpp - splat main
 //{{{  includes
+#ifdef _WIN32
+  #define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -19,9 +23,20 @@
 
 #include "splatRenderer.h"
 
-// only implmentation
-#define STB_IMAGE_IMPLEMENTATION
-#include "../stb/stb_image.h"
+//{{{  include stb
+// invoke header only library implementation here
+#ifdef _WIN32
+  #pragma warning (push)
+  #pragma warning (disable: 4244)
+#endif
+
+  #define STB_IMAGE_IMPLEMENTATION
+  #include "stb/stb_image.h"
+
+#ifdef _WIN32
+  #pragma warning (pop)
+#endif
+//}}}
 
 using namespace std;
 //}}}
@@ -248,39 +263,6 @@ namespace {
     }
   //}}}
   //{{{
-  void createPlane1 (size_t width, size_t height) {
-
-    cLog::log (LOGINFO, fmt::format ("createPlane {}x{}", width, height));
-
-    gSurfels.resize (width * height);
-
-    const float dw = 1.0f / width;
-    const float dh = 1.0f / height;
-
-    size_t m = 0;
-    for (size_t j = 0; j < height; ++j) {
-      for (size_t i = 0; i < width; ++i) {
-        gSurfels[m].c = Eigen::Vector3f (-1.0f + (2 * dh * i), -1.0f + (2 * dw * j), 0.0f);
-        gSurfels[m].u = 2 * dw * Eigen::Vector3f::UnitX(); // ellipse major axis
-        gSurfels[m].v = 2 * dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
-        gSurfels[m].p = Eigen::Vector3f::Zero(); // Clipping plane
-        gSurfels[m].rgba = 0;
-
-        if (j == height-1)
-          gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-        else if (i == width-1)
-          gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-        else if (j == 0)
-          gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-        else if (i == 0)
-          gSurfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-        m++;
-        }
-      }
-    }
-  //}}}
-  //{{{
   void createCube() {
 
     cLog::log (LOGINFO, fmt::format ("createCube"));
@@ -430,14 +412,34 @@ namespace {
 
     cLog::log (LOGINFO, fmt::format ("loaded {} {} {} {}", filename, width, height, channels));
 
-    createPlane1 (width, height);
+    gSurfels.resize (width * height);
 
-    uint32_t* rgba = (uint32_t*)pixels;
+    const float dw = 2.0f / width;
+    const float dh = 2.0f / height;
+
     size_t m = 0;
-    for (size_t j = 0; j < height; ++j)
-      for (size_t i = 0; i < width; ++i)
-        gSurfels[m++].rgba = *rgba++;
+    uint32_t* rgbaPixels = (uint32_t*)pixels;
+    for (size_t j = 0; j < height; ++j) {
+      for (size_t i = 0; i < width; ++i) {
+        gSurfels[m].c = Eigen::Vector3f (-1.0f + (dh * i), -1.0f + (dw * j), 0.0f);
+        gSurfels[m].u = dw * Eigen::Vector3f::UnitX(); // ellipse major axis
+        gSurfels[m].v = dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
+        gSurfels[m].rgba = *(rgbaPixels++);
 
+        // Clipping plane
+        if (j == height-1)
+          gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+        else if (i == width-1)
+          gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+        else if (j == 0)
+          gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+        else if (i == 0)
+          gSurfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+        else
+          gSurfels[m].p = Eigen::Vector3f::Zero();
+        m++;
+        }
+      }
     }
   //}}}
   //{{{
