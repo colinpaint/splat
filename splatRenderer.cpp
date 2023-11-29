@@ -60,11 +60,19 @@ void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, floa
 // SplatRenderer
 //{{{
 SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
-    : m_camera(camera), m_soft_zbuffer(true), m_smooth(false),
-      m_color_material(true), m_ewa_filter(false), m_multisample(false),
-      m_pointsize_method(0), m_backface_culling(false),
-      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)), m_epsilon(1.0f * 1e-3f),
-      m_shininess(8.0f), m_radius_scale(1.0f), m_ewa_radius(1.0f) {
+    : m_camera(camera), 
+      m_soft_zbuffer(true), 
+      m_smooth(false), 
+      m_color_material(false),
+      m_ewa_filter(false), 
+      m_multisample(false),
+      m_pointsize_method(0), 
+      m_backface_culling(false),
+      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)), 
+      m_epsilon(1.0f * 1e-3f), 
+      m_shininess(8.0f),
+      m_radius_scale(1.0f), 
+      m_ewa_radius(1.0f) {
 
   m_uniform_camera.bind_buffer_base (0);
   m_uniform_raycast.bind_buffer_base (1);

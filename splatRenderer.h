@@ -125,9 +125,13 @@ private:
   bool mQuit = false;
 
   GLviz::Camera const& m_camera;
-  GLuint m_rect_vertices_vbo, m_rect_texture_uv_vbo, m_rect_vao, m_filter_kernel;
+  GLuint m_rect_vertices_vbo;
+  GLuint m_rect_texture_uv_vbo;
+  GLuint m_uv_vbo, m_rect_vao;
+  GLuint m_filter_kernel;
 
-  GLuint m_vbo, m_vao;
+  GLuint m_vbo;
+  GLuint m_vao;
   unsigned int m_num_pts;
 
   ProgramAttribute m_visibility, m_attribute;
@@ -135,10 +139,19 @@ private:
 
   Framebuffer m_fbo;
 
-  bool m_soft_zbuffer, m_backface_culling, m_smooth, m_color_material, m_ewa_filter, m_multisample;
+  bool m_soft_zbuffer;
+  bool m_backface_culling;
+  bool m_smooth;
+  bool m_color_material;
+  bool m_ewa_filter;
+  bool m_multisample;
+
   unsigned int m_pointsize_method;
   Eigen::Vector3f m_color;
-  float m_epsilon, m_shininess, m_radius_scale, m_ewa_radius;
+  float m_epsilon;
+  float m_shininess;
+  float m_radius_scale;
+  float m_ewa_radius;
 
   GLviz::UniformBufferCamera m_uniform_camera;
   UniformBufferRaycast m_uniform_raycast;

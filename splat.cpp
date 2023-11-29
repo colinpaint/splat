@@ -389,7 +389,7 @@ namespace {
     }
   //}}}
   //{{{
-  void loadPiccy (const string& filename) {
+  void createPiccy (const string& filename) {
 
     FILE* file = fopen (filename.c_str(), "rb");
     if (!file) {
@@ -460,7 +460,7 @@ namespace {
         break;
 
       case 3: {
-        loadPiccy ("../piccies/test.png");
+        createPiccy ("../piccies/test.png");
         break;
         }
       }
