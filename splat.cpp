@@ -166,7 +166,7 @@ namespace {
           surfel.centre = p0;
           surfel.major = t1;
           surfel.minor = t2;
-          surfel.p = Eigen::Vector3f::Zero();
+          surfel.clipPlane= Eigen::Vector3f::Zero();
 
           float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
           float r, g, b;
@@ -212,7 +212,8 @@ namespace {
     sSurfel surfel (Eigen::Vector3f::Zero(),
                     2.0f * dw * Eigen::Vector3f::UnitX(),
                     2.0f * dh * Eigen::Vector3f::UnitY(),
-                    Eigen::Vector3f::Zero(), 0);
+                    Eigen::Vector3f::Zero(), 
+                    0);
 
     gSurfels.resize (4 * width * height);
 
@@ -229,32 +230,32 @@ namespace {
 
           // Clip border surfels
           if (j == 0)
-            gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+            gSurfels[m].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
           else if (i == 0)
-            gSurfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+            gSurfels[m].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 
           else if (j == 2 * height) {
-            gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+            gSurfels[m].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
             gSurfels[m].rgba = ~surfel.rgba;
             }
           else if (i == 2 * width) {
-            gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+            gSurfels[m].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
             gSurfels[m].rgba = ~surfel.rgba;
             }
 
           else {
-            // Duplicate and clip inner surfels.
+            // Duplicate and clip inner surfels
             if (j % 2 == 0) {
-              gSurfels[m].p = Eigen::Vector3f(1.0, 0.0f, 0.0f);
+              gSurfels[m].clipPlane= Eigen::Vector3f(1.0, 0.0f, 0.0f);
               gSurfels[++m] = surfel;
-              gSurfels[m].p = Eigen::Vector3f(-1.0, 0.0f, 0.0f);
+              gSurfels[m].clipPlane= Eigen::Vector3f(-1.0, 0.0f, 0.0f);
               gSurfels[m].rgba = ~surfel.rgba;
               }
 
             if (i % 2 == 0) {
-              gSurfels[m].p = Eigen::Vector3f(0.0, 1.0f, 0.0f);
+              gSurfels[m].clipPlane= Eigen::Vector3f(0.0, 1.0f, 0.0f);
               gSurfels[++m] = surfel;
-              gSurfels[m].p = Eigen::Vector3f(0.0, -1.0f, 0.0f);
+              gSurfels[m].clipPlane= Eigen::Vector3f(0.0, -1.0f, 0.0f);
               gSurfels[m].rgba = ~surfel.rgba;
               }
             }
@@ -262,132 +263,6 @@ namespace {
           }
         }
       }
-    }
-  //}}}
-  //{{{
-  void createCube() {
-
-    cLog::log (LOGINFO, fmt::format ("createCube"));
-
-    sSurfel cube[24];
-    unsigned int color = 0;
-
-    //{{{  front
-    cube[0].centre  = Eigen::Vector3f(-0.5f, 0.0f, 0.5f);
-    cube[0].major = 0.5f * Eigen::Vector3f::UnitX();
-    cube[0].minor = 0.5f * Eigen::Vector3f::UnitY();
-    cube[0].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[0].rgba  = color;
-
-    cube[1]   = cube[0];
-    cube[1].centre = Eigen::Vector3f(0.5f, 0.0f, 0.5f);
-    cube[1].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[2]   = cube[0];
-    cube[2].centre = Eigen::Vector3f(0.0f, 0.5f, 0.5f);
-    cube[2].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    cube[3]   = cube[0];
-    cube[3].centre = Eigen::Vector3f(0.0f, -0.5f, 0.5f);
-    cube[3].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-    //}}}
-    //{{{  back
-    cube[4].centre = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
-    cube[4].major = 0.5f * Eigen::Vector3f::UnitX();
-    cube[4].minor = -0.5f * Eigen::Vector3f::UnitY();
-    cube[4].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[4].rgba = color;
-
-    cube[5] = cube[4];
-    cube[5].centre = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
-    cube[5].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[6] = cube[4];
-    cube[6].centre = Eigen::Vector3f(0.0f, 0.5f, -0.5f);
-    cube[6].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-    cube[7] = cube[4];
-    cube[7].centre = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
-    cube[7].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-    //}}}
-    //{{{  top
-    cube[8].centre = Eigen::Vector3f(-0.5f, 0.5f, 0.0f);
-    cube[8].major = 0.5f * Eigen::Vector3f::UnitX();
-    cube[8].minor = -0.5f * Eigen::Vector3f::UnitZ();
-    cube[8].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[8].rgba = color;
-
-    cube[9]    = cube[8];
-    cube[9].centre  = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
-    cube[9].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[10]    = cube[8];
-    cube[10].centre  = Eigen::Vector3f(0.0f, 0.5f, 0.5f);
-    cube[10].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-    cube[11] = cube[8];
-    cube[11].centre = Eigen::Vector3f(0.0f, 0.5f, -0.5f);
-    cube[11].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-    //}}}
-    //{{{  bottom
-    cube[12].centre = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
-    cube[12].major = 0.5f * Eigen::Vector3f::UnitX();
-    cube[12].minor = 0.5f * Eigen::Vector3f::UnitZ();
-    cube[12].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[12].rgba = color;
-
-    cube[13] = cube[12];
-    cube[13].centre = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
-    cube[13].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[14] = cube[12];
-    cube[14].centre = Eigen::Vector3f(0.0f, -0.5f, 0.5f);
-    cube[14].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    cube[15] = cube[12];
-    cube[15].centre = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
-    cube[15].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-    //}}}
-    //{{{  left
-    cube[16].centre = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
-    cube[16].major = 0.5f * Eigen::Vector3f::UnitY();
-    cube[16].minor = -0.5f * Eigen::Vector3f::UnitZ();
-    cube[16].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[16].rgba = color;
-
-    cube[17] = cube[16];
-    cube[17].centre = Eigen::Vector3f(-0.5f, 0.5f, 0.0f);
-    cube[17].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[18] = cube[16];
-    cube[18].centre = Eigen::Vector3f(-0.5f, 0.0f, 0.5f);
-    cube[18].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-
-    cube[19] = cube[16];
-    cube[19].centre = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
-    cube[19].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-    //}}}
-    //{{{  right
-    cube[20].centre = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
-    cube[20].major = 0.5f * Eigen::Vector3f::UnitY();
-    cube[20].minor = 0.5f * Eigen::Vector3f::UnitZ();
-    cube[20].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-    cube[20].rgba = color;
-
-    cube[21] = cube[20];
-    cube[21].centre = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
-    cube[21].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-
-    cube[22] = cube[20];
-    cube[22].centre = Eigen::Vector3f(0.5f, 0.0f, 0.5f);
-    cube[22].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-
-    cube[23] = cube[20];
-    cube[23].centre = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
-    cube[23].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-    //}}}
-
-    gSurfels = vector <sSurfel> (cube, cube + 24);
     }
   //}}}
   //{{{
@@ -426,22 +301,149 @@ namespace {
         gSurfels[surfelIndex].centre = Eigen::Vector3f (-1.0f + (dh * i), -1.0f + (dw * j), 0.0f);
         gSurfels[surfelIndex].major = dw * Eigen::Vector3f::UnitX(); // ellipse major axis
         gSurfels[surfelIndex].minor = dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
+        gSurfels[surfelIndex].clipPlane= Eigen::Vector3f::Zero(),
         gSurfels[surfelIndex].rgba = *(rgbaPixels++);
 
-        // Clipping plane
+        // clipping planes
         if (j == 0)
-          gSurfels[surfelIndex].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+          gSurfels[surfelIndex].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
         else if (i == 0)
-          gSurfels[surfelIndex].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+          gSurfels[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
         else if (j == height-1)
-          gSurfels[surfelIndex].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+          gSurfels[surfelIndex].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
         else if (i == width-1)
-          gSurfels[surfelIndex].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+          gSurfels[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
         else
-          gSurfels[surfelIndex].p = Eigen::Vector3f::Zero();
+          gSurfels[surfelIndex].clipPlane= Eigen::Vector3f::Zero();
         surfelIndex++;
         }
       }
+    }
+  //}}}
+  //{{{
+  void createCube() {
+
+    cLog::log (LOGINFO, fmt::format ("createCube"));
+
+    sSurfel cube[24];
+    unsigned int color = 0;
+
+    //{{{  front
+    cube[0].centre  = Eigen::Vector3f(-0.5f, 0.0f, 0.5f);
+    cube[0].major = 0.5f * Eigen::Vector3f::UnitX();
+    cube[0].minor = 0.5f * Eigen::Vector3f::UnitY();
+    cube[0].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[0].rgba  = color;
+
+    cube[1]   = cube[0];
+    cube[1].centre = Eigen::Vector3f(0.5f, 0.0f, 0.5f);
+    cube[1].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[2]   = cube[0];
+    cube[2].centre = Eigen::Vector3f(0.0f, 0.5f, 0.5f);
+    cube[2].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+
+    cube[3]   = cube[0];
+    cube[3].centre = Eigen::Vector3f(0.0f, -0.5f, 0.5f);
+    cube[3].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+    //}}}
+    //{{{  back
+    cube[4].centre = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
+    cube[4].major = 0.5f * Eigen::Vector3f::UnitX();
+    cube[4].minor = -0.5f * Eigen::Vector3f::UnitY();
+    cube[4].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[4].rgba = color;
+
+    cube[5] = cube[4];
+    cube[5].centre = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
+    cube[5].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[6] = cube[4];
+    cube[6].centre = Eigen::Vector3f(0.0f, 0.5f, -0.5f);
+    cube[6].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+
+    cube[7] = cube[4];
+    cube[7].centre = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
+    cube[7].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+    //}}}
+    //{{{  top
+    cube[8].centre = Eigen::Vector3f(-0.5f, 0.5f, 0.0f);
+    cube[8].major = 0.5f * Eigen::Vector3f::UnitX();
+    cube[8].minor = -0.5f * Eigen::Vector3f::UnitZ();
+    cube[8].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[8].rgba = color;
+
+    cube[9]    = cube[8];
+    cube[9].centre  = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
+    cube[9].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[10]    = cube[8];
+    cube[10].centre  = Eigen::Vector3f(0.0f, 0.5f, 0.5f);
+    cube[10].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+
+    cube[11] = cube[8];
+    cube[11].centre = Eigen::Vector3f(0.0f, 0.5f, -0.5f);
+    cube[11].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+    //}}}
+    //{{{  bottom
+    cube[12].centre = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
+    cube[12].major = 0.5f * Eigen::Vector3f::UnitX();
+    cube[12].minor = 0.5f * Eigen::Vector3f::UnitZ();
+    cube[12].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[12].rgba = color;
+
+    cube[13] = cube[12];
+    cube[13].centre = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
+    cube[13].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[14] = cube[12];
+    cube[14].centre = Eigen::Vector3f(0.0f, -0.5f, 0.5f);
+    cube[14].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+
+    cube[15] = cube[12];
+    cube[15].centre = Eigen::Vector3f(0.0f, -0.5f, -0.5f);
+    cube[15].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+    //}}}
+    //{{{  left
+    cube[16].centre = Eigen::Vector3f(-0.5f, -0.5f, 0.0f);
+    cube[16].major = 0.5f * Eigen::Vector3f::UnitY();
+    cube[16].minor = -0.5f * Eigen::Vector3f::UnitZ();
+    cube[16].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[16].rgba = color;
+
+    cube[17] = cube[16];
+    cube[17].centre = Eigen::Vector3f(-0.5f, 0.5f, 0.0f);
+    cube[17].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[18] = cube[16];
+    cube[18].centre = Eigen::Vector3f(-0.5f, 0.0f, 0.5f);
+    cube[18].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+
+    cube[19] = cube[16];
+    cube[19].centre = Eigen::Vector3f(-0.5f, 0.0f, -0.5f);
+    cube[19].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+    //}}}
+    //{{{  right
+    cube[20].centre = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
+    cube[20].major = 0.5f * Eigen::Vector3f::UnitY();
+    cube[20].minor = 0.5f * Eigen::Vector3f::UnitZ();
+    cube[20].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    cube[20].rgba = color;
+
+    cube[21] = cube[20];
+    cube[21].centre = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
+    cube[21].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+
+    cube[22] = cube[20];
+    cube[22].centre = Eigen::Vector3f(0.5f, 0.0f, 0.5f);
+    cube[22].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+
+    cube[23] = cube[20];
+    cube[23].centre = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
+    cube[23].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+    //}}}
+
+    gSurfels = vector <sSurfel> (cube, cube + 24);
     }
   //}}}
   //{{{
