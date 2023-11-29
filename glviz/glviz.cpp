@@ -21,12 +21,13 @@ using namespace std;
 
 namespace GLviz {
   namespace {
-    int m_screen_width;
-    int m_screen_height;
+    int mScreenWidth;
+    int mScreenHeight;
     unsigned int m_timer_msec = 16;
 
     SDL_Window* m_sdl_window;
     SDL_GLContext m_gl_context;
+    bool gFullScreen = false;
 
     Camera* m_camera;
 
@@ -40,8 +41,8 @@ namespace GLviz {
     //{{{
     void resize (int width, int height) {
 
-      m_screen_width  = width;
-      m_screen_height = height;
+      mScreenWidth  = width;
+      mScreenHeight = height;
 
       if (mResizeCallback)
         mResizeCallback (width, height);
@@ -50,16 +51,16 @@ namespace GLviz {
     //{{{
     void mouse (int button, int state, int x, int y) {
 
-      const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
-      const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
+      const float xf = static_cast<float>(x) / static_cast<float>(mScreenWidth);
+      const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
       m_camera->trackball_begin_motion (xf, yf);
       }
     //}}}
     //{{{
     void motion (int state, int x, int y) {
 
-      const float xf = static_cast<float>(x) / static_cast<float>(m_screen_width);
-      const float yf = static_cast<float>(y) / static_cast<float>(m_screen_height);
+      const float xf = static_cast<float>(x) / static_cast<float>(mScreenWidth);
+      const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
 
       if (state & SDL_BUTTON_LMASK)
         m_camera->trackball_end_motion_rotate (xf, yf);
@@ -122,98 +123,17 @@ namespace GLviz {
     //}}}
     }
 
-  int screen_width() { return m_screen_width; }
-  int screen_height() { return m_screen_height; }
+  int getScreenWidth() { return mScreenWidth; }
+  int getScreenHeight() { return mScreenHeight; }
 
   Camera* camera() { return m_camera; }
   void set_camera (Camera& camera) { m_camera = &camera; }
 
   //{{{
-  void setFullScreen (bool enable) {
+  void init (int screenWidth, int screenHeight) {
 
-    if (enable)
-      SDL_SetWindowFullscreen (m_sdl_window, SDL_WINDOW_FULLSCREEN);
-    else
-      SDL_SetWindowFullscreen (m_sdl_window, 0);
-    }
-  //}}}
-
-  //{{{
-  void guiCallback (function<void()> guiCallback) { m_guiCallback = guiCallback; }
-  //}}}
-  //{{{
-  void displayCallback (function<void ()> displayCallback) { m_displayCallback = displayCallback; }
-  //}}}
-  //{{{
-  void closeCallback (function<void ()> closeCallback) { m_closeCallback = closeCallback; }
-  //}}}
-  //{{{
-  void timerCallback (function<void (unsigned int)> timerCallback, unsigned int timer_msec)
-  {
-      m_timerCallback = timerCallback;
-      m_timer_msec = timer_msec;
-  }
-  //}}}
-  //{{{
-  void keyboardCallback (function<void (SDL_Keycode)> keyboardCallback) {
-    m_keyboardCallback = keyboardCallback;
-    }
-  //}}}
-  //{{{
-  void resizeCallback (function<void (int width, int height)> resizeCallback) {
-    mResizeCallback = resizeCallback;
-    }
-  //}}}
-
-  //{{{
-  int mainUILoop (Camera& camera) {
-
-    m_camera = &camera;
-    Uint32 last_time = 0;
-
-    resize (m_screen_width, m_screen_height);
-
-    while (!process_events()) {
-      if (m_timerCallback) {
-        const Uint32 time = SDL_GetTicks();
-        const Uint32 delta_t_msec = time - last_time;
-        if (delta_t_msec >= m_timer_msec) {
-          last_time = time;
-          m_timerCallback (delta_t_msec);
-          }
-        }
-
-      if (m_displayCallback)
-        m_displayCallback();
-
-      ImGui_ImplOpenGL3_NewFrame();
-      ImGui_ImplSDL2_NewFrame (m_sdl_window);
-      ImGui::NewFrame();
-
-      if (m_guiCallback)
-        m_guiCallback();
-
-      ImGui::Render();
-      ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData());
-
-      SDL_GL_SwapWindow (m_sdl_window);
-      }
-
-    if (m_closeCallback)
-      m_closeCallback();
-
-    SDL_GL_DeleteContext (m_gl_context);
-    SDL_DestroyWindow (m_sdl_window);
-    SDL_Quit();
-
-    return EXIT_SUCCESS;
-    }
-  //}}}
-  //{{{
-  void GLviz (int screen_width, int screen_height) {
-
-    m_screen_width = screen_width;
-    m_screen_height = screen_height;
+    mScreenWidth = screenWidth;
+    mScreenHeight = screenHeight;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       //{{{  error,return
@@ -240,7 +160,7 @@ namespace GLviz {
     //SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
     m_sdl_window = SDL_CreateWindow ("GLviz", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                     m_screen_width, m_screen_height,
+                                     mScreenWidth, mScreenHeight,
                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if (!m_sdl_window) {
       //{{{  error, return
@@ -297,6 +217,89 @@ namespace GLviz {
     ImGui_ImplOpenGL3_Init();
     cLog::log (LOGINFO, fmt::format ("imGui {}", ImGui::GetVersion()));
     //}}}
+    }
+  //}}}
+
+  //{{{
+  void toggleFullScreen() {
+
+    gFullScreen = !gFullScreen;
+    if (gFullScreen)
+      SDL_SetWindowFullscreen (m_sdl_window, SDL_WINDOW_FULLSCREEN);
+    else
+      SDL_SetWindowFullscreen (m_sdl_window, 0);
+    }
+  //}}}
+
+  //{{{
+  void guiCallback (function<void()> guiCallback) { m_guiCallback = guiCallback; }
+  //}}}
+  //{{{
+  void displayCallback (function<void ()> displayCallback) { m_displayCallback = displayCallback; }
+  //}}}
+  //{{{
+  void closeCallback (function<void ()> closeCallback) { m_closeCallback = closeCallback; }
+  //}}}
+  //{{{
+  void timerCallback (function<void (unsigned int)> timerCallback, unsigned int timer_msec)
+  {
+      m_timerCallback = timerCallback;
+      m_timer_msec = timer_msec;
+  }
+  //}}}
+  //{{{
+  void keyboardCallback (function<void (SDL_Keycode)> keyboardCallback) {
+    m_keyboardCallback = keyboardCallback;
+    }
+  //}}}
+  //{{{
+  void resizeCallback (function<void (int width, int height)> resizeCallback) {
+    mResizeCallback = resizeCallback;
+    }
+  //}}}
+
+  //{{{
+  int mainUILoop (Camera& camera) {
+
+    m_camera = &camera;
+    Uint32 last_time = 0;
+
+    resize (mScreenWidth, mScreenHeight);
+
+    while (!process_events()) {
+      if (m_timerCallback) {
+        const Uint32 time = SDL_GetTicks();
+        const Uint32 delta_t_msec = time - last_time;
+        if (delta_t_msec >= m_timer_msec) {
+          last_time = time;
+          m_timerCallback (delta_t_msec);
+          }
+        }
+
+      if (m_displayCallback)
+        m_displayCallback();
+
+      ImGui_ImplOpenGL3_NewFrame();
+      ImGui_ImplSDL2_NewFrame (m_sdl_window);
+      ImGui::NewFrame();
+
+      if (m_guiCallback)
+        m_guiCallback();
+
+      ImGui::Render();
+      ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData());
+
+      SDL_GL_SwapWindow (m_sdl_window);
+      }
+
+    if (m_closeCallback)
+      m_closeCallback();
+
+    SDL_GL_DeleteContext (m_gl_context);
+    SDL_DestroyWindow (m_sdl_window);
+    SDL_Quit();
+
+    return EXIT_SUCCESS;
     }
   //}}}
   }

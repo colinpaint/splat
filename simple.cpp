@@ -24,12 +24,19 @@ using namespace std;
 //}}}
 
 namespace {
+  //{{{  vars
   GLviz::Camera gCamera;
 
   bool g_stop_simulation(true);
   bool g_enable_mesh3(true);
   bool g_enable_wireframe(false);
-  bool g_enable_points(false);
+  bool gEnableSpheres(false);
+
+  vector <Eigen::Vector3f> g_ref_vertices;
+  vector <Eigen::Vector3f> g_ref_normals;
+  vector <Eigen::Vector3f> g_vertices;
+  vector <Eigen::Vector3f> g_normals;
+  vector <array <unsigned int,3>> g_faces;
 
   float g_time(0.0f);
   float g_point_radius(0.0014f);
@@ -39,7 +46,7 @@ namespace {
   float g_points_material[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
 
   int g_shading_method(0);
-  bool gFullScreen = false;
+  //}}}
 
   //{{{
   struct sVizApp {
@@ -91,8 +98,25 @@ namespace {
       }
     //}}}
 
+    GLviz::glVertexArray vertex_array_v;
+    GLviz::glVertexArray vertex_array_vf;
+    GLviz::glVertexArray vertex_array_vnf;
+
+    GLviz::glArrayBuffer vertex_array_buffer;
+    GLviz::glArrayBuffer normal_array_buffer;
+
+    GLviz::glElementArrayBuffer index_array_buffer;
+
+    GLviz::UniformBufferCamera uniform_camera;
+    GLviz::UniformBufferMaterial uniform_material;
+    GLviz::UniformBufferWireframe uniform_wireframe;
+    GLviz::UniformBufferSphere uniform_sphere;
+
+    GLviz::ProgramMesh3 program_mesh3;
+    GLviz::ProgramSphere program_sphere;
+
     //{{{
-    void draw_mesh3(GLsizei nf) {
+    void drawMesh3 (GLsizei nf) {
 
       program_mesh3.use();
 
@@ -113,7 +137,7 @@ namespace {
       }
     //}}}
     //{{{
-    void draw_spheres (GLsizei nv) {
+    void drawSpheres (GLsizei nv) {
 
       glEnable (GL_PROGRAM_POINT_SIZE);
       glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
@@ -127,27 +151,9 @@ namespace {
       program_sphere.unuse();
       }
     //}}}
-
-    GLviz::glVertexArray vertex_array_v, vertex_array_vf, vertex_array_vnf;
-    GLviz::glArrayBuffer vertex_array_buffer, normal_array_buffer;
-    GLviz::glElementArrayBuffer index_array_buffer;
-
-    GLviz::UniformBufferCamera    uniform_camera;
-    GLviz::UniformBufferMaterial  uniform_material;
-    GLviz::UniformBufferWireframe uniform_wireframe;
-    GLviz::UniformBufferSphere    uniform_sphere;
-
-    GLviz::ProgramMesh3  program_mesh3;
-    GLviz::ProgramSphere program_sphere;
     };
   //}}}
   unique_ptr<sVizApp> gVizApp;
-
-  vector <Eigen::Vector3f> g_ref_vertices;
-  vector <Eigen::Vector3f> g_ref_normals;
-  vector <Eigen::Vector3f> g_vertices;
-  vector <Eigen::Vector3f> g_normals;
-  vector <array <unsigned int,3>> g_faces;
 
   // callbacks
   //{{{
@@ -175,24 +181,21 @@ namespace {
     gVizApp->uniform_camera.set_buffer_data (gCamera);
 
     if (g_enable_mesh3) {
-      gVizApp->uniform_material.set_buffer_data(g_mesh_material);
-
+      gVizApp->uniform_material.set_buffer_data (g_mesh_material);
       gVizApp->program_mesh3.set_wireframe (g_enable_wireframe);
-      int screen[2] = { GLviz::screen_width(), GLviz::screen_height() };
+      int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
       gVizApp->uniform_wireframe.set_buffer_data (g_wireframe, screen);
-
       gVizApp->program_mesh3.set_smooth (g_shading_method != 0);
-      gVizApp->draw_mesh3(static_cast<GLsizei>(3 * g_faces.size()));
+      gVizApp->drawMesh3 (static_cast<GLsizei>(3 * g_faces.size()));
       }
 
-    if (g_enable_points) {
+    if (gEnableSpheres) {
       gVizApp->uniform_material.set_buffer_data (g_points_material);
       GLviz::Frustum view_frustum = gCamera.get_frustum();
       g_projection_radius = view_frustum.near_() *
-                            (GLviz::screen_height() / (view_frustum.top() - view_frustum.bottom()));
-
+                            (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
       gVizApp->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
-      gVizApp->draw_spheres (static_cast<GLsizei>(g_vertices.size()));
+      gVizApp->drawSpheres (static_cast<GLsizei>(g_vertices.size()));
       }
     }
   //}}}
@@ -211,16 +214,16 @@ namespace {
     if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
       ImGui::Checkbox ("Draw Triangle Mesh", &g_enable_mesh3);
       ImGui::ColorEdit3 ("Mesh Color", g_mesh_material);
-      ImGui::DragFloat ("Mesh Shininess", &g_mesh_material[3], 1e-2f, 1e-12f, 1000.0f);
+      ImGui::DragFloat ("Mesh Shinines", &g_mesh_material[3], 1e-2f, 1e-12f, 1000.0f);
       ImGui::Combo ("Mesh Shading", &g_shading_method, "Flat\0Phong\0\0");
 
       ImGui::Separator();
       ImGui::Checkbox ("Draw Wireframe", &g_enable_wireframe);
-      ImGui::ColorEdit3 ("Wireframe Color", g_wireframe);
+      ImGui::ColorEdit3 ("Mesh Color", g_wireframe);
       }
 
-    if (ImGui::CollapsingHeader ("Points", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-      ImGui::Checkbox ("Draw Points", &g_enable_points);
+    if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+      ImGui::Checkbox ("Draw Spheres", &gEnableSpheres);
       ImGui::DragFloat ("Points Radius", &g_point_radius, 1e-5f, 0.0f, 0.1f, "%.4f");
       ImGui::ColorEdit3 ("Points Color", g_points_material);
       ImGui::DragFloat ("Points Shininess", &g_points_material[3], 1e-2f, 1e-12f, 1000.0f);
@@ -233,35 +236,18 @@ namespace {
   void keyboard (SDL_Keycode key) {
 
     switch (key) {
-      case SDLK_1:
-        g_enable_mesh3 = !g_enable_mesh3;
-        break;
-      case SDLK_2:
-        g_enable_points = !g_enable_points;
-        break;
-      case SDLK_5:
-        g_shading_method = (g_shading_method + 1) % 2;
-        break;
-      case SDLK_w:
-        g_enable_wireframe = !g_enable_wireframe;
-        break;
+      case SDLK_1: g_enable_mesh3 = !g_enable_mesh3; break;
+      case SDLK_2: gEnableSpheres = !gEnableSpheres; break;
+      case SDLK_5: g_shading_method = (g_shading_method + 1) % 2; break;
+      case SDLK_w: g_enable_wireframe = !g_enable_wireframe; break;
 
-      case SDLK_r:
-        g_time = 0.0f;
-        break;
-      case SDLK_SPACE:
-        g_stop_simulation = !g_stop_simulation;
-        break;
+      case SDLK_r: g_time = 0.0f; break;
+      case SDLK_SPACE: g_stop_simulation = !g_stop_simulation; break;
 
-      case SDLK_f:
-        gFullScreen = !gFullScreen;
-        GLviz::setFullScreen (gFullScreen);
-        break;
+      case SDLK_f: GLviz::toggleFullScreen(); break;
 
       case SDLK_q:
-      case SDLK_ESCAPE:
-        exit (EXIT_SUCCESS);
-        break;
+      case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
       }
     }
   //}}}
@@ -278,10 +264,8 @@ namespace {
       const float v = 10.0f;
       for (unsigned int i(0); i < g_vertices.size(); ++i) {
         const float x = g_ref_vertices[i].x() + g_ref_vertices[i].y() + g_ref_vertices[i].z();
-
         const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
         const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
-
         g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
         }
 
@@ -292,9 +276,7 @@ namespace {
   void close() { gVizApp = nullptr; }
   }
 
-//{{{
 int main (int numArgs, char* args[]) {
-
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -312,7 +294,7 @@ int main (int numArgs, char* args[]) {
   cLog::init (logLevel);
   cLog::log (LOGNOTICE, "simple");
 
-  GLviz::GLviz();
+  GLviz::init();
   gVizApp = unique_ptr<sVizApp>(new sVizApp());
 
   try {
@@ -334,4 +316,3 @@ int main (int numArgs, char* args[]) {
 
   return GLviz::mainUILoop (gCamera);
   }
-//}}}

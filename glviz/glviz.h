@@ -5,13 +5,16 @@
 #include "SDL_keycode.h"
 
 namespace GLviz {
-  int screen_width();
-  int screen_height();
+  // singleton statics, so use namespace
+  Camera* camera();
 
-  Camera*  camera();
+  void init (int screenWidth = 960, int screen_height = 540);
+
+  int getScreenWidth();
+  int getScreenHeight();
+
   void set_camera (Camera& camera);
-
-  void setFullScreen (bool enable);
+  void toggleFullScreen();
 
   void displayCallback (std::function<void()> displayCallback);
   void resizeCallback (std::function<void (int, int)> resizeCallback);
@@ -20,9 +23,5 @@ namespace GLviz {
   void guiCallback (std::function<void()> guiCallback);
   void keyboardCallback (std::function<void (SDL_Keycode)> keyboardCallback);
 
-  void cout_opengl_version();
-  void cout_glew_version();
-
-  int  mainUILoop (Camera& camera);
-  void GLviz (int screen_width = 960, int screen_height = 540);
+  int mainUILoop (Camera& camera);
   }

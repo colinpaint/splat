@@ -8,17 +8,13 @@ namespace GLviz {
   Camera::Camera()
       : m_position(Eigen::Vector3f::Zero()),
         m_orientation(Eigen::Quaternionf::Identity()),
-        m_trackball(new Trackball())
-  {
-      set_perspective(60.0f, 4.0f / 3.0f, 0.25f, 10.0f);
-      set_modelview_matrix_from_orientation();
-  }
+        m_trackball(new Trackball()) {
+
+    set_perspective(60.0f, 4.0f / 3.0f, 0.25f, 10.0f);
+    set_modelview_matrix_from_orientation();
+    }
   //}}}
-  //{{{
-  Camera::~Camera()
-  {
-  }
-  //}}}
+  Camera::~Camera() { }
 
   Frustum const& Camera::get_frustum() const { return m_frustum; }
   Eigen::Matrix4f const& Camera::get_modelview_matrix() const { return m_modelview_matrix; }

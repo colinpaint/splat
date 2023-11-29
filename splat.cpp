@@ -48,7 +48,6 @@ namespace {
   unique_ptr <SplatRenderer> gSplatRenderer;
 
   int gModel = 0;
-  bool gFullScreen = false;
 
   // model
   //{{{
@@ -212,7 +211,7 @@ namespace {
     sSurfel surfel (Eigen::Vector3f::Zero(),
                     2.0f * dw * Eigen::Vector3f::UnitX(),
                     2.0f * dh * Eigen::Vector3f::UnitY(),
-                    Eigen::Vector3f::Zero(), 
+                    Eigen::Vector3f::Zero(),
                     0);
 
     gSurfels.resize (4 * width * height);
@@ -564,35 +563,16 @@ namespace {
   void keyboard (SDL_Keycode key) {
 
     switch (key) {
-      case SDLK_5:
-        gSplatRenderer->set_smooth (!gSplatRenderer->smooth());
-        break;
+      case SDLK_5: gSplatRenderer->set_smooth (!gSplatRenderer->smooth()); break;
+      case SDLK_c: gSplatRenderer->set_color_material (!gSplatRenderer->color_material()); break;
+      case SDLK_z: gSplatRenderer->set_soft_zbuffer (!gSplatRenderer->soft_zbuffer()); break;
+      case SDLK_u: gSplatRenderer->set_ewa_filter (!gSplatRenderer->ewa_filter()); break;
+      case SDLK_t: gSplatRenderer->set_pointsize_method ((gSplatRenderer->pointsize_method() + 1) % 4); break;
 
-      case SDLK_c:
-        gSplatRenderer->set_color_material (!gSplatRenderer->color_material());
-        break;
-
-      case SDLK_z:
-        gSplatRenderer->set_soft_zbuffer (!gSplatRenderer->soft_zbuffer());
-        break;
-
-      case SDLK_u:
-        gSplatRenderer->set_ewa_filter (!gSplatRenderer->ewa_filter());
-        break;
-
-      case SDLK_t:
-        gSplatRenderer->set_pointsize_method ((gSplatRenderer->pointsize_method() + 1) % 4);
-        break;
-
-      case SDLK_f:
-        gFullScreen = !gFullScreen;
-        GLviz::setFullScreen (gFullScreen);
-        break;
+      case SDLK_f: GLviz::toggleFullScreen(); break;
 
       case SDLK_q:
-      case SDLK_ESCAPE:
-        exit (EXIT_SUCCESS);
-        break;
+      case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
       }
     }
   //}}}
@@ -600,7 +580,6 @@ namespace {
   }
 
 int main (int numArgs, char* args[]) {
-
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -618,7 +597,7 @@ int main (int numArgs, char* args[]) {
   cLog::init (logLevel);
   cLog::log (LOGNOTICE, "splat");
 
-  GLviz::GLviz (960, 540);
+  GLviz::init (960, 540);
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
   gSplatRenderer = unique_ptr<SplatRenderer>(new SplatRenderer (gCamera));
 
