@@ -16,9 +16,9 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader m_attribute_vs_obj;
-  glVertexShader m_lighting_vs_obj;
-  glFragmentShader m_attribute_fs_obj;
+  glVertexShader mAttributeVs;
+  glVertexShader mLightingVs;
+  glFragmentShader mAttributeFs;
 
   bool m_ewa_filter;
   bool m_backface_culling;

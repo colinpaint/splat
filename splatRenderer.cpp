@@ -47,6 +47,7 @@ UniformBufferParameter::UniformBufferParameter() : glUniformBuffer(8 * sizeof(fl
 //{{{
 void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shininess,
                                               float radius_scale, float ewa_radius, float epsilon) {
+
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
   glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shininess);
@@ -60,18 +61,18 @@ void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, floa
 // SplatRenderer
 //{{{
 SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
-    : m_camera(camera), 
-      m_soft_zbuffer(true), 
-      m_smooth(false), 
+    : m_camera(camera),
+      m_soft_zbuffer(true),
+      m_smooth(false),
       m_color_material(false),
-      m_ewa_filter(false), 
+      m_ewa_filter(false),
       m_multisample(false),
-      m_pointsize_method(0), 
+      m_pointsize_method(0),
       m_backface_culling(false),
-      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)), 
-      m_epsilon(1.0f * 1e-3f), 
+      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)),
+      m_epsilon(1.0f * 1e-3f),
       m_shininess(8.0f),
-      m_radius_scale(1.0f), 
+      m_radius_scale(1.0f),
       m_ewa_radius(1.0f) {
 
   m_uniform_camera.bind_buffer_base (0);
@@ -172,7 +173,7 @@ void SplatRenderer::set_material_shininess (float shininess) { m_shininess = shi
 
 bool SplatRenderer::smooth() const { return m_smooth; }
 //{{{
-void SplatRenderer::set_smooth(bool enable) {
+void SplatRenderer::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
@@ -239,9 +240,9 @@ void SplatRenderer::render (std::vector<sSurfel> const& visible_geometry) {
       }
 
     if (m_soft_zbuffer)
-      render_pass (true);
+      renderPass (true);
 
-    render_pass (false);
+    renderPass (false);
 
     if (m_multisample) {
       glDisable (GL_MULTISAMPLE);
@@ -460,7 +461,7 @@ void SplatRenderer::endFrame() {
   }
 //}}}
 //{{{
-void SplatRenderer::render_pass (bool depth_only) {
+void SplatRenderer::renderPass (bool depth_only) {
 
   glEnable (GL_DEPTH_TEST);
   glEnable (GL_PROGRAM_POINT_SIZE);

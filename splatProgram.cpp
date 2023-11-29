@@ -673,9 +673,9 @@ void ProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
 //{{{
 void ProgramAttribute::initShader() {
 
-  m_attribute_vs_obj.load (kAttributeVsGlsl);
-  m_attribute_fs_obj.load (kAttributeFsGlsl);
-  m_lighting_vs_obj.load (kLightingGlsl);
+  mAttributeVs.load (kAttributeVsGlsl);
+  mAttributeFs.load (kAttributeFsGlsl);
+  mLightingVs.load (kLightingGlsl);
   }
 //}}}
 //{{{
@@ -684,11 +684,12 @@ void ProgramAttribute::initProgram() {
   try {
     detach_all();
 
-    attach_shader (m_attribute_vs_obj);
-    attach_shader (m_attribute_fs_obj);
-    attach_shader (m_lighting_vs_obj);
+    attach_shader (mAttributeVs);
+    attach_shader (mAttributeFs);
+    attach_shader (mLightingVs);
 
-    map<string, int> defines;
+    // edit shader defines
+    map <string, int> defines;
     defines.insert (make_pair ("EWA_FILTER", m_ewa_filter ? 1 : 0));
     defines.insert (make_pair ("BACKFACE_CULLING", m_backface_culling ? 1 : 0));
     defines.insert (make_pair ("VISIBILITY_PASS", m_visibility_pass ? 1 : 0));
@@ -696,9 +697,9 @@ void ProgramAttribute::initProgram() {
     defines.insert (make_pair ("COLOR_MATERIAL", m_color_material ? 1 : 0));
     defines.insert (make_pair ("POINTSIZE_METHOD", static_cast<int>(m_pointsize_method)));
 
-    m_attribute_vs_obj.compile (defines);
-    m_attribute_fs_obj.compile (defines);
-    m_lighting_vs_obj.compile (defines);
+    mAttributeVs.compile (defines);
+    mAttributeFs.compile (defines);
+    mLightingVs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     cLog::log(LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed to compile {}", e.what()));
@@ -771,9 +772,11 @@ void ProgramFinal::initShader() {
 void ProgramFinal::initProgram() {
 
   try {
-    map<string, int> defines;
+    // edit shader defines
+    map <string, int> defines;
     defines.insert (make_pair ("SMOOTH", m_smooth ? 1 : 0));
     defines.insert (make_pair ("MULTISAMPLING", m_multisampling ? 1 : 0));
+
     m_Final_vs_obj.compile (defines);
     m_Final_fs_obj.compile (defines);
     m_lighting_fs_obj.compile (defines);

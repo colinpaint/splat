@@ -119,7 +119,7 @@ private:
 
   void beginFrame();
   void endFrame();
-  void render_pass (bool depth_only = false);
+  void renderPass (bool depth_only = false);
 
   // vars
   bool mQuit = false;
