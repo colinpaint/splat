@@ -1,33 +1,18 @@
-//{{{
-// This file is part of Surface Splatting.
-//
-// Copyright (C) 2010, 2015 by Sebastian Lipponer.
-//
-// Surface Splatting is free software: you can redistribute it and / or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Surface Splatting is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Surface Splatting. If not, see <http://www.gnu.org/licenses/>.
-//}}}
 #pragma once
-#include "splatProgram.h"
-#include "glviz/buffer.h"
-#include "framebuffer.h"
-#include <Eigen/Core>
+#include <memory>
 #include <string>
 #include <vector>
+#include <map>
+#include <Eigen/Core>
+#include "glviz/shader.h"
+#include "glviz/program.h"
+#include "glviz/buffer.h"
+#include "glviz/camera.h"
 
 //{{{
 struct sSurfel {
   sSurfel() {}
-  sSurfel(Eigen::Vector3f c_, Eigen::Vector3f u_, Eigen::Vector3f v_, Eigen::Vector3f p_, unsigned int rgba_) 
+  sSurfel(Eigen::Vector3f c_, Eigen::Vector3f u_, Eigen::Vector3f v_, Eigen::Vector3f p_, unsigned int rgba_)
     : centre(c_), major(u_), minor(v_), clipPlane(p_), rgba(rgba_) {}
 
   Eigen::Vector3f centre;    // ellipse center point
@@ -66,10 +51,97 @@ public:
 //}}}
 
 //{{{
-class SplatRenderer {
+class ProgramAttribute : public glProgram {
 public:
-  SplatRenderer(GLviz::Camera const& camera);
-  virtual ~SplatRenderer();
+  ProgramAttribute();
+
+  void set_ewa_filter (bool enable = true);
+  void set_pointsize_method (unsigned int pointsize_method);
+  void set_backface_culling (bool enable = true);
+  void set_visibility_pass (bool enable = true);
+  void set_smooth (bool enable = true);
+  void set_color_material (bool enable = true);
+
+private:
+  void initShader();
+  void initProgram();
+
+  glVertexShader mAttributeVs;
+  glVertexShader mLightingVs;
+  glFragmentShader mAttributeFs;
+
+  bool m_ewa_filter;
+  bool m_backface_culling;
+  bool m_visibility_pass;
+  bool m_smooth;
+  bool m_color_material;
+  unsigned int m_pointsize_method;
+  };
+//}}}
+//{{{
+class ProgramFinal : public glProgram {
+public:
+  ProgramFinal();
+
+  void set_multisampling (bool enable);
+  void set_smooth (bool enable);
+
+private:
+  void initShader();
+  void initProgram();
+
+  glVertexShader m_Final_vs_obj;
+  glFragmentShader m_Final_fs_obj;
+  glFragmentShader m_lighting_fs_obj;
+
+  bool m_smooth;
+  bool m_multisampling;
+  };
+//}}}
+//{{{
+class Framebuffer {
+public:
+  Framebuffer();
+  ~Framebuffer();
+
+  GLuint color_texture();
+
+  void enable_depth_texture();
+  void disable_depth_texture();
+  GLuint depth_texture();
+
+  void attach_normal_texture();
+  void detach_normal_texture();
+  GLuint normal_texture();
+
+  void set_multisample (bool enable = true);
+
+  void bind();
+  void unbind();
+  void resize (GLint width, GLint height);
+
+private:
+  void initialize();
+  void remove_and_delete_attachments();
+
+  GLuint m_fbo;
+  GLuint m_color;
+  GLuint m_normal;
+  GLuint m_depth;
+
+  struct Impl;
+  struct Default;
+  struct Multisample;
+
+  std::unique_ptr<Impl> m_pimpl;
+  };
+//}}}
+
+//{{{
+class cSplatRender {
+public:
+  cSplatRender (GLviz::Camera const& camera);
+  virtual ~cSplatRender();
 
   bool smooth() const;
   void set_smooth (bool enable = true);
@@ -120,20 +192,22 @@ private:
   void endFrame();
   void renderPass (bool depth_only = false);
 
-  // vars
-  bool mQuit = false;
-
+  //{{{  vars
   GLviz::Camera const& m_camera;
-  GLuint m_rect_vertices_vbo;
-  GLuint m_rect_texture_uv_vbo;
-  GLuint m_uv_vbo, m_rect_vao;
-  GLuint m_filter_kernel;
+  GLviz::UniformBufferCamera m_uniform_camera;
 
   GLuint m_vbo;
   GLuint m_vao;
   unsigned int m_num_pts;
 
-  ProgramAttribute m_visibility, m_attribute;
+  GLuint m_uv_vbo;
+  GLuint m_rect_vao;
+  GLuint m_rect_vertices_vbo;
+  GLuint m_rect_texture_uv_vbo;
+  GLuint m_filter_kernel;
+
+  ProgramAttribute m_visibility;
+  ProgramAttribute m_attribute;
   ProgramFinal m_Final;
 
   Framebuffer m_fbo;
@@ -152,9 +226,9 @@ private:
   float m_radius_scale;
   float m_ewa_radius;
 
-  GLviz::UniformBufferCamera m_uniform_camera;
   UniformBufferRaycast m_uniform_raycast;
   UniformBufferFrustum m_uniform_frustum;
   UniformBufferParameter m_uniform_parameter;
+  //}}}
   };
 //}}}

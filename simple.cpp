@@ -20,13 +20,16 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
+#include "cSimpleRender.h"
+
 using namespace std;
 //}}}
 
 namespace {
-  //{{{  vars
   GLviz::Camera gCamera;
+  unique_ptr <cSimpleRender> gSimpleRender;
 
+  //{{{  vars
   bool g_stop_simulation(true);
   bool g_enable_mesh3(true);
   bool g_enable_wireframe(false);
@@ -48,113 +51,6 @@ namespace {
   int g_shading_method(0);
   //}}}
 
-  //{{{
-  struct sVizApp {
-    //{{{
-    sVizApp() {
-      // Setup vertex array v
-      vertex_array_v.bind();
-
-      vertex_array_buffer.bind();
-      glEnableVertexAttribArray (0);
-      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
-      vertex_array_v.unbind();
-
-      // Setup vertex array vf.
-      vertex_array_vf.bind();
-
-      vertex_array_buffer.bind();
-      glEnableVertexAttribArray (0);
-      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
-      index_array_buffer.bind();
-      vertex_array_buffer.unbind();
-      vertex_array_vf.unbind();
-
-      // Setup vertex array vnf.
-      vertex_array_vnf.bind();
-
-      vertex_array_buffer.bind();
-      glEnableVertexAttribArray (0);
-      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
-      normal_array_buffer.bind();
-      glEnableVertexAttribArray (1);
-      glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
-      index_array_buffer.bind();
-      vertex_array_buffer.unbind();
-
-      vertex_array_vnf.unbind();
-
-      // Bind uniforms to their binding points
-      uniform_camera.bindBufferBase (0);
-      uniform_material.bindBufferBase (1);
-      uniform_wireframe.bindBufferBase (2);
-      uniform_sphere.bindBufferBase (3);
-
-      gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-      }
-    //}}}
-
-    GLviz::glVertexArray vertex_array_v;
-    GLviz::glVertexArray vertex_array_vf;
-    GLviz::glVertexArray vertex_array_vnf;
-
-    GLviz::glArrayBuffer vertex_array_buffer;
-    GLviz::glArrayBuffer normal_array_buffer;
-
-    GLviz::glElementArrayBuffer index_array_buffer;
-
-    GLviz::UniformBufferCamera uniform_camera;
-    GLviz::UniformBufferMaterial uniform_material;
-    GLviz::UniformBufferWireframe uniform_wireframe;
-    GLviz::UniformBufferSphere uniform_sphere;
-
-    GLviz::ProgramMesh3 program_mesh3;
-    GLviz::ProgramSphere program_sphere;
-
-    //{{{
-    void drawMesh3 (GLsizei nf) {
-
-      program_mesh3.use();
-
-      if (g_shading_method == 0) {
-        // Flat
-        vertex_array_vf.bind();
-        glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
-        vertex_array_vf.unbind();
-        }
-      else {
-        // Smooth
-        vertex_array_vnf.bind();
-        glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
-        vertex_array_vnf.unbind();
-        }
-
-      program_mesh3.unuse();
-      }
-    //}}}
-    //{{{
-    void drawSpheres (GLsizei nv) {
-
-      glEnable (GL_PROGRAM_POINT_SIZE);
-      glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
-
-      program_sphere.use();
-
-      vertex_array_v.bind();
-      glDrawArrays (GL_POINTS, 0, nv);
-      vertex_array_v.unbind();
-
-      program_sphere.unuse();
-      }
-    //}}}
-    };
-  //}}}
-  unique_ptr<sVizApp> gVizApp;
-
   // callbacks
   //{{{
   void resize (int width, int height) {
@@ -174,28 +70,28 @@ namespace {
     glClearDepth (1.0f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    gVizApp->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_vertices.size(), g_vertices.front().data());
-    gVizApp->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
-    gVizApp->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
+    gSimpleRender->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_vertices.size(), g_vertices.front().data());
+    gSimpleRender->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
+    gSimpleRender->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
 
-    gVizApp->uniform_camera.set_buffer_data (gCamera);
+    gSimpleRender->uniform_camera.set_buffer_data (gCamera);
 
     if (g_enable_mesh3) {
-      gVizApp->uniform_material.set_buffer_data (g_mesh_material);
-      gVizApp->program_mesh3.set_wireframe (g_enable_wireframe);
+      gSimpleRender->uniform_material.set_buffer_data (g_mesh_material);
+      gSimpleRender->program_mesh3.set_wireframe (g_enable_wireframe);
       int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
-      gVizApp->uniform_wireframe.set_buffer_data (g_wireframe, screen);
-      gVizApp->program_mesh3.set_smooth (g_shading_method != 0);
-      gVizApp->drawMesh3 (static_cast<GLsizei>(3 * g_faces.size()));
+      gSimpleRender->uniform_wireframe.set_buffer_data (g_wireframe, screen);
+      gSimpleRender->program_mesh3.set_smooth (g_shading_method != 0);
+      gSimpleRender->drawMesh3 (g_shading_method, static_cast<GLsizei>(3 * g_faces.size()));
       }
 
     if (gEnableSpheres) {
-      gVizApp->uniform_material.set_buffer_data (g_points_material);
+      gSimpleRender->uniform_material.set_buffer_data (g_points_material);
       GLviz::Frustum view_frustum = gCamera.get_frustum();
       g_projection_radius = view_frustum.near_() *
                             (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
-      gVizApp->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
-      gVizApp->drawSpheres (static_cast<GLsizei>(g_vertices.size()));
+      gSimpleRender->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
+      gSimpleRender->drawSpheres (static_cast<GLsizei>(g_vertices.size()));
       }
     }
   //}}}
@@ -273,7 +169,7 @@ namespace {
       }
     }
   //}}}
-  void close() { gVizApp = nullptr; }
+  void close() { gSimpleRender = nullptr; }
   }
 
 int main (int numArgs, char* args[]) {
@@ -295,7 +191,9 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "simple");
 
   GLviz::init();
-  gVizApp = unique_ptr<sVizApp>(new sVizApp());
+  gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+
+  gSimpleRender = unique_ptr<cSimpleRender>(new cSimpleRender (gCamera));
 
   try {
     GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);
