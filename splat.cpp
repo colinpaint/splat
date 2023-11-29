@@ -31,6 +31,7 @@ namespace {
   int gModel = 0;
   bool gFullScreen = false;
 
+  // model
   //{{{
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
 
@@ -115,49 +116,45 @@ namespace {
     }
   //}}}
   //{{{
-  void faceToSurfel (vector <Eigen::Vector3f> const& vertices, array <unsigned int, 3> const& face,
-                     sSurfel& surfel) {
-
-    Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
-
-    Eigen::Vector3f p0;
-    Eigen::Vector3f t1;
-    Eigen::Vector3f t2;
-    steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(),
-                          p0.data(), t1.data(), t2.data());
-
-    Eigen::Vector3f n_s = t1.cross (t2);
-    Eigen::Vector3f n_t = (v[1] - v[0]).cross (v[2] - v[0]);
-    if (n_t.dot (n_s) < 0.0f)
-      t1.swap (t2);
-
-    surfel.c = p0;
-    surfel.u = t1;
-    surfel.v = t2;
-    surfel.p = Eigen::Vector3f::Zero();
-
-    float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
-    float r, g, b;
-    hsv2rgb (h, 1.0f, 1.0f, r, g, b);
-    surfel.rgba = static_cast<unsigned int>(r * 255.0f)
-                | (static_cast<unsigned int>(g * 255.0f) << 8)
-                | (static_cast<unsigned int>(b * 255.0f) << 16);
-    }
-  //}}}
-  //{{{
   void meshToSurfel (vector <Eigen::Vector3f> const& vertices, vector <array <unsigned int, 3>> const& faces,
                      vector<sSurfel>& surfels) {
 
     surfels.resize (faces.size());
 
     vector<thread> threads (thread::hardware_concurrency());
-    for (size_t i(0); i < threads.size(); ++i) {
+    for (size_t i = 0; i < threads.size(); ++i) {
       size_t b = i * faces.size() / threads.size();
       size_t e = (i + 1) * faces.size() / threads.size();
 
-      threads[i] = thread([b, e, &vertices, &faces, &surfels]() {
-        for (size_t j = b; j < e; ++j)
-          faceToSurfel (vertices, faces[j], surfels[j]);
+      threads[i] = thread ([b, e, &vertices, &faces, &surfels]() {
+        for (size_t j = b; j < e; ++j) {
+          // face to surfel
+          array <unsigned int,3> const& face = faces[j];
+          Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
+          sSurfel& surfel = surfels[j];
+
+          Eigen::Vector3f p0;
+          Eigen::Vector3f t1;
+          Eigen::Vector3f t2;
+          steinerCircumEllipse (v[0].data(), v[1].data(), v[2].data(), p0.data(), t1.data(), t2.data());
+
+          Eigen::Vector3f normalS = t1.cross (t2);
+          Eigen::Vector3f normalT = (v[1] - v[0]).cross (v[2] - v[0]);
+          if (normalT.dot (normalS) < 0.0f)
+            t1.swap (t2);
+
+          surfel.c = p0;
+          surfel.u = t1;
+          surfel.v = t2;
+          surfel.p = Eigen::Vector3f::Zero();
+
+          float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
+          float r, g, b;
+          hsv2rgb (h, 1.0f, 1.0f, r, g, b);
+          surfel.rgba = static_cast<unsigned int>(r * 255.0f)
+                      | (static_cast<unsigned int>(g * 255.0f) << 8)
+                      | (static_cast<unsigned int>(b * 255.0f) << 16);
+          }
         });
       }
 
@@ -166,23 +163,25 @@ namespace {
     }
   //}}}
   //{{{
-  void loadDragon() {
-    vector <Eigen::Vector3f> vertices, normals;
-    vector <array <unsigned int, 3>>  faces;
+  void createModel (const string& filename) {
 
     try {
-      GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", vertices, faces);
+      vector <Eigen::Vector3f> vertices;
+      vector <array <unsigned int,3>> faces;
+      GLviz::loadMesh (filename, vertices, faces);
+
+      vector <Eigen::Vector3f> normals;
+      GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
+
+      meshToSurfel (vertices, faces, gSurfels);
       }
+
     catch (runtime_error const& e) {
       cerr << e.what() << endl;
       exit (EXIT_FAILURE);
       }
-
-    GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
-    meshToSurfel (vertices, faces, gSurfels);
     }
   //}}}
-
   //{{{
   void createPlane (unsigned int n) {
 
@@ -369,7 +368,8 @@ namespace {
 
     switch (model) {
       case 0:
-        loadDragon();
+        createModel ("../models/stanford_dragon_v40k_f80k.raw");
+        //createModel ("../models/stanford_dragon_v344k_f688k.raw");
         break;
 
       case 1:
@@ -511,7 +511,6 @@ namespace {
   void close() { gSplatRenderer = nullptr; }
   }
 
-//{{{
 int main (int numArgs, char* args[]) {
 
   eLogLevel logLevel = LOGINFO;
@@ -545,4 +544,3 @@ int main (int numArgs, char* args[]) {
 
   return GLviz::mainUILoop (gCamera);
   }
-//}}}
