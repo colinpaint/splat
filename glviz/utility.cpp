@@ -7,70 +7,12 @@
 #include <fstream>
 #include <Eigen/Dense>
 
-#include "../common/date.h"
 #include "../common/cLog.h"
 
 using namespace std;
 //}}}
 
 namespace GLviz {
-  //{{{
-  void saveRaw (string const& filename,
-                vector<Eigen::Vector3f> const& vertices,
-                vector<array<unsigned int, 3>>& faces) {
-
-    ofstream output(filename, ios::out | ios::binary);
-
-    if (output.fail()) {
-      ostringstream error_message;
-      error_message << "Error: Can not open " << filename << "." << endl;
-      throw runtime_error(error_message.str().c_str());
-      }
-
-    unsigned int nv = static_cast<unsigned int>(vertices.size());
-    output.write (reinterpret_cast<char const*>(&nv), sizeof(unsigned int));
-
-    for (unsigned int i(0); i < nv; ++i)
-      output.write (reinterpret_cast<char const*>(vertices[i].data()), 3 * sizeof(float));
-
-    unsigned int nf = static_cast<unsigned int>(faces.size());
-    output.write (reinterpret_cast<char const*>(&nf), sizeof(unsigned int));
-
-    for (unsigned int i(0); i < nf; ++i)
-      output.write (reinterpret_cast<char const*>(faces[i].data()), 3 * sizeof(unsigned int));
-
-    output.close();
-    }
-  //}}}
-  //{{{
-  void loadRaw  (string const& filename,
-                 vector<Eigen::Vector3f>& vertices,
-                 vector<array<unsigned int, 3>>& faces) {
-
-    ifstream input (filename, ios::in | ios::binary);
-    if (input.fail()) {
-      ostringstream error_message;
-      error_message << "Error: Can not open " << filename << "." << endl;
-      throw runtime_error (error_message.str().c_str());
-      }
-
-    unsigned int nv;
-    input.read(reinterpret_cast<char*>(&nv), sizeof(unsigned int));
-    vertices.resize(nv);
-
-    for (unsigned int i(0); i < nv; ++i)
-      input.read (reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
-
-    unsigned int nf;
-    input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
-    faces.resize (nf);
-
-    for (unsigned int i(0); i < nf; ++i)
-      input.read (reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
-
-    input.close();
-    }
-  //}}}
   //{{{
   void loadMesh (string const& filename,
                  vector<Eigen::Vector3f>& vertices,
@@ -79,14 +21,35 @@ namespace GLviz {
     ifstream input (filename);
     if (input.good()) {
       input.close();
-      GLviz::loadRaw (filename, vertices, faces);
+
+      ifstream input (filename, ios::in | ios::binary);
+      if (input.fail()) {
+        ostringstream error_message;
+        cLog::log (LOGERROR, fmt::format ("loadRaw - cannot open {}", filename));
+        throw runtime_error (error_message.str().c_str());
+        }
+
+      unsigned int nv;
+      input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
+      vertices.resize (nv);
+
+      for (size_t i = 0; i < nv; ++i)
+        input.read (reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
+
+      unsigned int nf;
+      input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+      faces.resize (nf);
+
+      for (size_t i = 0; i < nf; ++i)
+        input.read (reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
+
+      input.close();
       }
 
     cLog::log (LOGINFO, fmt::format ("loadMesh:{} vertices:{} faces:{}",
                                      filename, vertices.size(), faces.size()));
     }
   //}}}
-
   //{{{
   void setVertexNormalsFromTriangleMesh (vector<Eigen::Vector3f> const& vertices,
                                          vector<array<unsigned int,3>> const& faces,

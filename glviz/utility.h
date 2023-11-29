@@ -6,10 +6,6 @@
 #include <array>
 
 namespace GLviz {
-  void saveRaw (std::string const& filename, std::vector<Eigen::Vector3f> const& vertices,
-                std::vector<std::array<unsigned int, 3> >& faces);
-  void loadRaw (std::string const& filename, std::vector<Eigen::Vector3f> &vertices,
-                std::vector<std::array<unsigned int, 3> >& faces);
   void loadMesh (std::string const& filename,
                  std::vector<Eigen::Vector3f>& vertices,
                  std::vector<std::array<unsigned int, 3>>& faces);
