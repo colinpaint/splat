@@ -19,6 +19,10 @@
 
 #include "splatRenderer.h"
 
+// only implmentation
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb/stb_image.h"
+
 using namespace std;
 //}}}
 
@@ -244,6 +248,39 @@ namespace {
     }
   //}}}
   //{{{
+  void createPlane1 (size_t width, size_t height) {
+
+    cLog::log (LOGINFO, fmt::format ("createPlane {}x{}", width, height));
+
+    gSurfels.resize (width * height);
+
+    const float dw = 1.0f / width;
+    const float dh = 1.0f / height;
+
+    size_t m = 0;
+    for (size_t j = 0; j < height; ++j) {
+      for (size_t i = 0; i < width; ++i) {
+        gSurfels[m].c = Eigen::Vector3f (-1.0f + (2 * dh * i), -1.0f + (2 * dw * j), 0.0f);
+        gSurfels[m].u = 2 * dw * Eigen::Vector3f::UnitX(); // ellipse major axis
+        gSurfels[m].v = 2 * dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
+        gSurfels[m].p = Eigen::Vector3f::Zero(); // Clipping plane
+        gSurfels[m].rgba = 0;
+
+        if (j == height-1)
+          gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+        else if (i == width-1)
+          gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+        else if (j == 0)
+          gSurfels[m].p = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+        else if (i == 0)
+          gSurfels[m].p = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+
+        m++;
+        }
+      }
+    }
+  //}}}
+  //{{{
   void createCube() {
 
     cLog::log (LOGINFO, fmt::format ("createCube"));
@@ -370,6 +407,40 @@ namespace {
     }
   //}}}
   //{{{
+  void loadPiccy (const string& filename) {
+
+    FILE* file = fopen (filename.c_str(), "rb");
+    if (!file) {
+      //{{{  error, return
+      cLog::log (LOGERROR, fmt::format ("failed to load file {}", filename));
+      return;
+      }
+      //}}}
+
+    constexpr uint32_t kMaxFileSize = 20000000;
+    uint8_t* fileBuf = new uint8_t [kMaxFileSize];
+    uint32_t fileBufLen = 0;
+    fileBufLen = (uint32_t)fread (fileBuf, 1, kMaxFileSize, file);
+    fclose (file);
+
+    int32_t width;
+    int32_t height;
+    int32_t channels;
+    uint8_t* pixels = (uint8_t*)stbi_load_from_memory (fileBuf, fileBufLen, &width, &height, &channels, 4);
+
+    cLog::log (LOGINFO, fmt::format ("loaded {} {} {} {}", filename, width, height, channels));
+
+    createPlane1 (width, height);
+
+    uint32_t* rgba = (uint32_t*)pixels;
+    size_t m = 0;
+    for (size_t j = 0; j < height; ++j)
+      for (size_t i = 0; i < width; ++i)
+        gSurfels[m++].rgba = *rgba++;
+
+    }
+  //}}}
+  //{{{
   void loadModel (int model) {
 
     switch (model) {
@@ -385,6 +456,11 @@ namespace {
       case 2:
         createCube();
         break;
+
+      case 3: {
+        loadPiccy ("../piccies/test.png");
+        break;
+        }
       }
     }
   //}}}
@@ -411,7 +487,7 @@ namespace {
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
-      if (ImGui::Combo ("Models", &gModel, "Dragon\0Plane\0Cube"))
+      if (ImGui::Combo ("Models", &gModel, "Dragon\0Plane\0Cube\0piccy\0\0"))
         loadModel (gModel);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
