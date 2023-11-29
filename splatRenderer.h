@@ -36,7 +36,7 @@ struct sSurfel {
   Eigen::Vector3f v; // ellipse minor axis
   Eigen::Vector3f p; // Clipping plane
 
-  unsigned int rgba;   // Color.
+  uint32_t rgba;   // Color.
   };
 //}}}
 

@@ -116,7 +116,8 @@ namespace {
     }
   //}}}
   //{{{
-  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, vector <array <unsigned int, 3>> const& faces,
+  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, 
+                     vector <array <unsigned int, 3>> const& faces,
                      vector<sSurfel>& surfels) {
 
     surfels.resize (faces.size());
@@ -151,9 +152,9 @@ namespace {
           float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
           float r, g, b;
           hsv2rgb (h, 1.0f, 1.0f, r, g, b);
-          surfel.rgba = static_cast<unsigned int>(r * 255.0f)
-                      | (static_cast<unsigned int>(g * 255.0f) << 8)
-                      | (static_cast<unsigned int>(b * 255.0f) << 16);
+          surfel.rgba = static_cast<uint32_t>(r * 255.0f)
+                      | (static_cast<uint32_t>(g * 255.0f) << 8)
+                      | (static_cast<uint32_t>(b * 255.0f) << 16);
           }
         });
       }
