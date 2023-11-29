@@ -18,35 +18,40 @@ namespace GLviz {
                  vector<Eigen::Vector3f>& vertices,
                  vector<array<unsigned int,3>>& faces) {
 
-    ifstream input (filename);
-    if (input.good()) {
-      input.close();
+    ifstream inputFind (filename);
+    if (!inputFind.good()) {
+      //{{{  error, return
+       cLog::log (LOGERROR, fmt::format ("loadMesh - cannot find {}", filename));
+      throw runtime_error ("cannot find");
+      return;
+      }
+      //}}}
+    inputFind.close();
 
-      ifstream input (filename, ios::in | ios::binary);
-      if (input.fail()) {
-        ostringstream error_message;
-        cLog::log (LOGERROR, fmt::format ("loadRaw - cannot open {}", filename));
-        throw runtime_error (error_message.str().c_str());
-        }
-
-      unsigned int nv;
-      input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
-      vertices.resize (nv);
-
-      for (size_t i = 0; i < nv; ++i)
-        input.read (reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
-
-      unsigned int nf;
-      input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
-      faces.resize (nf);
-
-      for (size_t i = 0; i < nf; ++i)
-        input.read (reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
-
-      input.close();
+    ifstream input (filename, ios::in | ios::binary);
+    if (input.fail()) {
+      ostringstream error_message;
+      cLog::log (LOGERROR, fmt::format ("loadMesh - cannot open {}", filename));
+      throw runtime_error (error_message.str().c_str());
       }
 
-    cLog::log (LOGINFO, fmt::format ("loadMesh:{} vertices:{} faces:{}",
+    unsigned int nv;
+    input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
+    vertices.resize (nv);
+
+    for (size_t i = 0; i < nv; ++i)
+      input.read (reinterpret_cast<char*>(vertices[i].data()), 3 * sizeof(float));
+
+    unsigned int nf;
+    input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+    faces.resize (nf);
+
+    for (size_t i = 0; i < nf; ++i)
+      input.read (reinterpret_cast<char*>(faces[i].data()), 3 * sizeof(unsigned int));
+
+    input.close();
+
+    cLog::log (LOGINFO, fmt::format ("loadMesh {} vertices:{} faces:{}",
                                      filename, vertices.size(), faces.size()));
     }
   //}}}
@@ -55,12 +60,13 @@ namespace GLviz {
                                          vector<array<unsigned int,3>> const& faces,
                                          vector<Eigen::Vector3f>& normals) {
 
-    unsigned int nf(static_cast<unsigned int>(faces.size())), nv(static_cast<unsigned int>(vertices.size()));
+    unsigned int nf(static_cast<unsigned int>(faces.size()));
+    unsigned int nv(static_cast<unsigned int>(vertices.size()));
 
     normals.resize (vertices.size());
     fill (normals.begin(), normals.end(), Eigen::Vector3f::Zero());
 
-    for (unsigned int i(0); i < nf; ++i) {
+    for (size_t i = 0; i < faces.size(); ++i) {
       array<unsigned int, 3> const& f_i = faces[i];
 
       Eigen::Vector3f const& p0(vertices[f_i[0]]);
@@ -74,7 +80,7 @@ namespace GLviz {
       normals[f_i[2]] += n_i;
       }
 
-    for (unsigned int i(0); i < nv; ++i)
+    for (size_t i = 0; i < vertices.size(); ++i)
       if (!normals[i].isZero())
         normals[i].normalize();
     }

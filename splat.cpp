@@ -116,7 +116,7 @@ namespace {
     }
   //}}}
   //{{{
-  void meshToSurfel (vector <Eigen::Vector3f> const& vertices, 
+  void meshToSurfel (vector <Eigen::Vector3f> const& vertices,
                      vector <array <unsigned int, 3>> const& faces,
                      vector<sSurfel>& surfels) {
 
@@ -184,33 +184,36 @@ namespace {
     }
   //}}}
   //{{{
-  void createPlane (unsigned int n) {
+  void createPlane (size_t width, size_t height) {
 
-    const float d = 1.0f / static_cast<float>(2 * n);
+    cLog::log (LOGINFO, fmt::format ("createPlane {}x{}", width, height));
+
+    const float dw = 1.0f / static_cast<float>(2 * width);
+    const float dh = 1.0f / static_cast<float>(2 * height);
     sSurfel surfel (Eigen::Vector3f::Zero(),
-                    2.0f * d * Eigen::Vector3f::UnitX(),
-                    2.0f * d * Eigen::Vector3f::UnitY(),
+                    2.0f * dw * Eigen::Vector3f::UnitX(),
+                    2.0f * dh * Eigen::Vector3f::UnitY(),
                     Eigen::Vector3f::Zero(), 0);
 
-    gSurfels.resize (4 * n * n);
+    gSurfels.resize (4 * width * height);
 
-    unsigned int m = 0;
-    for (unsigned int i = 0; i <= 2 * n; ++i) {
-      for (unsigned int j = 0; j <= 2 * n; ++j) {
-        unsigned int k = i * (2 * n + 1) + j;
+    size_t m = 0;
+    for (size_t i = 0; i <= 2 * width; ++i) {
+      for (size_t j = 0; j <= 2 * height; ++j) {
+        size_t k = i * (2 * width + 1) + j;
         if (k % 2 == 1) {
-          surfel.c = Eigen::Vector3f (-1.0f + 2.0f * d * static_cast<float>(j),
-                                      -1.0f + 2.0f * d * static_cast<float>(i),
+          surfel.c = Eigen::Vector3f (-1.0f + 2.0f * dh * static_cast<float>(j),
+                                      -1.0f + 2.0f * dw * static_cast<float>(i),
                                       0.0f);
           surfel.rgba = (((j / 2) % 2) == ((i / 2) % 2)) ? 0u : ~0u;
           gSurfels[m] = surfel;
 
           // Clip border surfels
-          if (j == 2 * n) {
+          if (j == 2 * height) {
             gSurfels[m].p = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
             gSurfels[m].rgba = ~surfel.rgba;
             }
-          else if (i == 2 * n) {
+          else if (i == 2 * width) {
             gSurfels[m].p = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
             gSurfels[m].rgba = ~surfel.rgba;
             }
@@ -242,6 +245,8 @@ namespace {
   //}}}
   //{{{
   void createCube() {
+
+    cLog::log (LOGINFO, fmt::format ("createCube"));
 
     sSurfel cube[24];
     unsigned int color = 0;
@@ -374,7 +379,7 @@ namespace {
         break;
 
       case 1:
-        createPlane (200);
+        createPlane (200,150);
         break;
 
       case 2:
