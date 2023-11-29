@@ -22,22 +22,22 @@ namespace {
     "#define EWA_FILTER 0",
     "#define POINTSIZE_METHOD 0",
 
-    "layout (std140, column_major) uniform Camera {"
+    "layout(std140, column_major) uniform Camera {"
       "mat4 modelview_matrix;"
       "mat4 modelview_matrix_it;"
       "mat4 projection_matrix;"
       "};",
 
-    "layout (std140, column_major) uniform Raycast {"
+    "layout(std140, column_major) uniform Raycast {"
       "mat4 projection_matrix_inv;"
       "vec4 viewport;"
       "};",
 
-    "layout (std140) uniform Frustum {"
+    "layout(std140) uniform Frustum {"
       "vec4 frustum_plane[6];"
       "};",
 
-    "layout (std140) uniform Parameter {"
+    "layout(std140) uniform Parameter {"
       "vec3 material_color;"
       "float material_shininess;"
       "float radius_scale;"
@@ -46,15 +46,15 @@ namespace {
       "};",
 
     "#define ATTR_CENTER 0",
-    "layout (location = ATTR_CENTER) in vec3 c;",
+    "layout(location = ATTR_CENTER) in vec3 c;",
     "#define ATTR_T1 1",
-    "layout (location = ATTR_T1) in vec3 u;",
+    "layout(location = ATTR_T1) in vec3 u;",
     "#define ATTR_T2 2",
-    "layout (location = ATTR_T2) in vec3 v;",
+    "layout(location = ATTR_T2) in vec3 v;",
     "#define ATTR_PLANE 3",
-    "layout (location = ATTR_PLANE) in vec3 p;",
+    "layout(location = ATTR_PLANE) in vec3 p;",
     "#define ATTR_COLOR 4",
-    "layout (location = ATTR_COLOR) in vec4 rgba;",
+    "layout(location = ATTR_COLOR) in vec4 rgba;",
 
     //{{{
     "out block {",
@@ -353,18 +353,22 @@ namespace {
     "#define SMOOTH 0",
     "#define EWA_FILTER 0",
 
-    "layout (std140, column_major) uniform Camera {"
+    "layout(std140, column_major) uniform Camera {"
       "mat4 modelview_matrix;"
       "mat4 modelview_matrix_it;"
       "mat4 projection_matrix;"
       "};",
 
-    "layout (std140, column_major) uniform Raycast {"
+    "layout(std140, column_major) uniform Raycast {"
       "mat4 projection_matrix_inv;"
       "vec4 viewport;"
       "};",
 
-    "layout (std140) uniform Parameter {"
+    "layout(std140) uniform Frustum {"
+      "vec4 frustum_plane[6];"
+      "};",
+
+    "layout(std140) uniform Parameter {"
       "vec3 material_color;"
       "float material_shininess;"
       "float radius_scale;"
@@ -391,12 +395,12 @@ namespace {
     "In;",
 
     "#define FRAG_COLOR 0",
-    "layout (location = FRAG_COLOR) out vec4 frag_color;",
+    "layout(location = FRAG_COLOR) out vec4 frag_color;",
 
     "#if !VISIBILITY_PASS",
       "#if SMOOTH",
         "#define FRAG_NORMAL 1",
-          "layout (location = FRAG_NORMAL) out vec4 frag_normal;",
+          "layout(location = FRAG_NORMAL) out vec4 frag_normal;",
       "#endif",
     "#endif",
 
@@ -484,18 +488,22 @@ namespace {
     "#define MULTISAMPLING 0",
     "#define SMOOTH 0",
 
-    "layout (std140, column_major) uniform Camera {"
+    "layout(std140, column_major) uniform Camera {"
       "mat4 modelview_matrix;"
       "mat4 modelview_matrix_it;"
       "mat4 projection_matrix;"
       "};",
 
-    "layout (std140, column_major) uniform Raycast {"
+    "layout(std140, column_major) uniform Raycast {"
       "mat4 projection_matrix_inv;"
       "vec4 viewport;"
       "};",
 
-    "layout (std140) uniform Parameter {"
+    "layout(std140) uniform Frustum {"
+      "vec4 frustum_plane[6];"
+      "};",
+
+    "layout(std140) uniform Parameter {"
       "vec3 material_color;"
       "float material_shininess;"
       "float radius_scale;"
@@ -527,7 +535,7 @@ namespace {
     "In;",
 
     "#define FRAG_COLOR 0",
-    "layout (location = FRAG_COLOR) out vec4 frag_color;",
+    "layout(location = FRAG_COLOR) out vec4 frag_color;",
 
     //{{{
     "void main() {",

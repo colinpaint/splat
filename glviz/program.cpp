@@ -16,10 +16,10 @@ namespace {
     "#version 330",
     "#define SMOOTH 0",
 
-    "layout(std140, column_major) uniform Camera {",
-      "mat4 modelview_matrix;",
-      "mat4 modelview_matrix_it;",
-      "mat4 projection_matrix;",
+    "layout(std140, column_major) uniform Camera {"
+      "mat4 modelview_matrix;"
+      "mat4 modelview_matrix_it;"
+      "mat4 projection_matrix;"
       "};",
 
     "#define ATTR_POSITION 0",
@@ -45,8 +45,8 @@ namespace {
         "Out.normal = mat3(modelview_matrix_it) * normal;",
       "#endif",
 
-      "Out.position = vec3(position_eye);",
-      "gl_Position = projection_matrix * position_eye;",
+      "Out.position = vec3(position_eye);"
+      "gl_Position = projection_matrix * position_eye;"
       "}"
     };
   //}}}
@@ -157,10 +157,10 @@ namespace {
     "layout(std140) uniform Material {"
       "vec3 color;"
       "float shininess;"
-      "}",
+      "}"
     "material;",
 
-    "layout (std140) uniform Wireframe {"
+    "layout(std140) uniform Wireframe {"
       "vec3 color_wireframe;"
       "ivec2 viewport;"
       "};",
@@ -190,21 +190,21 @@ namespace {
         "vec3 normal_eye = In.normal;",
       "#endif",
 
-      "if (!gl_FrontFacing)",
-        "normal_eye = -normal_eye;",
+      "if (!gl_FrontFacing)"
+        "normal_eye = -normal_eye;"
 
-      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);",
+      "const vec3 light_eye = vec3(0.0, 0.0, 1.0);"
 
-      "float dif = max(dot(light_eye, normal_eye), 0.0);",
-      "vec3 view_eye = normalize(In.position);",
-      "vec3 refl_eye = reflect(light_eye, normal_eye);",
+      "float dif = max(dot(light_eye, normal_eye), 0.0);"
+      "vec3 view_eye = normalize(In.position);"
+      "vec3 refl_eye = reflect(light_eye, normal_eye);"
 
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);",
-      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);",
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);"
+      "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);"
 
-      "vec3 color = 0.15 * material.color;",
-      "color += 0.6 * dif * material.color;",
-      "color += 0.1 * spe * vec3(1.0);",
+      "vec3 color = 0.15 * material.color;"
+      "color += 0.6 * dif * material.color;"
+      "color += 0.1 * spe * vec3(1.0);"
       "color += 0.1 * rim * vec3(1.0);",
 
       "#if WIREFRAME",
@@ -214,7 +214,7 @@ namespace {
       "#endif",
 
       // Gamma correction. Assuming gamma of 2.0 rather than 2.2
-      "frag_color = vec4(sqrt(color), 1.0);",
+      "frag_color = vec4(sqrt(color), 1.0);"
       "}"
     };
   //}}}
@@ -414,7 +414,7 @@ namespace GLviz {
       m_mesh3_fs_obj.compile (defines);
       }
     catch (shader_compilation_error const& e) {
-      cerr << "Error: A shader failed to compile." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to compile {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -422,7 +422,7 @@ namespace GLviz {
       link();
       }
     catch (shader_link_error const& e) {
-      cerr << "Error: A program failed to link." << endl << e.what() << endl;
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to link {}", e.what()));
       exit(EXIT_FAILURE);
       }
 
@@ -433,8 +433,7 @@ namespace GLviz {
         setUniformBlockBind ("Wireframe", 2);
       }
     catch (uniform_not_found_error const& e) {
-      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to set uniform {}",
-                                         e.what()));
+      cLog::log (LOGERROR, fmt::format ("ProgramMesh3::initProgram - failed to set uniform {}", e.what()));
       }
     }
   //}}}

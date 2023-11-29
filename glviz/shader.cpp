@@ -183,10 +183,10 @@ void glProgram::setUniform1i (GLchar const* name, GLint value) {
 //{{{
 void glProgram::setUniformBlockBind (GLchar const* name, GLuint blockBind) {
 
-  GLuint block_index = glGetUniformBlockIndex (mProgram, name);
-  if (block_index == GL_INVALID_INDEX)
+  GLuint blockIndex = glGetUniformBlockIndex (mProgram, name);
+  if (blockIndex == GL_INVALID_INDEX)
     throw uniform_not_found_error (name);
 
-  glUniformBlockBinding (mProgram, block_index, blockBind);
+  glUniformBlockBinding (mProgram, blockIndex, blockBind);
   }
 //}}}
