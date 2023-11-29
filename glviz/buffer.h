@@ -38,7 +38,7 @@ namespace GLviz {
 
     ~glUniformBuffer();
 
-    void bind_buffer_base(GLuint index);
+    void bindBufferBase (GLuint index);
 
   protected:
     void bind();

@@ -45,7 +45,7 @@ namespace GLviz {
   glUniformBuffer::~glUniformBuffer() { glDeleteBuffers (1, &m_uniform_buffer_obj); }
 
   //{{{
-  void glUniformBuffer::bind_buffer_base (GLuint index) {
+  void glUniformBuffer::bindBufferBase (GLuint index) {
     glBindBufferBase (GL_UNIFORM_BUFFER, index, m_uniform_buffer_obj);
     }
   //}}}

@@ -52,47 +52,47 @@ namespace {
   struct sVizApp {
     //{{{
     sVizApp() {
-      // Setup vertex array v.
+      // Setup vertex array v
       vertex_array_v.bind();
 
       vertex_array_buffer.bind();
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glEnableVertexAttribArray (0);
+      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+
       vertex_array_v.unbind();
 
       // Setup vertex array vf.
       vertex_array_vf.bind();
 
       vertex_array_buffer.bind();
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glEnableVertexAttribArray (0);
+      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       index_array_buffer.bind();
       vertex_array_buffer.unbind();
-
       vertex_array_vf.unbind();
 
       // Setup vertex array vnf.
       vertex_array_vnf.bind();
 
       vertex_array_buffer.bind();
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glEnableVertexAttribArray (0);
+      glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       normal_array_buffer.bind();
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+      glEnableVertexAttribArray (1);
+      glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
       index_array_buffer.bind();
       vertex_array_buffer.unbind();
 
       vertex_array_vnf.unbind();
 
-      // Bind uniforms to their binding points.
-      uniform_camera.bind_buffer_base(0);
-      uniform_material.bind_buffer_base(1);
-      uniform_wireframe.bind_buffer_base(2);
-      uniform_sphere.bind_buffer_base(3);
+      // Bind uniforms to their binding points
+      uniform_camera.bindBufferBase (0);
+      uniform_material.bindBufferBase (1);
+      uniform_wireframe.bindBufferBase (2);
+      uniform_sphere.bindBufferBase (3);
 
       gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
       }

@@ -75,10 +75,10 @@ SplatRenderer::SplatRenderer(GLviz::Camera const& camera)
       m_radius_scale(1.0f),
       m_ewa_radius(1.0f) {
 
-  m_uniform_camera.bind_buffer_base (0);
-  m_uniform_raycast.bind_buffer_base (1);
-  m_uniform_frustum.bind_buffer_base (2);
-  m_uniform_parameter.bind_buffer_base (3);
+  m_uniform_camera.bindBufferBase (0);
+  m_uniform_raycast.bindBufferBase (1);
+  m_uniform_frustum.bindBufferBase (2);
+  m_uniform_parameter.bindBufferBase (3);
 
   setup_program_objects();
   setup_filter_kernel();
