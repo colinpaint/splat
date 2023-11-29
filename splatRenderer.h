@@ -29,11 +29,11 @@ struct sSurfel {
   sSurfel() {}
   sSurfel(Eigen::Vector3f c_,
           Eigen::Vector3f u_, Eigen::Vector3f v_,
-          Eigen::Vector3f p_, unsigned int rgba_) : c(c_), u(u_), v(v_), p(p_), rgba(rgba_) {}
+          Eigen::Vector3f p_, unsigned int rgba_) : centre(c_), major(u_), minor(v_), p(p_), rgba(rgba_) {}
 
-  Eigen::Vector3f c; // ellipse center point
-  Eigen::Vector3f u; // ellipse major axis
-  Eigen::Vector3f v; // ellipse minor axis
+  Eigen::Vector3f centre; // ellipse center point
+  Eigen::Vector3f major; // ellipse major axis
+  Eigen::Vector3f minor; // ellipse minor axis
   Eigen::Vector3f p; // Clipping plane
 
   uint32_t rgba;   // Color.
