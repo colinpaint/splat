@@ -615,13 +615,10 @@ UniformBufferRaycast::UniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Mat
 void UniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
                                             projection_matrix_inv, GLint const* viewport) {
 
-  float viewportf[4] = {
-    static_cast<float>(viewport[0]),
-    static_cast<float>(viewport[1]),
-    static_cast<float>(viewport[2]),
-    static_cast<float>(viewport[3])
-    };
-
+  float viewportf[4] = { static_cast<float>(viewport[0]),
+                         static_cast<float>(viewport[1]),
+                         static_cast<float>(viewport[2]),
+                         static_cast<float>(viewport[3]) };
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, sizeof(Eigen::Matrix4f), projection_matrix_inv.data());
   glBufferSubData (GL_UNIFORM_BUFFER, sizeof(Eigen::Matrix4f), 4 * sizeof(float), viewportf);
@@ -656,7 +653,6 @@ void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, floa
   }
 //}}}
 //}}}
-
 //{{{  Framebuffer
 //{{{
 struct Framebuffer::Impl {
