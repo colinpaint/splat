@@ -51,7 +51,7 @@ namespace {
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
       if (ImGui::Combo ("Models", &gModel, "Dragon\0Checker\0Cube\0Piccy\0\0"))
-        gSurfelModel.loadModel (gModel);
+        gSurfelModel.load (gModel);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
@@ -162,7 +162,7 @@ int main (int numArgs, char* args[]) {
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
   gSplatRender = unique_ptr<cSplatRender>(new cSplatRender (gCamera));
 
-  gSurfelModel.loadModel (gModel);
+  gSurfelModel.load (gModel);
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);

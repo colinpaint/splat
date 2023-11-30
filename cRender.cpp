@@ -497,7 +497,7 @@ void cSurfelModel::createCube() {
 //}}}
 
 //{{{
-void cSurfelModel::loadModel (int model) {
+void cSurfelModel::load (int model) {
 
   switch (model) {
     case 0:

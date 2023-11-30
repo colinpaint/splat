@@ -28,13 +28,12 @@ public:
     uint32_t rgba;             // color
     };
   //}}}
-
   cSurfelModel() {}
 
   void* getArray() { return &mModel.front(); }
   size_t getSize() const { return mModel.size(); }
 
-  void loadModel (int model);
+  void load (int model);
 
 private:
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b);
