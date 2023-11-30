@@ -1274,6 +1274,28 @@ cSplatRender::~cSplatRender() {
   }
 //}}}
 
+bool cSplatRender::smooth() const { return m_smooth; }
+//{{{
+void cSplatRender::set_smooth (bool enable) {
+
+  if (m_smooth != enable) {
+    m_smooth = enable;
+
+    m_attribute.set_smooth(enable);
+    m_Final.set_smooth(enable);
+
+    if (m_smooth) {
+      m_fbo.enable_depth_texture();
+      m_fbo.attach_normal_texture();
+      }
+    else {
+      m_fbo.disable_depth_texture();
+      m_fbo.detach_normal_texture();
+      }
+    }
+  }
+//}}}
+
 //{{{  soft z
 bool cSplatRender::soft_zbuffer() const { return m_soft_zbuffer; }
 //{{{
@@ -1307,51 +1329,6 @@ void cSplatRender::set_ewa_filter (bool enable) {
 
 float cSplatRender::ewa_radius() const { return m_ewa_radius; }
 void cSplatRender::set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
-
-//{{{
-void cSplatRender::setMultiSample (bool enable)
-{
-    if (getMultiSample() != enable) {
-      setMultiSample (enable);
-      m_Final.set_multisampling (enable);
-      m_fbo.set_multisample (enable);
-      }
-}
-//}}}
-//}}}
-
-bool cSplatRender::smooth() const { return m_smooth; }
-//{{{
-void cSplatRender::set_smooth (bool enable) {
-
-  if (m_smooth != enable) {
-    m_smooth = enable;
-
-    m_attribute.set_smooth(enable);
-    m_Final.set_smooth(enable);
-
-    if (m_smooth) {
-      m_fbo.enable_depth_texture();
-      m_fbo.attach_normal_texture();
-      }
-    else {
-      m_fbo.disable_depth_texture();
-      m_fbo.detach_normal_texture();
-      }
-    }
-  }
-//}}}
-
-bool cSplatRender::backface_culling() const { return m_backface_culling; }
-//{{{
-void cSplatRender::set_backface_culling (bool enable) {
-
-  if (m_backface_culling != enable) {
-    m_backface_culling = enable;
-    m_visibility.set_backface_culling(enable);
-    m_attribute.set_backface_culling(enable);
-    }
-  }
 //}}}
 
 unsigned int cSplatRender::pointsize_method() const { return m_pointsize_method; }
@@ -1369,17 +1346,39 @@ void cSplatRender::set_pointsize_method (unsigned int pointsize_method) {
 float cSplatRender::radius_scale() const { return m_radius_scale; }
 void cSplatRender::set_radius_scale (float radius_scale) { m_radius_scale = radius_scale; }
 
+// overrides
+//{{{
+void cSplatRender::setMultiSample (bool enable) {
+
+  if (getMultiSample() != enable) {
+    cRender::setMultiSample (enable);
+    m_Final.set_multisampling (enable);
+    m_fbo.set_multisample (enable);
+    }
+  }
+//}}}
+//{{{
+void cSplatRender::setBackFaceCull (bool enable) {
+
+  if (getBackFaceCull() != enable) {
+    cRender::setMultiSample (enable);
+    m_visibility.set_backface_culling (enable);
+    m_attribute.set_backface_culling (enable);
+    }
+  }
+//}}}
+
 void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
 //{{{
-void cSplatRender::render (std::vector<sSurfel> const& visible_geometry) {
+void cSplatRender::render (cSurfels& model) {
 
   beginFrame();
 
-  m_num_pts = static_cast<unsigned int>(visible_geometry.size());
-  if (m_num_pts > 0) {
+  mNumSurfels = model.getSize();
+  if (mNumSurfels > 0) {
     glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
     glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBufferData (GL_ARRAY_BUFFER, sizeof(sSurfel) * m_num_pts, &visible_geometry.front(), GL_DYNAMIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfel) * mNumSurfels, (void*)(model.getArray()), GL_DYNAMIC_DRAW);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     if (getMultiSample()) {
@@ -1406,6 +1405,20 @@ void cSplatRender::render (std::vector<sSurfel> const& visible_geometry) {
     if (GL_NO_ERROR != gl_error)
       cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
   #endif
+  }
+//}}}
+//{{{
+bool cSplatRender::keyboard (SDL_Keycode key) {
+
+  switch (key) {
+    case SDLK_5: set_smooth (!smooth()); return true;
+    case SDLK_c: setColorMaterial (!getColorMaterial()); return true;
+    case SDLK_z: set_soft_zbuffer (!soft_zbuffer()); return true;
+    case SDLK_u: set_ewa_filter (!ewa_filter()); return true;
+    case SDLK_t: set_pointsize_method ((pointsize_method() + 1) % 4); return true;
+    }
+
+  return false;
   }
 //}}}
 
@@ -1501,23 +1514,23 @@ void cSplatRender::setup_vertex_array_buffer_object() {
 
   // Center c.
   glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(0));
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(0));
 
   // Tagent vector u.
   glEnableVertexAttribArray (1);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(12));
+  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(12));
 
   // Tangent vector v.
   glEnableVertexAttribArray (2);
-  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(24));
+  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(24));
 
   // Clipping plane p.
   glEnableVertexAttribArray (3);
-  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(sSurfel), reinterpret_cast<const GLfloat*>(36));
+  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(36));
 
   // Color rgba.
   glEnableVertexAttribArray (4);
-  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(sSurfel), reinterpret_cast<const GLbyte*>(48));
+  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(cSurfel), reinterpret_cast<const GLbyte*>(48));
 
   glBindVertexArray (0);
   }
@@ -1544,7 +1557,7 @@ void cSplatRender::setupUniforms (glProgram& program) {
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
   m_uniform_frustum.set_buffer_data (frustum_plane);
 
-  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShininess(), 
+  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShininess(),
                                        m_radius_scale, m_ewa_radius, m_epsilon);
   }
 //}}}
@@ -1647,7 +1660,7 @@ void cSplatRender::renderPass (bool depth_only) {
     }
 
   glBindVertexArray (m_vao);
-  glDrawArrays (GL_POINTS, 0, m_num_pts);
+  glDrawArrays (GL_POINTS, 0, (GLsizei)mNumSurfels);
   glBindVertexArray (0);
 
   program.unuse();

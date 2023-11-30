@@ -11,10 +11,10 @@ add_subdirectory (glviz)
 
 # simple dragon
 project (simple VERSION 1.0.0)
-  add_executable (${PROJECT_NAME} simple.cpp cRender.h cSimpleRender.h cSimpleRender.cpp)
+  add_executable (${PROJECT_NAME} simple.cpp cRender.h cRender.cpp cSimpleRender.h cSimpleRender.cpp)
   target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
 
 # splat dragon
 project (splat VERSION 1.0.0)
-  add_executable (${PROJECT_NAME} splat.cpp cRender.h cSplatRender.h cSplatRender.cpp)
+  add_executable (${PROJECT_NAME} splat.cpp cRender.h cRender.cpp cSplatRender.h cSplatRender.cpp)
   target_link_libraries (${PROJECT_NAME} PRIVATE glviz)

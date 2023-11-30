@@ -119,13 +119,9 @@ public:
   cSplatRender (GLviz::Camera const& camera);
   virtual ~cSplatRender();
 
-  virtual void setMultiSample (bool enable = true) final;
-
+  //{{{  gui access
   bool smooth() const;
   void set_smooth (bool enable = true);
-
-  bool backface_culling() const;
-  void set_backface_culling (bool enable = true);
 
   bool soft_zbuffer() const;
   void set_soft_zbuffer (bool enable = true);
@@ -139,14 +135,18 @@ public:
   bool ewa_filter() const;
   void set_ewa_filter (bool enable = true);
 
-  float radius_scale() const;
-  void set_radius_scale (float radius_scale);
-
   float ewa_radius() const;
   void set_ewa_radius (float ewa_radius);
 
+  float radius_scale() const;
+  void set_radius_scale (float radius_scale);
+  //}}}
+  virtual void setBackFaceCull (bool enable = true) final;
+  virtual void setMultiSample (bool enable = true) final;
+
   virtual void resize (int width, int height) final;
-  virtual void render (std::vector<sSurfel> const& visible_geometry) final;
+  virtual void render (cSurfels& model) final;
+  virtual bool keyboard (SDL_Keycode key) final;
 
 private:
   void setup_program_objects();
@@ -162,7 +162,7 @@ private:
   //{{{  vars
   GLuint m_vbo;
   GLuint m_vao;
-  unsigned int m_num_pts;
+  size_t mNumSurfels;
 
   GLuint m_uv_vbo;
   GLuint m_rect_vao;
