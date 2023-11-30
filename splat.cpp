@@ -23,12 +23,15 @@ using namespace std;
 //}}}
 namespace {
   GLviz::Camera gCamera;
-  cModel* gModel;
-  unique_ptr<cRender> gRender;
 
-  bool gRipple = false;
-  bool gSplat = false;
+  cModel* gModel;
   int gModelIndex = 0;
+  bool gRipple = false;
+
+  bool gSplat = false;
+  cRender* gRender;
+  cMeshRender* gMeshRender;
+  cSplatRender* gSplatRender;
 
   //{{{
   void display() {
@@ -54,8 +57,10 @@ namespace {
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
     if (ImGui::Checkbox ("splat", &gSplat))
-      gRender = gSplat ? unique_ptr<cRender>(new cSplatRender (gCamera)) :
-                         unique_ptr<cRender>(new cMeshRender (gCamera));
+      if (gSplat)
+        gRender = gSplatRender;
+      else
+        gRender = gMeshRender;
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
@@ -86,12 +91,7 @@ namespace {
       gModel->ripple();
     }
   //}}}
-  //{{{
-  void close() {
-    gModel = nullptr;
-    gRender = nullptr;
-    }
-  //}}}
+  void close() {}
   }
 
 int main (int numArgs, char* args[]) {
@@ -116,7 +116,9 @@ int main (int numArgs, char* args[]) {
   gModel = new cSurfelModel();
   gModel->load (gModelIndex);
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  gRender = unique_ptr<cMeshRender>(new cMeshRender (gCamera));
+  gSplatRender = new cSplatRender (gCamera);
+  gMeshRender = new cMeshRender (gCamera);
+  gRender = gMeshRender;
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);
