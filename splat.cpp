@@ -502,18 +502,19 @@ namespace {
 
       //{{{  material
       ImGui::Separator();
-      int color_material = gSplatRender->color_material() ? 1 : 0;
+      int color_material = gSplatRender->getColorMaterial() ? 1 : 0;
       if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
-        gSplatRender->set_color_material (color_material > 0 ? true : false);
+        gSplatRender->setColorMaterial (color_material > 0 ? true : false);
 
-      float material_color[3];
-      copy(gSplatRender->material_color(), gSplatRender->material_color() + 3, material_color);
-      if (ImGui::ColorEdit3 ("Material color", material_color))
-        gSplatRender->set_material_color (material_color);
+      float materialColor[3] =  { gSplatRender->getMaterialColor()[0],
+                                  gSplatRender->getMaterialColor()[1],
+                                  gSplatRender->getMaterialColor()[2] };
+      if (ImGui::ColorEdit3 ("Material color", materialColor))
+        gSplatRender->setMaterialColor (Eigen::Vector3f(materialColor[0], materialColor[1], materialColor[2]));
 
-      float material_shininess = gSplatRender->material_shininess();
-      if (ImGui::DragFloat ("Material shininess", &material_shininess, 0.05f, 1e-12f, 1000.0f))
-        gSplatRender->set_material_shininess (min(max( 1e-12f, material_shininess), 1000.0f));
+      float materialShininess = gSplatRender->getMaterialShininess();
+      if (ImGui::DragFloat ("Material shininess", &materialShininess, 0.05f, 1e-12f, 1000.0f))
+        gSplatRender->setMaterialShininess (min(max( 1e-12f, materialShininess), 1000.0f));
       //}}}
       //{{{  soft z
       ImGui::Separator();
@@ -546,13 +547,13 @@ namespace {
         gSplatRender->set_radius_scale (min(max( 1e-6f, radius_scale), 2.0f));
 
       ImGui::Separator();
-      bool multisample_4x = gSplatRender->multisample();
+      bool multisample_4x = gSplatRender->getMultiSample();
       if (ImGui::Checkbox ("Multisample 4x", &multisample_4x))
-        gSplatRender->set_multisample (multisample_4x);
+        gSplatRender->setMultiSample (multisample_4x);
 
       bool backface_culling = gSplatRender->backface_culling();
       if (ImGui::Checkbox ("Backface culling", &backface_culling))
-        gSplatRender->set_backface_culling (backface_culling);
+        gSplatRender->setBackFaceCull (backface_culling);
       }
 
     ImGui::End();
@@ -563,7 +564,7 @@ namespace {
 
     switch (key) {
       case SDLK_5: gSplatRender->set_smooth (!gSplatRender->smooth()); break;
-      case SDLK_c: gSplatRender->set_color_material (!gSplatRender->color_material()); break;
+      case SDLK_c: gSplatRender->setColorMaterial (!gSplatRender->getColorMaterial()); break;
       case SDLK_z: gSplatRender->set_soft_zbuffer (!gSplatRender->soft_zbuffer()); break;
       case SDLK_u: gSplatRender->set_ewa_filter (!gSplatRender->ewa_filter()); break;
       case SDLK_t: gSplatRender->set_pointsize_method ((gSplatRender->pointsize_method() + 1) % 4); break;

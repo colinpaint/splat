@@ -1,28 +1,5 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <vector>
-#include <map>
-#include <Eigen/Core>
-#include "glviz/shader.h"
-#include "glviz/program.h"
-#include "glviz/buffer.h"
-#include "glviz/camera.h"
-
-//{{{
-struct sSurfel {
-  sSurfel() {}
-  sSurfel(Eigen::Vector3f c_, Eigen::Vector3f u_, Eigen::Vector3f v_, Eigen::Vector3f p_, unsigned int rgba_)
-    : centre(c_), major(u_), minor(v_), clipPlane(p_), rgba(rgba_) {}
-
-  Eigen::Vector3f centre;    // ellipse center point
-  Eigen::Vector3f major;     // ellipse major axis
-  Eigen::Vector3f minor;     // ellipse minor axis
-  Eigen::Vector3f clipPlane; // clipping plane
-
-  uint32_t rgba;             // color
-  };
-//}}}
+#include "cRender.h"
 
 //{{{
 class UniformBufferRaycast : public GLviz::glUniformBuffer {
@@ -137,17 +114,15 @@ private:
   };
 //}}}
 
-//{{{
-class cSplatRender {
+class cSplatRender : public cRender {
 public:
   cSplatRender (GLviz::Camera const& camera);
   virtual ~cSplatRender();
 
+  virtual void setMultiSample (bool enable = true) final;
+
   bool smooth() const;
   void set_smooth (bool enable = true);
-
-  bool color_material() const;
-  void set_color_material (bool enable = true);
 
   bool backface_culling() const;
   void set_backface_culling (bool enable = true);
@@ -164,22 +139,14 @@ public:
   bool ewa_filter() const;
   void set_ewa_filter (bool enable = true);
 
-  bool multisample() const;
-  void set_multisample (bool enable = true);
-
-  float const* material_color() const;
-  void set_material_color (float const* color_ptr);
-  float material_shininess() const;
-  void set_material_shininess (float shininess);
-
   float radius_scale() const;
   void set_radius_scale (float radius_scale);
 
   float ewa_radius() const;
   void set_ewa_radius (float ewa_radius);
 
-  void resize (int width, int height);
-  void render (std::vector<sSurfel> const& visible_geometry);
+  virtual void resize (int width, int height) final;
+  virtual void render (std::vector<sSurfel> const& visible_geometry) final;
 
 private:
   void setup_program_objects();
@@ -193,9 +160,6 @@ private:
   void renderPass (bool depth_only = false);
 
   //{{{  vars
-  GLviz::Camera const& m_camera;
-  GLviz::UniformBufferCamera m_uniform_camera;
-
   GLuint m_vbo;
   GLuint m_vao;
   unsigned int m_num_pts;
@@ -215,14 +179,10 @@ private:
   bool m_soft_zbuffer;
   bool m_backface_culling;
   bool m_smooth;
-  bool m_color_material;
   bool m_ewa_filter;
-  bool m_multisample;
 
   unsigned int m_pointsize_method;
-  Eigen::Vector3f m_color;
   float m_epsilon;
-  float m_shininess;
   float m_radius_scale;
   float m_ewa_radius;
 
@@ -231,4 +191,3 @@ private:
   UniformBufferParameter m_uniform_parameter;
   //}}}
   };
-//}}}

@@ -9,9 +9,7 @@
 
 using namespace std;
 //}}}
-
 namespace {
-  // shaders
   //{{{
   const vector<string> kAttributeVsGlsl = {
     "#version 330",
@@ -1240,18 +1238,14 @@ void ProgramFinal::initProgram() {
 
 // cSplatRender
 //{{{
-cSplatRender::cSplatRender(GLviz::Camera const& camera)
-    : m_camera(camera),
+cSplatRender::cSplatRender (GLviz::Camera const& camera)
+    : cRender(camera),
       m_soft_zbuffer(true),
       m_smooth(false),
-      m_color_material(false),
       m_ewa_filter(false),
-      m_multisample(false),
       m_pointsize_method(0),
       m_backface_culling(false),
-      m_color(Eigen::Vector3f(0.0, 0.25f, 1.0f)),
       m_epsilon(1.0f * 1e-3f),
-      m_shininess(8.0f),
       m_radius_scale(1.0f),
       m_ewa_radius(1.0f) {
 
@@ -1314,41 +1308,16 @@ void cSplatRender::set_ewa_filter (bool enable) {
 float cSplatRender::ewa_radius() const { return m_ewa_radius; }
 void cSplatRender::set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
 
-bool cSplatRender::multisample() const { return m_multisample; }
 //{{{
-void cSplatRender::set_multisample (bool enable)
+void cSplatRender::setMultiSample (bool enable)
 {
-    if (m_multisample != enable)
-    {
-        m_multisample = enable;
-        m_Final.set_multisampling(enable);
-        m_fbo.set_multisample(enable);
-    }
+    if (getMultiSample() != enable) {
+      setMultiSample (enable);
+      m_Final.set_multisampling (enable);
+      m_fbo.set_multisample (enable);
+      }
 }
 //}}}
-//}}}
-//{{{  material
-bool cSplatRender::color_material() const { return m_color_material; }
-//{{{
-void cSplatRender::set_color_material (bool enable) {
-
-  if (m_color_material != enable) {
-    m_color_material = enable;
-    m_attribute.set_color_material(enable);
-    }
-  }
-//}}}
-
-float const* cSplatRender::material_color() const { return m_color.data(); }
-//{{{
-void cSplatRender::set_material_color (float const* color_ptr) {
-  Eigen::Map<const Eigen::Vector3f> color(color_ptr);
-  m_color = color;
-  }
-//}}}
-
-float cSplatRender::material_shininess() const { return m_shininess; }
-void cSplatRender::set_material_shininess (float shininess) { m_shininess = shininess; }
 //}}}
 
 bool cSplatRender::smooth() const { return m_smooth; }
@@ -1413,7 +1382,7 @@ void cSplatRender::render (std::vector<sSurfel> const& visible_geometry) {
     glBufferData (GL_ARRAY_BUFFER, sizeof(sSurfel) * m_num_pts, &visible_geometry.front(), GL_DYNAMIC_DRAW);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    if (m_multisample) {
+    if (getMultiSample()) {
       glEnable (GL_MULTISAMPLE);
       glEnable (GL_SAMPLE_SHADING);
       glMinSampleShading (4.0);
@@ -1424,7 +1393,7 @@ void cSplatRender::render (std::vector<sSurfel> const& visible_geometry) {
 
     renderPass (false);
 
-    if (m_multisample) {
+    if (getMultiSample()) {
       glDisable (GL_MULTISAMPLE);
       glDisable (GL_SAMPLE_SHADING);
       }
@@ -1455,7 +1424,7 @@ void cSplatRender::setup_program_objects() {
   m_attribute.set_ewa_filter (m_ewa_filter);
   m_attribute.set_smooth (m_smooth);
 
-  m_Final.set_multisampling (m_multisample);
+  m_Final.set_multisampling (getMultiSample());
   m_Final.set_smooth (m_smooth);
   }
 //}}}
@@ -1568,14 +1537,15 @@ void cSplatRender::setupUniforms (glProgram& program) {
 
   Eigen::Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
   for (unsigned int i(0); i < 6; ++i)
-    frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) * 
+    frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) *
                        projection_matrix.row(i / 2);
 
   for (unsigned int i(0); i < 6; ++i)
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
   m_uniform_frustum.set_buffer_data (frustum_plane);
 
-  m_uniform_parameter.set_buffer_data (m_color, m_shininess, m_radius_scale, m_ewa_radius, m_epsilon);
+  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShininess(), 
+                                       m_radius_scale, m_ewa_radius, m_epsilon);
   }
 //}}}
 
@@ -1598,7 +1568,7 @@ void cSplatRender::endFrame() {
 
   m_fbo.unbind();
 
-  if (m_multisample) {
+  if (getMultiSample()) {
     glActiveTexture (GL_TEXTURE0);
     glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
 
