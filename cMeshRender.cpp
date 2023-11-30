@@ -1,5 +1,5 @@
 //{{{  includes
-#include "cSimpleRender.h"
+#include "cMeshRender.h"
 
 #include <Eigen/Core>
 
@@ -12,7 +12,7 @@ using namespace std;
 //}}}
 
 //{{{
-cSimpleRender::cSimpleRender (GLviz::Camera const& camera) : cRender(camera) {
+cMeshRender::cMeshRender (GLviz::Camera const& camera) : cRender(camera) {
 
   // Setup vertex array v
   vertex_array_v.bind();
@@ -57,14 +57,14 @@ cSimpleRender::cSimpleRender (GLviz::Camera const& camera) : cRender(camera) {
   uniform_sphere.bindBufferBase (3);
   }
 //}}}
-cSimpleRender::~cSimpleRender() {}
+cMeshRender::~cMeshRender() {}
 
-void cSimpleRender::setMultiSample (bool enable) {}
-void cSimpleRender::setBackFaceCull (bool enable) {}
+void cMeshRender::setMultiSample (bool enable) {}
+void cMeshRender::setBackFaceCull (bool enable) {}
 
-void cSimpleRender::resize (int width, int height) {}
+void cMeshRender::resize (int width, int height) {}
 //{{{
-void cSimpleRender::render (cModel* model) {
+void cMeshRender::render (cModel* model) {
 
   glEnable (GL_MULTISAMPLE);
   glEnable (GL_DEPTH_TEST);
@@ -105,7 +105,7 @@ void cSimpleRender::render (cModel* model) {
   }
 //}}}
 //{{{
-bool cSimpleRender::keyboard (SDL_Keycode key) {
+bool cMeshRender::keyboard (SDL_Keycode key) {
 
   switch (key) {
     case SDLK_1: mEnableMesh3 = !mEnableMesh3; return true;
@@ -118,7 +118,7 @@ bool cSimpleRender::keyboard (SDL_Keycode key) {
   }
 //}}}
 //{{{
-void cSimpleRender::gui() {
+void cMeshRender::gui() {
 
   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::Checkbox ("Mesh draw", &(mEnableMesh3));
@@ -142,7 +142,7 @@ void cSimpleRender::gui() {
 
 // private
 //{{{
-void cSimpleRender::renderMesh (int shadingMethod, GLsizei nf) {
+void cMeshRender::renderMesh (int shadingMethod, GLsizei nf) {
 
   program_mesh3.use();
 
@@ -163,7 +163,7 @@ void cSimpleRender::renderMesh (int shadingMethod, GLsizei nf) {
   }
 //}}}
 //{{{
-void cSimpleRender::renderSpheres (GLsizei nv) {
+void cMeshRender::renderSpheres (GLsizei nv) {
 
   glEnable (GL_PROGRAM_POINT_SIZE);
   glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);

@@ -1,10 +1,10 @@
 #pragma once
 #include "cRender.h"
 
-class cSimpleRender : public cRender {
+class cMeshRender : public cRender {
 public:
-  cSimpleRender (GLviz::Camera const& camera);
-  virtual ~cSimpleRender();
+  cMeshRender (GLviz::Camera const& camera);
+  virtual ~cMeshRender();
 
   virtual void setBackFaceCull (bool enable = true) final;
   virtual void setMultiSample (bool enable = true) final;

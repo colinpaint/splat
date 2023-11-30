@@ -16,7 +16,7 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
-#include "cSimpleRender.h"
+#include "cMeshRender.h"
 #include "cSplatRender.h"
 
 using namespace std;
@@ -31,8 +31,8 @@ namespace {
   int gModelIndex = 0;
 
   //{{{
-  void display() { 
-    gRender->render (gModel); 
+  void display() {
+    gRender->render (gModel);
     }
   //}}}
   //{{{
@@ -55,7 +55,7 @@ namespace {
 
     if (ImGui::Checkbox ("splat", &gSplat))
       gRender = gSplat ? unique_ptr<cRender>(new cSplatRender (gCamera)) :
-                         unique_ptr<cRender>(new cSimpleRender (gCamera));
+                         unique_ptr<cRender>(new cMeshRender (gCamera));
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
@@ -116,7 +116,7 @@ int main (int numArgs, char* args[]) {
   gModel = new cSurfelModel();
   gModel->load (gModelIndex);
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  gRender = unique_ptr<cSimpleRender>(new cSimpleRender (gCamera));
+  gRender = unique_ptr<cMeshRender>(new cMeshRender (gCamera));
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);
