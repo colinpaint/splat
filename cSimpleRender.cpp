@@ -8,8 +8,6 @@
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
 
-#include "cModel.h"
-
 using namespace std;
 //}}}
 
@@ -55,7 +53,7 @@ cSimpleRender::cSimpleRender (GLviz::Camera const& camera) : cRender(camera) {
   // Bind uniforms to their binding points
   uniform_camera.bindBufferBase (0);
   uniform_material.bindBufferBase (1);
-  uniform_wireframe.bindBufferBase (2);
+  uniform_wireFrame.bindBufferBase (2);
   uniform_sphere.bindBufferBase (3);
   }
 //}}}
@@ -71,23 +69,26 @@ void cSimpleRender::render (cModel* model) {
   glEnable (GL_MULTISAMPLE);
   glEnable (GL_DEPTH_TEST);
 
-  glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
   glClearDepth (1.0f);
+  glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mVertices.size(), model->mVertices.front().data());
-  normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mNormals.size(), model->mNormals.front().data());
-  index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * model->mFaces.size(), model->mFaces.front().data());
+  vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mVertices.size(),
+                                       model->mVertices.front().data());
+  normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mNormals.size(),
+                                       model->mNormals.front().data());
+  index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * model->mFaces.size(),
+                                      model->mFaces.front().data());
 
   uniform_camera.set_buffer_data (mCamera);
 
   if (mEnableMesh3) {
     uniform_material.set_buffer_data (mMeshMaterial);
-    program_mesh3.set_wireframe (mEnableWireframe);
+    program_mesh3.set_wireFrame (mEnableWireFrame);
     int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
-    uniform_wireframe.set_buffer_data (mWireframe, screen);
+    uniform_wireFrame.set_buffer_data (mWireFrameMaterial, screen);
     program_mesh3.set_smooth (mShadingMethod != 0);
-    drawMesh3 (mShadingMethod, static_cast<GLsizei>(3 * model->mFaces.size()));
+    renderMesh (mShadingMethod, static_cast<GLsizei>(3 * model->mFaces.size()));
     }
 
   if (mEnableSpheres) {
@@ -96,7 +97,7 @@ void cSimpleRender::render (cModel* model) {
     mProjectionRadius = view_frustum.near_() *
                           (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
     uniform_sphere.set_buffer_data (mPointRadius, mProjectionRadius);
-    drawSpheres (static_cast<GLsizei>(model->mVertices.size()));
+    renderSpheres (static_cast<GLsizei>(model->mVertices.size()));
     }
   }
 //}}}
@@ -107,7 +108,7 @@ bool cSimpleRender::keyboard (SDL_Keycode key) {
     case SDLK_1: mEnableMesh3 = !mEnableMesh3; return true;
     case SDLK_2: mEnableSpheres = !mEnableSpheres; return true;
     case SDLK_5: mShadingMethod = (mShadingMethod + 1) % 2; return true;
-    case SDLK_w: mEnableWireframe = !mEnableWireframe; return true;
+    case SDLK_w: mEnableWireFrame = !mEnableWireFrame; return true;
     }
 
   return false;
@@ -117,28 +118,28 @@ bool cSimpleRender::keyboard (SDL_Keycode key) {
 void cSimpleRender::gui() {
 
   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("Draw Triangle Mesh", &(mEnableMesh3));
-    ImGui::ColorEdit3 ("Mesh Color", mMeshMaterial);
-    ImGui::DragFloat ("Mesh Shinines", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
-    ImGui::Combo ("Mesh Shading", &mShadingMethod, "Flat\0Phong\0\0");
+    ImGui::Checkbox ("Mesh draw", &(mEnableMesh3));
+    ImGui::ColorEdit3 ("Mesh color", mMeshMaterial);
+    ImGui::DragFloat ("Mesh shinines", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
+    ImGui::Combo ("Mesh shading", &mShadingMethod, "Flat\0Phong\0\0");
 
     ImGui::Separator();
-    ImGui::Checkbox ("Draw Wireframe", &mEnableWireframe);
-    ImGui::ColorEdit3 ("Mesh Color", mWireframe);
+    ImGui::Checkbox ("WireFrame draw", &mEnableWireFrame);
+    ImGui::ColorEdit3 ("WireFrame color", mWireFrameMaterial);
     }
 
   if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("Draw Spheres", &mEnableSpheres);
-    ImGui::DragFloat ("Points Radius", &(mPointRadius), 1e-5f, 0.0f, 0.1f, "%.4f");
-    ImGui::ColorEdit3 ("Points Color", mPointsMaterial);
-    ImGui::DragFloat ("Points Shininess", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
+    ImGui::Checkbox ("Spheres draw", &mEnableSpheres);
+    ImGui::DragFloat ("Spheres radius", &(mPointRadius), 1e-5f, 0.0f, 0.1f, "%.4f");
+    ImGui::ColorEdit3 ("Spheres color", mPointsMaterial);
+    ImGui::DragFloat ("Spheres shininess", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
     }
   }
 //}}}
 
 // private
 //{{{
-void cSimpleRender::drawMesh3 (int shadingMethod, GLsizei nf) {
+void cSimpleRender::renderMesh (int shadingMethod, GLsizei nf) {
 
   program_mesh3.use();
 
@@ -159,7 +160,7 @@ void cSimpleRender::drawMesh3 (int shadingMethod, GLsizei nf) {
   }
 //}}}
 //{{{
-void cSimpleRender::drawSpheres (GLsizei nv) {
+void cSimpleRender::renderSpheres (GLsizei nv) {
 
   glEnable (GL_PROGRAM_POINT_SIZE);
   glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);

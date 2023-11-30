@@ -6,8 +6,6 @@
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
 
-#include "cSurfelModel.h"
-
 using namespace std;
 //}}}
 namespace {
@@ -1251,7 +1249,7 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
   m_uniform_frustum.bindBufferBase (2);
   m_uniform_parameter.bindBufferBase (3);
 
-  setup_program_objects();
+  setupProgramObjects();
   setup_filter_kernel();
   setup_screen_size_quad();
   setup_vertex_array_buffer_object();
@@ -1490,7 +1488,7 @@ void cSplatRender::gui() {
 
 // private
 //{{{
-void cSplatRender::setup_program_objects() {
+void cSplatRender::setupProgramObjects() {
 
   m_visibility.set_visibility_pass();
   m_visibility.set_pointsize_method (m_pointsize_method);
@@ -1499,7 +1497,7 @@ void cSplatRender::setup_program_objects() {
   m_attribute.set_visibility_pass (false);
   m_attribute.set_pointsize_method (m_pointsize_method);
   m_attribute.set_backface_culling (m_backface_culling);
-  m_attribute.set_color_material (m_color_material);
+  m_attribute.set_color_material (mColorMaterial);
   m_attribute.set_ewa_filter (m_ewa_filter);
   m_attribute.set_smooth (m_smooth);
 
@@ -1530,19 +1528,15 @@ inline void cSplatRender::setup_filter_kernel() {
 //{{{
 inline void cSplatRender::setup_screen_size_quad() {
 
-  float rect_vertices[12] = {
-    1.0f, 1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
-    -1.0f, 1.0f, 0.0f,
-    -1.0f, -1.0f, 0.0f
-    };
+  float rect_vertices[12] = { 1.0f,  1.0f, 0.0f,
+                              1.0f, -1.0f, 0.0f,
+                             -1.0f,  1.0f, 0.0f,
+                             -1.0f, -1.0f, 0.0f };
 
-  float rect_texture_uv[8] = {
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f
-    };
+  float rect_texture_uv[8] = { 1.0f, 1.0f,
+                               1.0f, 0.0f,
+                               0.0f, 1.0f,
+                               0.0f, 0.0f };
 
   glGenBuffers (1, &m_rect_vertices_vbo);
   glBindBuffer (GL_ARRAY_BUFFER, m_rect_vertices_vbo);

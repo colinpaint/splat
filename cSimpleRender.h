@@ -26,24 +26,26 @@ public:
 
   GLviz::UniformBufferCamera uniform_camera;
   GLviz::UniformBufferMaterial uniform_material;
-  GLviz::UniformBufferWireframe uniform_wireframe;
+  GLviz::UniformBufferWireFrame uniform_wireFrame;
   GLviz::UniformBufferSphere uniform_sphere;
 
   GLviz::ProgramMesh3 program_mesh3;
   GLviz::ProgramSphere program_sphere;
 
-  bool mEnableMesh3 = true;
-  bool mEnableWireframe = false;
-  bool mEnableSpheres = false;
-
   int mShadingMethod = 0;
-  float mPointRadius = 0.0014f;
   float mProjectionRadius = 0.0f;
-  float mWireframe[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+  bool mEnableMesh3 = true;
   float mMeshMaterial[4] = { 0.0f, 0.25f, 1.0f, 8.0f };
+
+  bool mEnableWireFrame = false;
+  float mWireFrameMaterial[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+  bool mEnableSpheres = false;
+  float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
 
 private:
-  void drawMesh3 (int shadingMethod, GLsizei nf);
-  void drawSpheres (GLsizei nv);
+  void renderMesh (int shadingMethod, GLsizei nf);
+  void renderSpheres (GLsizei nv);
   };

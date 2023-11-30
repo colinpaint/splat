@@ -309,9 +309,9 @@ namespace {
   }
 
 namespace GLviz {
-  // UniformBufferWireframe
+  // UniformBufferWireFrame
   //{{{
-  void UniformBufferWireframe::set_buffer_data (float const* color, int const* viewport) {
+  void UniformBufferWireFrame::set_buffer_data (float const* color, int const* viewport) {
 
     bind();
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(GLfloat), color);
@@ -347,8 +347,8 @@ namespace GLviz {
     }
   //}}}
 
-  // UniformBufferWrireframe
-  UniformBufferWireframe::UniformBufferWireframe() : glUniformBuffer(4 * sizeof(GLfloat) + 2 * sizeof(GLint)) { }
+  // UniformBufferWrireFrame
+  UniformBufferWireFrame::UniformBufferWireFrame() : glUniformBuffer(4 * sizeof(GLfloat) + 2 * sizeof(GLint)) { }
 
   // UniformBufferSphere
   UniformBufferSphere::UniformBufferSphere() : glUniformBuffer(2 * sizeof(GLfloat)) { }
@@ -364,17 +364,17 @@ namespace GLviz {
 
   // ProgramMesh3
   //{{{
-  ProgramMesh3::ProgramMesh3() : glProgram(), m_wireframe(false), m_smooth(false) {
+  ProgramMesh3::ProgramMesh3() : glProgram(), m_wireFrame(false), m_smooth(false) {
 
     initShader();
     initProgram();
     }
   //}}}
   //{{{
-  void ProgramMesh3::set_wireframe (bool enable) {
+  void ProgramMesh3::set_wireFrame (bool enable) {
 
-    if (m_wireframe != enable) {
-      m_wireframe = enable;
+    if (m_wireFrame != enable) {
+      m_wireFrame = enable;
       initProgram();
       }
     }
@@ -406,7 +406,7 @@ namespace GLviz {
 
     try {
       map <string, int> defines;
-      defines.insert (make_pair("WIREFRAME", m_wireframe ? 1 : 0));
+      defines.insert (make_pair("WIREFRAME", m_wireFrame ? 1 : 0));
       defines.insert (make_pair("SMOOTH", m_smooth ? 1 : 0));
 
       m_mesh3_vs_obj.compile (defines);
@@ -429,7 +429,7 @@ namespace GLviz {
     try {
       setUniformBlockBind ("Camera", 0);
       setUniformBlockBind ("Material", 1);
-      if (m_wireframe)
+      if (m_wireFrame)
         setUniformBlockBind ("Wireframe", 2);
       }
     catch (uniform_not_found_error const& e) {

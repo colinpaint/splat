@@ -151,7 +151,7 @@ private:
   void set_radius_scale (float radius_scale);
   //}}}
 
-  void setup_program_objects();
+  void setupProgramObjects();
   void setup_filter_kernel();
   void setup_screen_size_quad();
   void setup_vertex_array_buffer_object();
@@ -159,7 +159,7 @@ private:
 
   void beginFrame();
   void endFrame();
-  void renderPass (bool depth_only = false);
+  void renderPass (bool depth_only);
 
   //{{{  vars
   GLuint m_vbo;

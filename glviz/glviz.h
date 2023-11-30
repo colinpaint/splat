@@ -8,7 +8,7 @@ namespace GLviz {
   // singleton statics, so use namespace
   Camera* camera();
 
-  void init (int screenWidth = 960, int screen_height = 540);
+  void init (int screenWidth, int screen_height);
 
   int getScreenWidth();
   int getScreenHeight();

@@ -16,20 +16,25 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
-#include "cSurfelModel.h"
+#include "cSimpleRender.h"
 #include "cSplatRender.h"
 
 using namespace std;
 //}}}
 namespace {
   GLviz::Camera gCamera;
-  unique_ptr <cSplatRender> gSplatRender;
-
-  int gModelIndex = 0;
   cModel* gModel;
+  unique_ptr<cRender> gRender;
 
-  // callbacks
-  void display() { gSplatRender->render (gModel); }
+  bool gRipple = false;
+  bool gSplat = false;
+  int gModelIndex = 0;
+
+  //{{{
+  void display() { 
+    gRender->render (gModel); 
+    }
+  //}}}
   //{{{
   void resize (int width, int height) {
 
@@ -41,19 +46,23 @@ namespace {
   //{{{
   void gui() {
 
-    ImGui::Begin ("GLviz", nullptr);
+    ImGui::Begin ("splat", nullptr);
     ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
-    ImGui::SetWindowSize (ImVec2(350.0f, 415.0f), ImGuiCond_Once);
+    ImGui::SetWindowSize (ImVec2(350.0f, 435.0f), ImGuiCond_Once);
 
     ImGui::PushItemWidth (ImGui::GetContentRegionAvail().x * 0.55f);
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
+    if (ImGui::Checkbox ("splat", &gSplat))
+      gRender = gSplat ? unique_ptr<cRender>(new cSplatRender (gCamera)) :
+                         unique_ptr<cRender>(new cSimpleRender (gCamera));
+
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
-      if (ImGui::Combo ("Models", &gModelIndex, "DragonLow\0DragonHigh\0Checker\0Cube\0Piccy\0\0"))
+      if (ImGui::Combo ("Models", &gModelIndex, "DragonLo\0DragonHi\0Checker\0Cube\0Piccy\0\0"))
         gModel->load (gModelIndex);
 
-    gSplatRender->gui();
+    gRender->gui();
 
     ImGui::End();
     }
@@ -61,24 +70,28 @@ namespace {
   //{{{
   void keyboard (SDL_Keycode key) {
 
-    if (!gSplatRender->keyboard (key))
+    if (!gRender->keyboard (key))
       switch (key) {
-        case SDLK_f:
-          GLviz::toggleFullScreen();
-          break;
-
+        case SDLK_f: GLviz::toggleFullScreen(); break;
+        case SDLK_SPACE: gRipple = !gRipple; break;
         case SDLK_q:
-        case SDLK_ESCAPE:
-          exit (EXIT_SUCCESS);
-          break;
-
-        default:
-          break;
+        case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
+        default: break;
         }
     }
   //}}}
-  void timer (int delta_t_msec) {}
-  void close() { gSplatRender = nullptr; }
+  //{{{
+  void timer (int delta_t_msec) {
+    if (!gSplat && gRipple)
+      gModel->ripple();
+    }
+  //}}}
+  //{{{
+  void close() {
+    gModel = nullptr;
+    gRender = nullptr;
+    }
+  //}}}
   }
 
 int main (int numArgs, char* args[]) {
@@ -100,13 +113,10 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "splat");
 
   GLviz::init (960, 540);
-  gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-
-  gSplatRender = unique_ptr<cSplatRender>(new cSplatRender (gCamera));
-
   gModel = new cSurfelModel();
   gModel->load (gModelIndex);
-  //gModel.load ("../models/stanford_dragon_v344k_f688k.raw");
+  gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+  gRender = unique_ptr<cSimpleRender>(new cSimpleRender (gCamera));
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);

@@ -30,12 +30,12 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
-#include "cSurfelModel.h"
 #include "cRender.h"
 
 using namespace std;
 //}}}
 
+// cModel
 //{{{
 void cModel::load (int modelIndex) {
 
@@ -143,6 +143,36 @@ void cModel::ripple() {
   }
 //}}}
 
+// cSurfelModel
+//{{{
+void cSurfelModel::load (int modelIndex) {
+
+  switch (modelIndex) {
+    case 0:
+      createModel ("../models/stanford_dragon_v40k_f80k.raw");
+      break;
+
+    case 1:
+      createModel ("../models/stanford_dragon_v344k_f688k.raw");
+      break;
+
+    case 2:
+      createChecker (100,100);
+      break;
+
+    case 3:
+      createCube();
+      break;
+
+    case 4: {
+      createPiccy ("../piccies/test.png");
+      break;
+      }
+    }
+  }
+//}}}
+
+// - private
 //{{{
 void cSurfelModel::hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
 
@@ -528,33 +558,5 @@ void cSurfelModel::createCube() {
   mModel[23].centre = Eigen::Vector3f(0.5f, 0.0f, -0.5f);
   mModel[23].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
   //}}}
-  }
-//}}}
-
-//{{{
-void cSurfelModel::load (int modelIndex) {
-
-  switch (modelIndex) {
-    case 0:
-      createModel ("../models/stanford_dragon_v40k_f80k.raw");
-      break;
-
-    case 1:
-      createModel ("../models/stanford_dragon_v344k_f688k.raw");
-      break;
-
-    case 2:
-      createChecker (100,100);
-      break;
-
-    case 3:
-      createCube();
-      break;
-
-    case 4: {
-      createPiccy ("../piccies/test.png");
-      break;
-      }
-    }
   }
 //}}}

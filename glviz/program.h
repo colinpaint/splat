@@ -19,9 +19,9 @@ namespace GLviz {
     };
   //}}}
   //{{{
-  class UniformBufferWireframe : public glUniformBuffer {
+  class UniformBufferWireFrame : public glUniformBuffer {
   public:
-    UniformBufferWireframe();
+    UniformBufferWireFrame();
 
     void set_buffer_data(float const* color, int const* viewport);
     };
@@ -40,7 +40,7 @@ namespace GLviz {
   public:
     ProgramMesh3();
 
-    void set_wireframe (bool enable);
+    void set_wireFrame (bool enable);
     void set_smooth (bool enable);
 
   private:
@@ -51,7 +51,7 @@ namespace GLviz {
     glGeometryShader m_mesh3_gs_obj;
     glFragmentShader m_mesh3_fs_obj;
 
-    bool m_wireframe;
+    bool m_wireFrame;
     bool m_smooth;
     };
   //}}}
