@@ -1402,7 +1402,50 @@ void cSplatRender::render (cModel* model) {
       }
     }
 
-  endFrame();
+  m_fbo.unbind();
+
+  //{{{  finalise
+  if (getMultiSample()) {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
+
+    if (m_smooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
+      }
+    }
+  else {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D, m_fbo.color_texture());
+
+    if (m_smooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D, m_fbo.normal_texture());
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D, m_fbo.depth_texture());
+      }
+    }
+
+  m_Final.use();
+
+  try {
+    setupUniforms (m_Final);
+    m_Final.setUniform1i ("color_texture", 0);
+    if (m_smooth) {
+      m_Final.setUniform1i ("normal_texture", 1);
+      m_Final.setUniform1i ("depth_texture", 2);
+      }
+    }
+  catch (uniform_not_found_error const& e) {
+    cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
+    }
+
+  glBindVertexArray (m_rect_vao);
+  glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray (0);
+  //}}}
 
   #ifndef NDEBUG
     GLenum gl_error = glGetError();
@@ -1628,53 +1671,6 @@ void cSplatRender::setupUniforms (glProgram& program) {
   }
 //}}}
 
-//{{{
-void cSplatRender::endFrame() {
-
-  m_fbo.unbind();
-
-  if (getMultiSample()) {
-    glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
-
-    if (m_smooth) {
-      glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
-      glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
-      }
-    }
-  else {
-    glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, m_fbo.color_texture());
-
-    if (m_smooth) {
-      glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D, m_fbo.normal_texture());
-      glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D, m_fbo.depth_texture());
-      }
-    }
-
-  m_Final.use();
-
-  try {
-    setupUniforms (m_Final);
-    m_Final.setUniform1i ("color_texture", 0);
-    if (m_smooth) {
-      m_Final.setUniform1i ("normal_texture", 1);
-      m_Final.setUniform1i ("depth_texture", 2);
-      }
-    }
-  catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
-    }
-
-  glBindVertexArray (m_rect_vao);
-  glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-  glBindVertexArray (0);
-  }
-//}}}
 //{{{
 void cSplatRender::renderPass (bool depth_only) {
 
