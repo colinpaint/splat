@@ -11,6 +11,7 @@ public:
   void load (std::string const& filename);
 
   void setVertexNormals();
+  void ripple();
 
   std::vector <Eigen::Vector3f> mVertices;
   std::vector <Eigen::Vector3f> mNormals;
@@ -19,4 +20,6 @@ public:
   std::vector <Eigen::Vector3f> mRefNormals;
 
   std::vector <std::array <unsigned int,3>> mFaces;
+
+  float mTime = 0.f;
   };

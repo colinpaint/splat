@@ -31,19 +31,18 @@ namespace {
   unique_ptr<cSimpleRender> gSimpleRender;
   cMeshModel gMeshModel;
   //{{{  vars
-  bool g_stop_simulation(true);
+  bool gRipple = false;
+
   bool g_enable_mesh3(true);
   bool g_enable_wireframe(false);
   bool gEnableSpheres(false);
 
-  float g_time(0.0f);
+  int g_shading_method(0);
   float g_point_radius(0.0014f);
   float g_projection_radius(0.0f);
   float g_wireframe[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   float g_mesh_material[4] = { 0.0f, 0.25f, 1.0f, 8.0f };
   float g_points_material[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
-
-  int g_shading_method(0);
   //}}}
 
   // callbacks
@@ -99,7 +98,6 @@ namespace {
 
     ImGui::PushItemWidth (ImGui::GetContentRegionAvail().x * 0.55f);
 
-    ImGui::Text ("time\t %.3f", g_time);
     ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
 
     if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -131,9 +129,7 @@ namespace {
       case SDLK_2: gEnableSpheres = !gEnableSpheres; break;
       case SDLK_5: g_shading_method = (g_shading_method + 1) % 2; break;
       case SDLK_w: g_enable_wireframe = !g_enable_wireframe; break;
-
-      case SDLK_r: g_time = 0.0f; break;
-      case SDLK_SPACE: g_stop_simulation = !g_stop_simulation; break;
+      case SDLK_SPACE: gRipple = !gRipple; break;
 
       case SDLK_f: GLviz::toggleFullScreen(); break;
 
@@ -142,28 +138,7 @@ namespace {
       }
     }
   //}}}
-  //{{{
-  void timer (int delta_t_msec) {
-
-    float delta_t_sec = static_cast<float>(delta_t_msec) / 1000.0f;
-
-    if (!g_stop_simulation) {
-      g_time += delta_t_sec;
-
-      const float k = 50.0f;
-      const float a = 0.03f;
-      const float v = 10.0f;
-      for (unsigned int i(0); i < gMeshModel.mVertices.size(); ++i) {
-        const float x = gMeshModel.mRefVertices[i].x() + gMeshModel.mRefVertices[i].y() + gMeshModel.mRefVertices[i].z();
-        const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
-        const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
-        gMeshModel.mVertices[i] = gMeshModel.mRefVertices[i] + (exp(-u * u) * w) * gMeshModel.mRefNormals[i];
-        }
-
-      gMeshModel.setVertexNormals();
-      }
-    }
-  //}}}
+  void timer (int delta_t_msec) { if (gRipple) gMeshModel.ripple(); }
   void close() { gSimpleRender = nullptr; }
   }
 

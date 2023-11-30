@@ -75,6 +75,15 @@ void cMeshModel::load (string const& filename) {
 
   setVertexNormals();
 
+  // save refs for ripple
+  mRefVertices.resize (mVertices.size());
+  for (size_t i = 0; i < mVertices.size(); ++i)
+    mRefVertices[i] = mVertices[i];
+
+  mRefNormals.resize (mNormals.size());
+  for (size_t i = 0; i < mNormals.size(); ++i)
+    mRefNormals[i] = mNormals[i];
+
   cLog::log (LOGINFO, fmt::format ("cMesh::load {} vertices:{} faces:{}",
                                    filename, mVertices.size(), mFaces.size()));
   }
@@ -105,6 +114,24 @@ void cMeshModel::setVertexNormals() {
   for (size_t i = 0; i < mVertices.size(); ++i)
     if (!mNormals[i].isZero())
       mNormals[i].normalize();
+  }
+//}}}
+//{{{
+void cMeshModel::ripple() {
+
+  mTime += 25.f / 1000.f;
+
+  const float k = 50.0f;
+  const float a = 0.03f;
+  const float v = 10.0f;
+  for (unsigned int i(0); i < mVertices.size(); ++i) {
+    const float x = mRefVertices[i].x() + mRefVertices[i].y() + mRefVertices[i].z();
+    const float u = 5.0f * (x - 0.75f * sin(2.5f * mTime));
+    const float w = (a / 2.0f) * (1.0f + sin(k * x + v * mTime));
+    mVertices[i] = mRefVertices[i] + (exp(-u * u) * w) * mRefNormals[i];
+    }
+
+  setVertexNormals();
   }
 //}}}
 
