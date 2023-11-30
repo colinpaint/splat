@@ -1,9 +1,11 @@
 // simple.cpp
 //{{{  includes
+#ifdef _WIN32
+  #define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <cstdlib>
 #include <memory>
-#include <fstream>
-#include <sstream>
 #include <vector>
 #include <array>
 #include <exception>
@@ -19,12 +21,12 @@
 
 using namespace std;
 //}}}
-
 namespace {
   GLviz::Camera gCamera;
   unique_ptr<cSimpleRender> gSimpleRender;
-  cModel* gModel;
+
   bool gRipple = false;
+  cModel* gModel;
 
   // callbacks
   //{{{
@@ -91,14 +93,8 @@ int main (int numArgs, char* args[]) {
   gSimpleRender = unique_ptr<cSimpleRender>(new cSimpleRender (gCamera));
 
   gModel = new cModel();
-  try {
-    gModel->load ("../models/stanford_dragon_v40k_f80k.raw");
-    //gModel.load ("../models/stanford_dragon_v344k_f688k.raw");
-    }
-  catch(runtime_error const& e) {
-    cLog::log (LOGERROR, e.what());
-    exit (EXIT_FAILURE);
-    }
+  gModel->load ("../models/stanford_dragon_v40k_f80k.raw");
+  //gModel.load ("../models/stanford_dragon_v344k_f688k.raw");
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);

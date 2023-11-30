@@ -1,12 +1,15 @@
-// splat.cpp - splat main
+// splat.cpp
 //{{{  includes
 #ifdef _WIN32
   #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <cstdlib>
 #include <memory>
+#include <vector>
 #include <array>
 #include <exception>
+#include <cmath>
 
 #include <Eigen/Core>
 
@@ -19,11 +22,11 @@
 using namespace std;
 //}}}
 namespace {
-  int gModel = 0;
-  cSurfelModel* gSurfelModel;
-
   GLviz::Camera gCamera;
   unique_ptr <cSplatRender> gSplatRender;
+
+  int gModel = 0;
+  cSurfelModel* gSurfelModel;
 
   // callbacks
   void display() { gSplatRender->render (gSurfelModel); }
@@ -74,6 +77,7 @@ namespace {
         }
     }
   //}}}
+  void timer (int delta_t_msec) {}
   void close() { gSplatRender = nullptr; }
   }
 
@@ -97,11 +101,12 @@ int main (int numArgs, char* args[]) {
 
   GLviz::init (960, 540);
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+
   gSplatRender = unique_ptr<cSplatRender>(new cSplatRender (gCamera));
 
-  gModel = 0;
   gSurfelModel = new cSurfelModel();
   gSurfelModel->load (gModel);
+  //gSurfelModel.load ("../models/stanford_dragon_v344k_f688k.raw");
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);
