@@ -1369,7 +1369,13 @@ void cSplatRender::render (cModel* model) {
 
   cSurfelModel* surfelModel = dynamic_cast<cSurfelModel*>(model);
 
-  beginFrame();
+  m_fbo.bind();
+
+  glDepthMask (GL_TRUE);
+  glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClearDepth (1.0);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   mNumSurfels = surfelModel->getSize();
   if (mNumSurfels > 0) {
@@ -1622,20 +1628,6 @@ void cSplatRender::setupUniforms (glProgram& program) {
   }
 //}}}
 
-//{{{
-void cSplatRender::beginFrame() {
-
-  m_fbo.bind();
-
-  glDepthMask (GL_TRUE);
-  glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-  glClearColor (0.0, 0.0, 0.0, 0.0);
-  glClearDepth (1.0);
-
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  }
-//}}}
 //{{{
 void cSplatRender::endFrame() {
 

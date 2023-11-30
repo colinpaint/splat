@@ -157,7 +157,6 @@ private:
   void setup_vertex_array_buffer_object();
   void setupUniforms (glProgram& program);
 
-  void beginFrame();
   void endFrame();
   void renderPass (bool depth_only);
 
