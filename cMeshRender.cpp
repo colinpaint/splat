@@ -66,7 +66,8 @@ void cMeshRender::resize (int width, int height) {}
 //{{{
 void cMeshRender::render (cModel* model) {
 
-  glEnable (GL_MULTISAMPLE);
+  if (getMultiSample()) 
+    glEnable (GL_MULTISAMPLE);
   glEnable (GL_DEPTH_TEST);
 
   glClearDepth (1.0f);
@@ -100,8 +101,9 @@ void cMeshRender::render (cModel* model) {
     renderSpheres (static_cast<GLsizei>(model->mVertices.size()));
     }
 
-  glDisable (GL_MULTISAMPLE);
   glDisable (GL_DEPTH_TEST);
+  if (getMultiSample()) 
+    glDisable (GL_MULTISAMPLE);
   }
 //}}}
 //{{{
