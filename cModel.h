@@ -9,6 +9,7 @@ public:
   cModel() {}
   virtual ~cModel() = default;
 
+  virtual void load (int modelIndex);
   void load (std::string const& filename);
 
   void setVertexNormals();

@@ -32,7 +32,7 @@ public:
   void* getArray() { return &mModel.front(); }
   size_t getSize() const { return mModel.size(); }
 
-  void load (int model);
+  virtual void load (int modelIndex);
 
 private:
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b);

@@ -37,6 +37,15 @@ using namespace std;
 //}}}
 
 //{{{
+void cModel::load (int modelIndex) {
+
+  if (modelIndex == 0)
+    load ("../models/stanford_dragon_v40k_f80k.raw");
+  else
+    load ("../models/stanford_dragon_v344k_f688k.raw");
+  }
+//}}}
+//{{{
 void cModel::load (string const& filename) {
 
   ifstream inputFind (filename);
@@ -523,23 +532,26 @@ void cSurfelModel::createCube() {
 //}}}
 
 //{{{
-void cSurfelModel::load (int model) {
+void cSurfelModel::load (int modelIndex) {
 
-  switch (model) {
+  switch (modelIndex) {
     case 0:
       createModel ("../models/stanford_dragon_v40k_f80k.raw");
-      //createModel ("../models/stanford_dragon_v344k_f688k.raw");
       break;
 
     case 1:
-      createChecker (100,100);
+      createModel ("../models/stanford_dragon_v344k_f688k.raw");
       break;
 
     case 2:
+      createChecker (100,100);
+      break;
+
+    case 3:
       createCube();
       break;
 
-    case 3: {
+    case 4: {
       createPiccy ("../piccies/test.png");
       break;
       }

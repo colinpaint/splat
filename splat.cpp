@@ -25,11 +25,11 @@ namespace {
   GLviz::Camera gCamera;
   unique_ptr <cSplatRender> gSplatRender;
 
-  int gModel = 0;
-  cSurfelModel* gSurfelModel;
+  int gModelIndex = 0;
+  cModel* gModel;
 
   // callbacks
-  void display() { gSplatRender->render (gSurfelModel); }
+  void display() { gSplatRender->render (gModel); }
   //{{{
   void resize (int width, int height) {
 
@@ -50,8 +50,8 @@ namespace {
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
-      if (ImGui::Combo ("Models", &gModel, "Dragon\0Checker\0Cube\0Piccy\0\0"))
-        gSurfelModel->load (gModel);
+      if (ImGui::Combo ("Models", &gModelIndex, "DragonLow\0DragonHigh\0Checker\0Cube\0Piccy\0\0"))
+        gModel->load (gModelIndex);
 
     gSplatRender->gui();
 
@@ -104,9 +104,9 @@ int main (int numArgs, char* args[]) {
 
   gSplatRender = unique_ptr<cSplatRender>(new cSplatRender (gCamera));
 
-  gSurfelModel = new cSurfelModel();
-  gSurfelModel->load (gModel);
-  //gSurfelModel.load ("../models/stanford_dragon_v344k_f688k.raw");
+  gModel = new cSurfelModel();
+  gModel->load (gModelIndex);
+  //gModel.load ("../models/stanford_dragon_v344k_f688k.raw");
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);
