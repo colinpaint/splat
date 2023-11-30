@@ -60,8 +60,8 @@ namespace GLviz {
                                          vector<array<unsigned int,3>> const& faces,
                                          vector<Eigen::Vector3f>& normals) {
 
-    unsigned int nf(static_cast<unsigned int>(faces.size()));
-    unsigned int nv(static_cast<unsigned int>(vertices.size()));
+    unsigned int nf = static_cast<unsigned int>(faces.size());
+    unsigned int nv = static_cast<unsigned int>(vertices.size());
 
     normals.resize (vertices.size());
     fill (normals.begin(), normals.end(), Eigen::Vector3f::Zero());

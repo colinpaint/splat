@@ -1,15 +1,7 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <vector>
-#include <map>
-#include <Eigen/Core>
-#include "glviz/shader.h"
-#include "glviz/program.h"
-#include "glviz/buffer.h"
-#include "glviz/camera.h"
+#include "cRender.h"
 
-class cSimpleRender {
+class cSimpleRender : public cRender {
 public:
   cSimpleRender (GLviz::Camera const& camera);
   virtual ~cSimpleRender();
@@ -17,9 +9,14 @@ public:
   void drawMesh3 (int shadingMethod, GLsizei nf);
   void drawSpheres (GLsizei nv);
 
-  // vars
-  GLviz::Camera const& mCamera;
+  virtual void setBackFaceCull (bool enable = true) final;
+  virtual void setMultiSample (bool enable = true) final;
 
+  virtual void resize (int width, int height) final;
+  virtual void render (cSurfelModel& model) final;
+  virtual bool keyboard (SDL_Keycode key) final;
+
+  // vars
   GLviz::glVertexArray vertex_array_v;
   GLviz::glVertexArray vertex_array_vf;
   GLviz::glVertexArray vertex_array_vnf;

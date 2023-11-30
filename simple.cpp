@@ -20,6 +20,7 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
+#include "cMeshModel.h"
 #include "cSimpleRender.h"
 
 using namespace std;
@@ -27,19 +28,13 @@ using namespace std;
 
 namespace {
   GLviz::Camera gCamera;
-  unique_ptr <cSimpleRender> gSimpleRender;
-
+  unique_ptr<cSimpleRender> gSimpleRender;
+  cMeshModel gMeshModel;
   //{{{  vars
   bool g_stop_simulation(true);
   bool g_enable_mesh3(true);
   bool g_enable_wireframe(false);
   bool gEnableSpheres(false);
-
-  vector <Eigen::Vector3f> g_ref_vertices;
-  vector <Eigen::Vector3f> g_ref_normals;
-  vector <Eigen::Vector3f> g_vertices;
-  vector <Eigen::Vector3f> g_normals;
-  vector <array <unsigned int,3>> g_faces;
 
   float g_time(0.0f);
   float g_point_radius(0.0014f);
@@ -70,9 +65,9 @@ namespace {
     glClearDepth (1.0f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    gSimpleRender->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_vertices.size(), g_vertices.front().data());
-    gSimpleRender->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * g_normals.size(), g_normals.front().data());
-    gSimpleRender->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * g_faces.size(), g_faces.front().data());
+    gSimpleRender->vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * gMeshModel.mVertices.size(), gMeshModel.mVertices.front().data());
+    gSimpleRender->normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * gMeshModel.mNormals.size(), gMeshModel.mNormals.front().data());
+    gSimpleRender->index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * gMeshModel.mFaces.size(), gMeshModel.mFaces.front().data());
 
     gSimpleRender->uniform_camera.set_buffer_data (gCamera);
 
@@ -82,7 +77,7 @@ namespace {
       int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
       gSimpleRender->uniform_wireframe.set_buffer_data (g_wireframe, screen);
       gSimpleRender->program_mesh3.set_smooth (g_shading_method != 0);
-      gSimpleRender->drawMesh3 (g_shading_method, static_cast<GLsizei>(3 * g_faces.size()));
+      gSimpleRender->drawMesh3 (g_shading_method, static_cast<GLsizei>(3 * gMeshModel.mFaces.size()));
       }
 
     if (gEnableSpheres) {
@@ -91,7 +86,7 @@ namespace {
       g_projection_radius = view_frustum.near_() *
                             (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
       gSimpleRender->uniform_sphere.set_buffer_data (g_point_radius, g_projection_radius);
-      gSimpleRender->drawSpheres (static_cast<GLsizei>(g_vertices.size()));
+      gSimpleRender->drawSpheres (static_cast<GLsizei>(gMeshModel.mVertices.size()));
       }
     }
   //}}}
@@ -158,14 +153,14 @@ namespace {
       const float k = 50.0f;
       const float a = 0.03f;
       const float v = 10.0f;
-      for (unsigned int i(0); i < g_vertices.size(); ++i) {
-        const float x = g_ref_vertices[i].x() + g_ref_vertices[i].y() + g_ref_vertices[i].z();
+      for (unsigned int i(0); i < gMeshModel.mVertices.size(); ++i) {
+        const float x = gMeshModel.mRefVertices[i].x() + gMeshModel.mRefVertices[i].y() + gMeshModel.mRefVertices[i].z();
         const float u = 5.0f * (x - 0.75f * sin(2.5f * g_time));
         const float w = (a / 2.0f) * (1.0f + sin(k * x + v * g_time));
-        g_vertices[i] = g_ref_vertices[i] + (exp(-u * u) * w) * g_ref_normals[i];
+        gMeshModel.mVertices[i] = gMeshModel.mRefVertices[i] + (exp(-u * u) * w) * gMeshModel.mRefNormals[i];
         }
 
-      GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
+      gMeshModel.setVertexNormals();
       }
     }
   //}}}
@@ -196,9 +191,8 @@ int main (int numArgs, char* args[]) {
   gSimpleRender = unique_ptr<cSimpleRender>(new cSimpleRender (gCamera));
 
   try {
-    GLviz::loadMesh ("../models/stanford_dragon_v40k_f80k.raw", g_vertices, g_faces);
-    //GLviz::loadMesh ("../models/stanford_dragon_v344k_f688k.raw", g_vertices, g_faces);
-    GLviz::setVertexNormalsFromTriangleMesh (g_vertices, g_faces, g_normals);
+    gMeshModel.load ("../models/stanford_dragon_v40k_f80k.raw");
+    //gMeshModel.load ("../models/stanford_dragon_v344k_f688k.raw");
     }
   catch(runtime_error const& e) {
     cLog::log (LOGERROR, e.what());

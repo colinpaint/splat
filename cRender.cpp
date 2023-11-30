@@ -30,13 +30,86 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
+#include "cMeshModel.h"
+#include "cSurfelModel.h"
 #include "cRender.h"
 
 using namespace std;
 //}}}
 
 //{{{
-void cSurfels::hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
+void cMeshModel::load (string const& filename) {
+
+  ifstream inputFind (filename);
+  if (!inputFind.good()) {
+    //{{{  error, return
+     cLog::log (LOGERROR, fmt::format ("loadMesh - cannot find {}", filename));
+    throw runtime_error ("cannot find");
+    return;
+    }
+    //}}}
+  inputFind.close();
+
+  ifstream input (filename, ios::in | ios::binary);
+  if (input.fail()) {
+    ostringstream error_message;
+    cLog::log (LOGERROR, fmt::format ("cMesh::load - cannot open {}", filename));
+    throw runtime_error (error_message.str().c_str());
+    }
+
+  unsigned int nv;
+  input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
+  mVertices.resize (nv);
+
+  for (size_t i = 0; i < nv; ++i)
+    input.read (reinterpret_cast<char*>(mVertices[i].data()), 3 * sizeof(float));
+
+  unsigned int nf;
+  input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+  mFaces.resize (nf);
+
+  for (size_t i = 0; i < nf; ++i)
+    input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
+
+  input.close();
+
+  setVertexNormals();
+
+  cLog::log (LOGINFO, fmt::format ("cMesh::load {} vertices:{} faces:{}",
+                                   filename, mVertices.size(), mFaces.size()));
+  }
+//}}}
+//{{{
+void cMeshModel::setVertexNormals() {
+
+  unsigned int nf(static_cast<unsigned int>(mFaces.size()));
+  unsigned int nv(static_cast<unsigned int>(mVertices.size()));
+
+  mNormals.resize (mVertices.size());
+  fill (mNormals.begin(), mNormals.end(), Eigen::Vector3f::Zero());
+
+  for (size_t i = 0; i < mFaces.size(); ++i) {
+    array<unsigned int, 3> const& f_i = mFaces[i];
+
+    Eigen::Vector3f const& p0(mVertices[f_i[0]]);
+    Eigen::Vector3f const& p1(mVertices[f_i[1]]);
+    Eigen::Vector3f const& p2(mVertices[f_i[2]]);
+
+    Eigen::Vector3f n_i = (p0 - p1).cross(p0 - p2);
+
+    mNormals[f_i[0]] += n_i;
+    mNormals[f_i[1]] += n_i;
+    mNormals[f_i[2]] += n_i;
+    }
+
+  for (size_t i = 0; i < mVertices.size(); ++i)
+    if (!mNormals[i].isZero())
+      mNormals[i].normalize();
+  }
+//}}}
+
+//{{{
+void cSurfelModel::hsv2rgb (float h, float s, float v, float& r, float& g, float& b) {
 
   float h_i = floor(h / 60.0f);
   float f = h / 60.0f - h_i;
@@ -67,7 +140,7 @@ void cSurfels::hsv2rgb (float h, float s, float v, float& r, float& g, float& b)
   }
 //}}}
 //{{{
-void cSurfels::steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, float const* v2_ptr,
+void cSurfelModel::steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, float const* v2_ptr,
                                     float* p0_ptr, float* t1_ptr, float* t2_ptr) {
 
   Eigen::Matrix2f Q;
@@ -119,7 +192,7 @@ void cSurfels::steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, f
   }
 //}}}
 //{{{
-void cSurfels::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
+void cSurfelModel::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
                              vector <array <unsigned int, 3>> const& faces) {
 
   mModel.resize (faces.size());
@@ -165,17 +238,12 @@ void cSurfels::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
   }
 //}}}
 //{{{
-void cSurfels::createModel (const string& filename) {
+void cSurfelModel::createModel (const string& filename) {
 
   try {
-    vector <Eigen::Vector3f> vertices;
-    vector <array <unsigned int,3>> faces;
-    GLviz::loadMesh (filename, vertices, faces);
-
-    vector <Eigen::Vector3f> normals;
-    GLviz::setVertexNormalsFromTriangleMesh (vertices, faces, normals);
-
-    meshToSurfel (vertices, faces);
+    cMeshModel meshModel;
+    meshModel.load (filename);
+    meshToSurfel (meshModel.mVertices, meshModel.mFaces);
     }
 
   catch (runtime_error const& e) {
@@ -186,7 +254,7 @@ void cSurfels::createModel (const string& filename) {
 //}}}
 
 //{{{
-void cSurfels::createChecker (size_t width, size_t height) {
+void cSurfelModel::createChecker (size_t width, size_t height) {
 
   cLog::log (LOGINFO, fmt::format ("createChecker {}x{}", width, height));
 
@@ -211,7 +279,7 @@ void cSurfels::createChecker (size_t width, size_t height) {
         surfel.rgba = (((j / 2) % 2) == ((i / 2) % 2)) ? 0u : ~0u;
         mModel[m] = surfel;
 
-        // Clip border surfels
+        // Clip border surfelModel
         if (j == 0)
           mModel[m].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
         else if (i == 0)
@@ -227,7 +295,7 @@ void cSurfels::createChecker (size_t width, size_t height) {
           }
 
         else {
-          // Duplicate and clip inner surfels
+          // Duplicate and clip inner surfelModel
           if (j % 2 == 0) {
             mModel[m].clipPlane= Eigen::Vector3f(1.0, 0.0f, 0.0f);
             mModel[++m] = surfel;
@@ -249,7 +317,7 @@ void cSurfels::createChecker (size_t width, size_t height) {
   }
 //}}}
 //{{{
-void cSurfels::createPiccy (const string& filename) {
+void cSurfelModel::createPiccy (const string& filename) {
 
   FILE* file = fopen (filename.c_str(), "rb");
   if (!file) {
@@ -304,7 +372,7 @@ void cSurfels::createPiccy (const string& filename) {
   }
 //}}}
 //{{{
-void cSurfels::createCube() {
+void cSurfelModel::createCube() {
 
   cLog::log (LOGINFO, fmt::format ("createCube"));
 
@@ -429,7 +497,7 @@ void cSurfels::createCube() {
 //}}}
 
 //{{{
-void cSurfels::loadModel (int model) {
+void cSurfelModel::loadModel (int model) {
 
   switch (model) {
     case 0:

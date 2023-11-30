@@ -7,6 +7,8 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
+#include "cSurfelModel.h"
+
 using namespace std;
 //}}}
 namespace {
@@ -1366,7 +1368,7 @@ void cSplatRender::setBackFaceCull (bool enable) {
 
 void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
 //{{{
-void cSplatRender::render (cSurfels& model) {
+void cSplatRender::render (cSurfelModel& model) {
 
   beginFrame();
 
@@ -1374,7 +1376,7 @@ void cSplatRender::render (cSurfels& model) {
   if (mNumSurfels > 0) {
     glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
     glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfel) * mNumSurfels, (void*)(model.getArray()), GL_DYNAMIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfelModel::cSurfel) * mNumSurfels, (void*)(model.getArray()), GL_DYNAMIC_DRAW);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     if (getMultiSample()) {
@@ -1510,23 +1512,23 @@ void cSplatRender::setup_vertex_array_buffer_object() {
 
   // Center c.
   glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(0));
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(0));
 
   // Tagent vector u.
   glEnableVertexAttribArray (1);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(12));
+  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(12));
 
   // Tangent vector v.
   glEnableVertexAttribArray (2);
-  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(24));
+  glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(24));
 
   // Clipping plane p.
   glEnableVertexAttribArray (3);
-  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfel), reinterpret_cast<const GLfloat*>(36));
+  glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(36));
 
   // Color rgba.
   glEnableVertexAttribArray (4);
-  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(cSurfel), reinterpret_cast<const GLbyte*>(48));
+  glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLbyte*>(48));
 
   glBindVertexArray (0);
   }

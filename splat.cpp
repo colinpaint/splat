@@ -16,19 +16,20 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
+#include "cSurfelModel.h"
 #include "cSplatRender.h"
 
 using namespace std;
 //}}}
 namespace {
   int gModel = 0;
-  cSurfels gSurfels;
+  cSurfelModel gSurfelModel;
 
   GLviz::Camera gCamera;
   unique_ptr <cSplatRender> gSplatRender;
 
   // callbacks
-  void display() { gSplatRender->render (gSurfels); }
+  void display() { gSplatRender->render (gSurfelModel); }
   //{{{
   void resize (int width, int height) {
 
@@ -50,7 +51,7 @@ namespace {
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Scene"))
       if (ImGui::Combo ("Models", &gModel, "Dragon\0Checker\0Cube\0Piccy\0\0"))
-        gSurfels.loadModel (gModel);
+        gSurfelModel.loadModel (gModel);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("Surface Splatting")) {
@@ -161,7 +162,7 @@ int main (int numArgs, char* args[]) {
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
   gSplatRender = unique_ptr<cSplatRender>(new cSplatRender (gCamera));
 
-  gSurfels.loadModel (gModel);
+  gSurfelModel.loadModel (gModel);
 
   GLviz::displayCallback (display);
   GLviz::resizeCallback (resize);

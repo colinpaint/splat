@@ -145,7 +145,7 @@ public:
   virtual void setMultiSample (bool enable = true) final;
 
   virtual void resize (int width, int height) final;
-  virtual void render (cSurfels& model) final;
+  virtual void render (cSurfelModel& model) final;
   virtual bool keyboard (SDL_Keycode key) final;
 
 private:

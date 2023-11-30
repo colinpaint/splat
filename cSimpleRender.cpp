@@ -2,6 +2,7 @@
 #include <memory>
 #include <Eigen/Core>
 
+#include "cMeshModel.h"
 #include "cSimpleRender.h"
 
 #include "glviz/glviz.h"
@@ -13,7 +14,7 @@ using namespace std;
 //}}}
 
 //{{{
-cSimpleRender::cSimpleRender (GLviz::Camera const& camera) : mCamera(camera) {
+cSimpleRender::cSimpleRender (GLviz::Camera const& camera) : cRender(camera) {
 
   // Setup vertex array v
   vertex_array_v.bind();
@@ -96,3 +97,10 @@ void cSimpleRender::drawSpheres (GLsizei nv) {
   program_sphere.unuse();
   }
 //}}}
+
+void cSimpleRender::setMultiSample (bool enable) {}
+void cSimpleRender::setBackFaceCull (bool enable) {}
+
+void cSimpleRender::resize (int width, int height) {}
+void cSimpleRender::render (cSurfelModel& model) {}
+bool cSimpleRender:: keyboard (SDL_Keycode key) { return false; }
