@@ -99,6 +99,9 @@ void cSimpleRender::render (cModel* model) {
     uniform_sphere.set_buffer_data (mPointRadius, mProjectionRadius);
     renderSpheres (static_cast<GLsizei>(model->mVertices.size()));
     }
+
+  glDisable (GL_MULTISAMPLE);
+  glDisable (GL_DEPTH_TEST);
   }
 //}}}
 //{{{
@@ -172,5 +175,6 @@ void cSimpleRender::renderSpheres (GLsizei nv) {
   vertex_array_v.unbind();
 
   program_sphere.unuse();
+  glDisable (GL_PROGRAM_POINT_SIZE);
   }
 //}}}

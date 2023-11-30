@@ -16,10 +16,9 @@ public:
   cModel() {}
   virtual ~cModel() = default;
 
+  void loadFile (std::string const& filename);
   virtual void load (int modelIndex);
-  void load (std::string const& filename);
 
-  void setVertexNormals();
   void ripple();
 
   std::vector <Eigen::Vector3f> mVertices;
@@ -31,6 +30,9 @@ public:
   std::vector <std::array <unsigned int,3>> mFaces;
 
   float mTime = 0.f;
+
+private:
+  void setVertexNormals();
   };
 //}}}
 //{{{
@@ -64,8 +66,7 @@ private:
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b);
   void steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, float const* v2_ptr,
                              float* p0_ptr, float* t1_ptr, float* t2_ptr);
-  void meshToSurfel (std::vector <Eigen::Vector3f> const& vertices,
-                     std::vector <std::array <unsigned int, 3>> const& faces);
+  void meshToSurfel();
   void createModel (const std::string& filename);
 
   void createChecker (size_t width, size_t height);

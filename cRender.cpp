@@ -40,13 +40,13 @@ using namespace std;
 void cModel::load (int modelIndex) {
 
   if (modelIndex == 0)
-    load ("../models/stanford_dragon_v40k_f80k.raw");
+    loadFile ("../models/stanford_dragon_v40k_f80k.raw");
   else
-    load ("../models/stanford_dragon_v344k_f688k.raw");
+    loadFile ("../models/stanford_dragon_v344k_f688k.raw");
   }
 //}}}
 //{{{
-void cModel::load (string const& filename) {
+void cModel::loadFile (string const& filename) {
 
   ifstream inputFind (filename);
   if (!inputFind.good()) {
@@ -97,6 +97,26 @@ void cModel::load (string const& filename) {
   }
 //}}}
 //{{{
+void cModel::ripple() {
+
+  mTime += 25.f / 1000.f;
+
+  const float k = 50.0f;
+  const float a = 0.03f;
+  const float v = 10.0f;
+  for (unsigned int i(0); i < mVertices.size(); ++i) {
+    const float x = mRefVertices[i].x() + mRefVertices[i].y() + mRefVertices[i].z();
+    const float u = 5.0f * (x - 0.75f * sin(2.5f * mTime));
+    const float w = (a / 2.0f) * (1.0f + sin(k * x + v * mTime));
+    mVertices[i] = mRefVertices[i] + (exp(-u * u) * w) * mRefNormals[i];
+    }
+
+  setVertexNormals();
+  }
+//}}}
+
+// - private
+//{{{
 void cModel::setVertexNormals() {
 
   unsigned int nf(static_cast<unsigned int>(mFaces.size()));
@@ -122,24 +142,6 @@ void cModel::setVertexNormals() {
   for (size_t i = 0; i < mVertices.size(); ++i)
     if (!mNormals[i].isZero())
       mNormals[i].normalize();
-  }
-//}}}
-//{{{
-void cModel::ripple() {
-
-  mTime += 25.f / 1000.f;
-
-  const float k = 50.0f;
-  const float a = 0.03f;
-  const float v = 10.0f;
-  for (unsigned int i(0); i < mVertices.size(); ++i) {
-    const float x = mRefVertices[i].x() + mRefVertices[i].y() + mRefVertices[i].z();
-    const float u = 5.0f * (x - 0.75f * sin(2.5f * mTime));
-    const float w = (a / 2.0f) * (1.0f + sin(k * x + v * mTime));
-    mVertices[i] = mRefVertices[i] + (exp(-u * u) * w) * mRefNormals[i];
-    }
-
-  setVertexNormals();
   }
 //}}}
 
@@ -257,21 +259,20 @@ void cSurfelModel::steinerCircumEllipse (float const* v0_ptr, float const* v1_pt
   }
 //}}}
 //{{{
-void cSurfelModel::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
-                             vector <array <unsigned int, 3>> const& faces) {
+void cSurfelModel::meshToSurfel() {
 
-  mModel.resize (faces.size());
+  mModel.resize (mFaces.size());
 
   vector<thread> threads (thread::hardware_concurrency());
   for (size_t i = 0; i < threads.size(); ++i) {
-    size_t b = i * faces.size() / threads.size();
-    size_t e = (i + 1) * faces.size() / threads.size();
+    size_t b = i * mFaces.size() / threads.size();
+    size_t e = (i + 1) * mFaces.size() / threads.size();
 
-    threads[i] = thread ([this, b, e, &vertices, &faces]() {
+    threads[i] = thread ([this, b, e]() {
       for (size_t j = b; j < e; ++j) {
         // face to surfel
-        array <unsigned int,3> const& face = faces[j];
-        Eigen::Vector3f v[3] = { vertices[face[0]], vertices[face[1]], vertices[face[2]] };
+        array <unsigned int,3> const& face = mFaces[j];
+        Eigen::Vector3f v[3] = { mVertices[face[0]], mVertices[face[1]], mVertices[face[2]] };
 
         Eigen::Vector3f p0;
         Eigen::Vector3f t1;
@@ -306,9 +307,8 @@ void cSurfelModel::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
 void cSurfelModel::createModel (const string& filename) {
 
   try {
-    cModel model;
-    model.load (filename);
-    meshToSurfel (model.mVertices, model.mFaces);
+    loadFile (filename);
+    meshToSurfel();
     }
 
   catch (runtime_error const& e) {
