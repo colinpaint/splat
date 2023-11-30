@@ -29,7 +29,7 @@ namespace GLviz {
     SDL_GLContext m_gl_context;
     bool gFullScreen = false;
 
-    Camera* m_camera;
+    Camera* mCamera;
 
     function<void()> m_guiCallback;
     function<void()> m_displayCallback;
@@ -53,7 +53,7 @@ namespace GLviz {
 
       const float xf = static_cast<float>(x) / static_cast<float>(mScreenWidth);
       const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
-      m_camera->trackball_begin_motion (xf, yf);
+      mCamera->trackball_begin_motion (xf, yf);
       }
     //}}}
     //{{{
@@ -63,11 +63,11 @@ namespace GLviz {
       const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
 
       if (state & SDL_BUTTON_LMASK)
-        m_camera->trackball_end_motion_rotate (xf, yf);
+        mCamera->trackball_end_motion_rotate (xf, yf);
       else if (state & SDL_BUTTON_RMASK)
-        m_camera->trackball_end_motion_zoom (xf, yf);
+        mCamera->trackball_end_motion_zoom (xf, yf);
       else if (state & SDL_BUTTON_MMASK)
-        m_camera->trackball_end_motion_translate (xf, yf);
+        mCamera->trackball_end_motion_translate (xf, yf);
       }
     //}}}
     //{{{
@@ -126,8 +126,8 @@ namespace GLviz {
   int getScreenWidth() { return mScreenWidth; }
   int getScreenHeight() { return mScreenHeight; }
 
-  Camera* camera() { return m_camera; }
-  void set_camera (Camera& camera) { m_camera = &camera; }
+  Camera* camera() { return mCamera; }
+  void set_camera (Camera& camera) { mCamera = &camera; }
 
   //{{{
   void init (int screenWidth, int screenHeight) {
@@ -261,7 +261,7 @@ namespace GLviz {
   //{{{
   int mainUILoop (Camera& camera) {
 
-    m_camera = &camera;
+    mCamera = &camera;
     Uint32 last_time = 0;
 
     resize (mScreenWidth, mScreenHeight);

@@ -30,7 +30,6 @@
 #include "../common/date.h"
 #include "../common/cLog.h"
 
-#include "cMeshModel.h"
 #include "cSurfelModel.h"
 #include "cRender.h"
 
@@ -38,7 +37,7 @@ using namespace std;
 //}}}
 
 //{{{
-void cMeshModel::load (string const& filename) {
+void cModel::load (string const& filename) {
 
   ifstream inputFind (filename);
   if (!inputFind.good()) {
@@ -89,7 +88,7 @@ void cMeshModel::load (string const& filename) {
   }
 //}}}
 //{{{
-void cMeshModel::setVertexNormals() {
+void cModel::setVertexNormals() {
 
   unsigned int nf(static_cast<unsigned int>(mFaces.size()));
   unsigned int nv(static_cast<unsigned int>(mVertices.size()));
@@ -117,7 +116,7 @@ void cMeshModel::setVertexNormals() {
   }
 //}}}
 //{{{
-void cMeshModel::ripple() {
+void cModel::ripple() {
 
   mTime += 25.f / 1000.f;
 
@@ -268,9 +267,9 @@ void cSurfelModel::meshToSurfel (vector <Eigen::Vector3f> const& vertices,
 void cSurfelModel::createModel (const string& filename) {
 
   try {
-    cMeshModel meshModel;
-    meshModel.load (filename);
-    meshToSurfel (meshModel.mVertices, meshModel.mFaces);
+    cModel model;
+    model.load (filename);
+    meshToSurfel (model.mVertices, model.mFaces);
     }
 
   catch (runtime_error const& e) {

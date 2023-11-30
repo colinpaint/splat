@@ -6,11 +6,9 @@
 #include <map>
 #include <Eigen/Core>
 
-#include "glviz/glviz.h"
-#include "glviz/camera.h"
-#include "glviz/program.h"
+#include "cModel.h"
 
-class cSurfelModel {
+class cSurfelModel : public cModel {
 public:
   //{{{
   class cSurfel {
@@ -29,6 +27,7 @@ public:
     };
   //}}}
   cSurfelModel() {}
+  virtual ~cSurfelModel() = default;
 
   void* getArray() { return &mModel.front(); }
   size_t getSize() const { return mModel.size(); }

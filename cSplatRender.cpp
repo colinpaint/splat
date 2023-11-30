@@ -1,11 +1,10 @@
 //{{{  includes
 #include "cSplatRender.h"
 
+#include "../common/cLog.h"
+
 #include "glviz/glviz.h"
 #include "glviz/utility.h"
-
-#include "../common/date.h"
-#include "../common/cLog.h"
 
 #include "cSurfelModel.h"
 
@@ -1310,8 +1309,8 @@ void cSplatRender::set_soft_zbuffer (bool enable) {
   }
 //}}}
 
-float cSplatRender::soft_zbuffer_epsilon() const { return m_epsilon; }
-void cSplatRender::set_soft_zbuffer_epsilon (float epsilon) { m_epsilon = epsilon; }
+float cSplatRender::getSoftZbufferEpsilon() const { return m_epsilon; }
+void cSplatRender::setSoftZbufferEpsilon (float epsilon) { m_epsilon = epsilon; }
 //}}}
 //{{{  EWA
 bool cSplatRender::ewa_filter() const { return m_ewa_filter; }
@@ -1368,15 +1367,18 @@ void cSplatRender::setBackFaceCull (bool enable) {
 
 void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
 //{{{
-void cSplatRender::render (cSurfelModel& model) {
+void cSplatRender::render (cModel* model) {
+
+  cSurfelModel* surfelModel = dynamic_cast<cSurfelModel*>(model);
 
   beginFrame();
 
-  mNumSurfels = model.getSize();
+  mNumSurfels = surfelModel->getSize();
   if (mNumSurfels > 0) {
     glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
     glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfelModel::cSurfel) * mNumSurfels, (void*)(model.getArray()), GL_DYNAMIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfelModel::cSurfel) * mNumSurfels,
+                                   (void*)(surfelModel->getArray()), GL_DYNAMIC_DRAW);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     if (getMultiSample()) {
@@ -1417,6 +1419,72 @@ bool cSplatRender::keyboard (SDL_Keycode key) {
     }
 
   return false;
+  }
+//}}}
+//{{{
+void cSplatRender::gui() {
+
+  ImGui::SetNextItemOpen (true, ImGuiCond_Once);
+  if (ImGui::CollapsingHeader ("Surface Splatting")) {
+    int shadingMethod = smooth() ? 1 : 0;
+    if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))
+      set_smooth (shadingMethod > 0 ? true : false);
+
+    //{{{  material
+    ImGui::Separator();
+    int color_material = getColorMaterial() ? 1 : 0;
+    if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
+      setColorMaterial (color_material > 0 ? true : false);
+
+    float materialColor[3] =  { getMaterialColor()[0],
+                                getMaterialColor()[1],
+                                getMaterialColor()[2] };
+    if (ImGui::ColorEdit3 ("Material color", materialColor))
+      setMaterialColor (Eigen::Vector3f(materialColor[0], materialColor[1], materialColor[2]));
+
+    float materialShininess = getMaterialShininess();
+    if (ImGui::DragFloat ("Material shininess", &materialShininess, 0.05f, 1e-12f, 1000.0f))
+      setMaterialShininess (min(max( 1e-12f, materialShininess), 1000.0f));
+    //}}}
+    //{{{  soft z
+    ImGui::Separator();
+    bool softZbuffer = soft_zbuffer();
+    if (ImGui::Checkbox("Soft z-buffer", &softZbuffer))
+      set_soft_zbuffer (softZbuffer);
+
+    float soft_zbuffer_epsilon = getSoftZbufferEpsilon();
+    if (ImGui::DragFloat ("Soft z-buffer epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
+      setSoftZbufferEpsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
+    //}}}
+    //{{{  ewa
+    ImGui::Separator();
+    bool ewaFilter = ewa_filter();
+    if (ImGui::Checkbox ("EWA filter", &ewaFilter))
+      set_ewa_filter (ewaFilter);
+
+    float ewaRadius = ewa_radius();
+    if (ImGui::DragFloat ("EWA radius", &ewaRadius, 1e-3f, 0.1f, 4.0f))
+      set_ewa_radius (ewaRadius);
+    //}}}
+
+    ImGui::Separator();
+    int pointSize = pointsize_method();
+    if (ImGui::Combo ("Point size", &pointSize, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
+      set_pointsize_method (pointSize);
+
+    float radiusScale = radius_scale();
+    if (ImGui::DragFloat ("Radius scale", &radiusScale, 0.001f, 1e-6f, 2.0f))
+      set_radius_scale (min(max( 1e-6f, radiusScale), 2.0f));
+
+    ImGui::Separator();
+    bool multiSample = getMultiSample();
+    if (ImGui::Checkbox ("MultiSample x4", &multiSample))
+      setMultiSample (multiSample);
+
+    bool backFaceCull = getBackFaceCull();
+    if (ImGui::Checkbox ("Backface cull", &backFaceCull))
+      setBackFaceCull (backFaceCull);
+    }
   }
 //}}}
 
@@ -1536,17 +1604,17 @@ void cSplatRender::setup_vertex_array_buffer_object() {
 //{{{
 void cSplatRender::setupUniforms (glProgram& program) {
 
-  m_uniform_camera.set_buffer_data (m_camera);
+  m_uniform_camera.set_buffer_data (mCamera);
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
-  GLviz::Frustum view_frustum = m_camera.get_frustum();
+  GLviz::Frustum view_frustum = mCamera.get_frustum();
 
-  m_uniform_raycast.set_buffer_data (m_camera.get_projection_matrix().inverse(), viewport);
+  m_uniform_raycast.set_buffer_data (mCamera.get_projection_matrix().inverse(), viewport);
 
   Eigen::Vector4f frustum_plane[6];
 
-  Eigen::Matrix4f const& projection_matrix = m_camera.get_projection_matrix();
+  Eigen::Matrix4f const& projection_matrix = mCamera.get_projection_matrix();
   for (unsigned int i(0); i < 6; ++i)
     frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) *
                        projection_matrix.row(i / 2);

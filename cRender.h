@@ -10,11 +10,11 @@
 #include "glviz/camera.h"
 #include "glviz/program.h"
 
-class cSurfelModel;
+class cModel;
 
 class cRender {
 public:
-  cRender (GLviz::Camera const& camera) : m_camera(camera) {}
+  cRender (GLviz::Camera const& camera) : mCamera(camera) {}
   virtual ~cRender() {}
 
   bool getMultiSample() const { return mMultiSample; }
@@ -36,10 +36,11 @@ public:
   // abstract
   virtual bool keyboard (SDL_Keycode key) { return false; }
   virtual void resize (int width, int height) = 0;
-  virtual void render (cSurfelModel& model) = 0;
+  virtual void render (cModel* model) = 0;
+  virtual void gui() {}
 
 protected:
-  GLviz::Camera const& m_camera;
+  GLviz::Camera const& mCamera;
   GLviz::UniformBufferCamera m_uniform_camera;
 
   bool mMultiSample = false;

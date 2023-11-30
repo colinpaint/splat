@@ -119,6 +119,15 @@ public:
   cSplatRender (GLviz::Camera const& camera);
   virtual ~cSplatRender();
 
+  virtual void setBackFaceCull (bool enable = true) final;
+  virtual void setMultiSample (bool enable = true) final;
+
+  virtual void resize (int width, int height) final;
+  virtual void render (cModel* model) final;
+  virtual bool keyboard (SDL_Keycode key) final;
+  virtual void gui() final;
+
+private:
   //{{{  gui access
   bool smooth() const;
   void set_smooth (bool enable = true);
@@ -126,8 +135,8 @@ public:
   bool soft_zbuffer() const;
   void set_soft_zbuffer (bool enable = true);
 
-  float soft_zbuffer_epsilon() const;
-  void set_soft_zbuffer_epsilon (float epsilon);
+  float getSoftZbufferEpsilon() const;
+  void setSoftZbufferEpsilon (float epsilon);
 
   unsigned int pointsize_method() const;
   void set_pointsize_method (unsigned int pointsize_method);
@@ -141,14 +150,7 @@ public:
   float radius_scale() const;
   void set_radius_scale (float radius_scale);
   //}}}
-  virtual void setBackFaceCull (bool enable = true) final;
-  virtual void setMultiSample (bool enable = true) final;
 
-  virtual void resize (int width, int height) final;
-  virtual void render (cSurfelModel& model) final;
-  virtual bool keyboard (SDL_Keycode key) final;
-
-private:
   void setup_program_objects();
   void setup_filter_kernel();
   void setup_screen_size_quad();

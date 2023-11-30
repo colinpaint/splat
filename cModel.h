@@ -4,9 +4,10 @@
 #include <string>
 #include <Eigen/Core>
 
-class cMeshModel {
+class cModel {
 public:
-  cMeshModel() {}
+  cModel() {}
+  virtual ~cModel() = default;
 
   void load (std::string const& filename);
 
