@@ -75,7 +75,7 @@ void cMeshRender::gui() {
     ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::Separator();
 
-    ImGui::Checkbox ("draw##wire", &mEnableWireFrame);
+    ImGui::Checkbox ("wireFrame", &mEnableWireFrame);
     ImGui::ColorEdit3 ("color##wire", mWireFrameMaterial);
     ImGui::Separator();
     }
@@ -109,7 +109,9 @@ void cMeshRender::display (cModel* model) {
 
   glEnable (GL_DEPTH_TEST);
 
+  glDepthMask (GL_TRUE);
   glClearDepth (1.0f);
+  glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -130,18 +132,20 @@ void cMeshRender::display (cModel* model) {
 
     //{{{  display mesh
     mProgramMesh.use();
-    if (mShadingMethod == 0) { // Flat
+
+    if (mShadingMethod == 0) {
+      // Flat
       mVertexArrayVf.bind();
-      glDrawElements (GL_TRIANGLES, static_cast<GLsizei>(3 * model->mFaces.size()),
-                      GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVf.unbind();
       }
-    else { // Smooth
+    else {
+      // Smooth
       mVertexArrayVnf.bind();
-      glDrawElements (GL_TRIANGLES, static_cast<GLsizei>(3 * model->mFaces.size()),
-                      GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVnf.unbind();
       }
+
     mProgramMesh.unuse();
     //}}}
     }
@@ -157,11 +161,13 @@ void cMeshRender::display (cModel* model) {
     //{{{  display spheres
     glEnable (GL_PROGRAM_POINT_SIZE);
     glPointParameterf (GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+
     mProgramSphere.use();
     mVertexArrayV.bind();
-    glDrawArrays (GL_POINTS, 0, static_cast<GLsizei>(model->mVertices.size()));
+    glDrawArrays (GL_POINTS, 0, static_cast<GLsizei>(model->getNumVertices()));
     mVertexArrayV.unbind();
     mProgramSphere.unuse();
+
     glDisable (GL_PROGRAM_POINT_SIZE);
     //}}}
     }

@@ -1412,9 +1412,9 @@ void cSplatRender::display (cModel* model) {
   m_fbo.bind();
 
   glDepthMask (GL_TRUE);
+  glClearDepth (1.0);
   glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glClearColor (0.0, 0.0, 0.0, 0.0);
-  glClearDepth (1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   mNumSurfels = surfelModel->getSize();
