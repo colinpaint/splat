@@ -104,7 +104,7 @@ public:
   // overides
   virtual void setMultiSample (bool enable = true) { mMultiSample = enable; }
   virtual void setBackFaceCull (bool enable = true) { mBackFaceCull = enable; }
-  virtual void bindUniforms() = 0;
+  virtual void bindUniforms (bool multiSample, bool backFaceCull) = 0;
 
   // abstract
   virtual void display (cModel* model) = 0;

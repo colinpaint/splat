@@ -32,6 +32,8 @@ namespace {
   cMeshRender* gMeshRender;
   cRender* gRender;
   bool gUseSplatRender = false;
+  bool gMultiSample = false;
+  bool gBackFaceCull = false;
 
   //{{{
   void display() {
@@ -48,16 +50,14 @@ namespace {
         gRender = gSplatRender;
       else
         gRender = gMeshRender;
-      gRender->bindUniforms();
+      gRender->bindUniforms (gMultiSample, gBackFaceCull);
       }
 
-    bool multiSample = gRender->getMultiSample();
-    if (ImGui::Checkbox ("multiSample", &multiSample))
-      gRender->setMultiSample (multiSample);
+    if (ImGui::Checkbox ("multiSample", &gMultiSample))
+      gRender->setMultiSample (gMultiSample);
 
-    bool backFaceCull = gRender->getBackFaceCull();
-    if (ImGui::Checkbox ("backfaceCull", &backFaceCull))
-      gRender->setBackFaceCull (backFaceCull);
+    if (ImGui::Checkbox ("backfaceCull", &gBackFaceCull))
+      gRender->setBackFaceCull (gBackFaceCull);
 
     ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
 

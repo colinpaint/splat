@@ -1237,16 +1237,15 @@ void cProgramFinal::initProgram() {
 //{{{
 cSplatRender::cSplatRender (GLviz::Camera const& camera)
     : cRender(camera),
-      mSoftZbuffer(true),
       mSmooth(false),
-      mEwaFilter(false),
-      m_pointsize_method(0),
-      mBackFaceCull(false),
+      mSoftZbuffer(true),
       m_epsilon(1.0f * 1e-3f),
-      m_radius_scale(1.0f),
-      m_ewa_radius(1.0f) {
+      mEwaFilter(false),
+      m_ewa_radius(1.0f),
+      m_pointsize_method(0),
+      m_radius_scale(1.0f) {
 
-  bindUniforms();
+  bindUniforms (mMultiSample, mBackFaceCull);
 
   setupProgramObjects();
   setupFilterKernel();
@@ -1309,28 +1308,27 @@ void cSplatRender::set_radius_scale (float radius_scale) { m_radius_scale = radi
 //{{{
 void cSplatRender::setMultiSample (bool enable) {
 
-  if (getMultiSample() != enable) {
-    cRender::setMultiSample (enable);
-    mFinal.set_multisampling (enable);
-    mFrameBuffer.set_multisample (enable);
-    }
+  mMultiSample = enable;
+  mFinal.set_multisampling (enable);
+  mFrameBuffer.set_multisample (enable);
   }
 //}}}
 //{{{
 void cSplatRender::setBackFaceCull (bool enable) {
 
-  if (getBackFaceCull() != enable) {
-    cRender::setMultiSample (enable);
-    mVisibility.set_backface_culling (enable);
-    mAttribute.set_backface_culling (enable);
-    }
+  mBackFaceCull = enable;
+  mVisibility.set_backface_culling (enable);
+  mAttribute.set_backface_culling (enable);
   }
 //}}}
 
 //{{{
-void cSplatRender::bindUniforms() {
+void cSplatRender::bindUniforms (bool multiSample, bool backFaceCull) {
 // bind uniforms to binding points
 
+  mMultiSample = multiSample;
+  mBackFaceCull = backFaceCull;
+  
   m_uniform_camera.bindBufferBase (0);
   m_uniform_raycast.bindBufferBase (1);
   m_uniform_frustum.bindBufferBase (2);

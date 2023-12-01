@@ -50,7 +50,7 @@ void cModel::loadFile (string const& filename) {
   ifstream inputFind (filename);
   if (!inputFind.good()) {
     //{{{  error, return
-     cLog::log (LOGERROR, fmt::format ("loadMesh - cannot find {}", filename));
+     cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot find {}", filename));
     throw runtime_error ("cannot find");
     return;
     }
@@ -60,7 +60,7 @@ void cModel::loadFile (string const& filename) {
   ifstream input (filename, ios::in | ios::binary);
   if (input.fail()) {
     ostringstream error_message;
-    cLog::log (LOGERROR, fmt::format ("cMesh::load - cannot open {}", filename));
+    cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot open {}", filename));
     throw runtime_error (error_message.str().c_str());
     }
 
@@ -91,7 +91,7 @@ void cModel::loadFile (string const& filename) {
   for (size_t i = 0; i < mNormals.size(); ++i)
     mRefNormals[i] = mNormals[i];
 
-  cLog::log (LOGINFO, fmt::format ("cMesh::load {} vertices:{} faces:{}",
+  cLog::log (LOGINFO, fmt::format ("cModel::loadFile {} vertices:{} faces:{}",
                                    filename, mVertices.size(), mFaces.size()));
   }
 //}}}

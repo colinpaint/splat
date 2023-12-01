@@ -124,7 +124,7 @@ public:
   virtual void setBackFaceCull (bool enable = true) final;
   virtual void setMultiSample (bool enable = true) final;
 
-  virtual void bindUniforms() final;
+  virtual void bindUniforms (bool multiSample, bool backFaceCull) final;
 
   virtual void gui() final;
   virtual bool keyboard (SDL_Keycode key) final;
@@ -208,13 +208,15 @@ private:
   cFrameBuffer mFrameBuffer;
 
   //
-  bool mSoftZbuffer;
-  bool mBackFaceCull;
   bool mSmooth;
-  bool mEwaFilter;
-  unsigned int m_pointsize_method;
+
+  bool mSoftZbuffer;
   float m_epsilon;
-  float m_radius_scale;
+
+  bool mEwaFilter;
   float m_ewa_radius;
+
+  unsigned int m_pointsize_method;
+  float m_radius_scale;
   //}}}
   };
