@@ -68,22 +68,23 @@ void cMeshRender::bindUniforms() {
 //{{{
 void cMeshRender::gui() {
 
-  if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("draw", &(mEnableMesh));
+   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Checkbox ("draw", &mEnableMesh);
     ImGui::ColorEdit3 ("color", mMeshMaterial);
     ImGui::DragFloat ("shine", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
-    ImGui::Combo ("shading", &mShadingMethod, "Flat\0Phong\0\0");
-
+    ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::Separator();
-    ImGui::Checkbox ("draw", &mEnableWireFrame);
-    ImGui::ColorEdit3 ("color", mWireFrameMaterial);
+
+    ImGui::Checkbox ("draw##wire", &mEnableWireFrame);
+    ImGui::ColorEdit3 ("color##wire", mWireFrameMaterial);
+    ImGui::Separator();
     }
 
   if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("draw", &mEnableSpheres);
-    ImGui::DragFloat ("radius", &(mPointRadius), 1e-5f, 0.0f, 0.1f, "%.4f");
-    ImGui::ColorEdit3 ("color", mPointsMaterial);
-    ImGui::DragFloat ("shine", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
+    ImGui::Checkbox ("draw##spheres", &mEnableSpheres);
+    ImGui::DragFloat ("radius##spheres", &mPointRadius, 1e-5f, 0.0f, 0.1f, "%.4f");
+    ImGui::ColorEdit3 ("color##spheres", mPointsMaterial);
+    ImGui::DragFloat ("shine##spheres", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
     }
   }
 //}}}

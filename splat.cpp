@@ -133,11 +133,14 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "splat");
 
   GLviz::init (960, 540);
+
   gModel = new cSurfelModel();
   gModel->load (gModelIndex);
+
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  gMeshRender = new cMeshRender (gCamera);
+
   gSplatRender = new cSplatRender (gCamera);
+  gMeshRender = new cMeshRender (gCamera);
   gRender = gMeshRender;
 
   GLviz::displayCallback (display);
