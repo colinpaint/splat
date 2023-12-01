@@ -17,7 +17,7 @@ public:
   GLviz::glVertexArray mVertexArrayVf;
   GLviz::glVertexArray mVertexArrayVnf;
   GLviz::glArrayBuffer mVertexArrayBuffer;
-  GLviz::glArrayBuffer normal_array_buffer;
+  GLviz::glArrayBuffer mNormalArrayBuffer;
   GLviz::glElementArrayBuffer mIndexArrayBuffer;
 
   GLviz::UniformBufferCamera mUniformCamera;
@@ -25,13 +25,13 @@ public:
   GLviz::UniformBufferWireFrame mUniformWireFrame;
   GLviz::UniformBufferSphere mUniformWireSphere;
 
-  GLviz::ProgramMesh3 program_mesh3;
-  GLviz::ProgramSphere program_sphere;
+  GLviz::ProgramMesh3 mProgramMesh;
+  GLviz::ProgramSphere mProgramSphere;
 
   int mShadingMethod = 0;
   float mProjectionRadius = 0.0f;
 
-  bool mEnableMesh3 = true;
+  bool mEnableMesh = true;
   float mMeshMaterial[4] = { 0.0f, 0.25f, 1.0f, 8.0f };
 
   bool mEnableWireFrame = false;
@@ -40,8 +40,4 @@ public:
   bool mEnableSpheres = false;
   float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
-
-private:
-  void renderMesh (int shadingMethod, GLsizei nf);
-  void renderSpheres (GLsizei nv);
   };

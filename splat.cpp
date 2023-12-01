@@ -63,7 +63,7 @@ namespace {
 
     ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
 
-    ImGui::PushItemWidth (0.5f * ImGui::GetContentRegionAvail().x);
+    ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("scene"))
@@ -138,7 +138,7 @@ int main (int numArgs, char* args[]) {
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
   gMeshRender = new cMeshRender (gCamera);
   gSplatRender = new cSplatRender (gCamera);
-  gRender = gSplatRender;
+  gRender = gMeshRender;
 
   GLviz::displayCallback (display);
   GLviz::guiCallback (gui);
