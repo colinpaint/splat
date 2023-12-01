@@ -652,9 +652,9 @@ void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, flo
   }
 //}}}
 //}}}
-//{{{  Framebuffer
+//{{{  cFramebuffer
 //{{{
-struct cFrameBuffer::Impl {
+struct cFrameBuffer::sImpl {
   virtual bool multisample() const = 0;
 
   virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
@@ -668,7 +668,7 @@ struct cFrameBuffer::Impl {
   };
 //}}}
 //{{{
-struct cFrameBuffer::Default : public cFrameBuffer::Impl {
+struct cFrameBuffer::sDefault : public cFrameBuffer::sImpl {
   bool multisample() const { return false; }
 
   //{{{
@@ -723,7 +723,7 @@ struct cFrameBuffer::Default : public cFrameBuffer::Impl {
   };
 //}}}
 //{{{
-struct cFrameBuffer::Multisample : public cFrameBuffer::Impl {
+struct cFrameBuffer::sMultisample : public cFrameBuffer::sImpl {
   bool multisample() const { return true; }
 
   //{{{
@@ -775,10 +775,10 @@ struct cFrameBuffer::Multisample : public cFrameBuffer::Impl {
 
 //{{{
 cFrameBuffer::cFrameBuffer()
-    : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl (new Default()) {
+    : mFbo(0), mColor(0), mNormal(0), mDepth(0), mPimpl (new sDefault()) {
 
   // Create framebuffer object.
-  glGenFramebuffers (1, &m_fbo);
+  glGenFramebuffers (1, &mFbo);
 
   // Initialize.
   bind();
@@ -790,28 +790,28 @@ cFrameBuffer::cFrameBuffer()
 cFrameBuffer::~cFrameBuffer() {
 
   bind();
-  remove_and_delete_attachments();
+  removeDeleteAttachments();
   unbind();
 
-  glDeleteFramebuffers(1, &m_fbo);
+  glDeleteFramebuffers(1, &mFbo);
   }
 //}}}
 
-GLuint cFrameBuffer::color_texture() { return m_color; }
+GLuint cFrameBuffer::color_texture() { return mColor; }
 //{{{
 void cFrameBuffer::enable_depth_texture() {
 
   bind();
 
   glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-  glDeleteRenderbuffers (1, &m_depth);
+  glDeleteRenderbuffers (1, &mDepth);
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
 
-  glGenTextures (1, &m_depth);
-  m_pimpl->allocate_depth_texture (m_depth, viewport[2], viewport[3]);
-  m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depth, 0);
+  glGenTextures (1, &mDepth);
+  mPimpl->allocate_depth_texture (mDepth, viewport[2], viewport[3]);
+  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepth, 0);
 
   unbind();
   }
@@ -821,35 +821,35 @@ void cFrameBuffer::disable_depth_texture() {
 
   bind();
 
-  m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
-  glDeleteTextures (1, &m_depth);
+  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+  glDeleteTextures (1, &mDepth);
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
 
-  glGenRenderbuffers (1, &m_depth);
-  glBindRenderbuffer (GL_RENDERBUFFER, m_depth);
-  m_pimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
+  glGenRenderbuffers (1, &mDepth);
+  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
+  mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
   glBindRenderbuffer (GL_RENDERBUFFER, 0);
 
-  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depth);
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 
   unbind();
   }
 //}}}
-GLuint cFrameBuffer::depth_texture() { return m_depth; }
+GLuint cFrameBuffer::depth_texture() { return mDepth; }
 
 //{{{
-void cFrameBuffer::attach_normal_texture() {
+void cFrameBuffer::attachNormalTexture() {
 
   bind();
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
 
-  glGenTextures (1, &m_normal);
-  m_pimpl->allocate_rgba_texture (m_normal, viewport[2], viewport[3]);
-  m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, m_normal, 0);
+  glGenTextures (1, &mNormal);
+  mPimpl->allocate_rgba_texture (mNormal, viewport[2], viewport[3]);
+  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mNormal, 0);
 
   GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers (2, buffers);
@@ -858,12 +858,12 @@ void cFrameBuffer::attach_normal_texture() {
   }
 //}}}
 //{{{
-void cFrameBuffer::detach_normal_texture() {
+void cFrameBuffer::detachNormalTexture() {
 
   bind();
 
-  m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-  glDeleteTextures (1, &m_normal);
+  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+  glDeleteTextures (1, &mNormal);
 
   GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
   glDrawBuffers (1, buffers);
@@ -871,27 +871,27 @@ void cFrameBuffer::detach_normal_texture() {
   unbind();
   }
 //}}}
-GLuint cFrameBuffer::normal_texture() { return m_normal; }
+GLuint cFrameBuffer::normal_texture() { return mNormal; }
 
 //{{{
 void cFrameBuffer::set_multisample (bool enable) {
 
-  if (m_pimpl->multisample() != enable) {
+  if (mPimpl->multisample() != enable) {
     bind();
 
     GLint type;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
                                            GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-    remove_and_delete_attachments();
+    removeDeleteAttachments();
 
-    if (m_pimpl->multisample())
-      m_pimpl = unique_ptr<cFrameBuffer::Impl>(new cFrameBuffer::Default());
+    if (mPimpl->multisample())
+      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sDefault());
     else
-      m_pimpl = unique_ptr<cFrameBuffer::Impl>(new cFrameBuffer::Multisample());
+      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sMultisample());
 
     initialize();
     if (type == GL_TEXTURE) {
-      attach_normal_texture();
+      attachNormalTexture();
       enable_depth_texture();
       }
 
@@ -910,7 +910,7 @@ void cFrameBuffer::set_multisample (bool enable) {
   }
 //}}}
 
-void cFrameBuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
+void cFrameBuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, mFbo); }
 void cFrameBuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
 
 //{{{
@@ -929,7 +929,7 @@ void cFrameBuffer::resize (GLint width, GLint height) {
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
     if (type == GL_TEXTURE)
-      m_pimpl->resize_rgba_texture (name, width, height);
+      mPimpl->resize_rgba_texture (name, width, height);
     }
 
     {
@@ -941,12 +941,12 @@ void cFrameBuffer::resize (GLint width, GLint height) {
                                            GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
     switch (type) {
       case GL_TEXTURE:
-        m_pimpl->resize_depth_texture(name, width, height);
+        mPimpl->resize_depth_texture(name, width, height);
         break;
 
       case GL_RENDERBUFFER:
         glBindRenderbuffer (GL_RENDERBUFFER, name);
-        m_pimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glBindRenderbuffer (GL_RENDERBUFFER, 0);
         break;
 
@@ -978,16 +978,16 @@ void cFrameBuffer::initialize() {
   glGetIntegerv (GL_VIEWPORT, viewport);
 
   // Attach color texture to framebuffer object.
-  glGenTextures (1, &m_color);
-  m_pimpl->allocate_rgba_texture (m_color, viewport[2], viewport[3]);
-  m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_color, 0);
+  glGenTextures (1, &mColor);
+  mPimpl->allocate_rgba_texture (mColor, viewport[2], viewport[3]);
+  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColor, 0);
 
   // Attach renderbuffer object to framebuffer object.
-  glGenRenderbuffers (1, &m_depth);
-  glBindRenderbuffer (GL_RENDERBUFFER, m_depth);
-  m_pimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
+  glGenRenderbuffers (1, &mDepth);
+  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
+  mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
   glBindRenderbuffer (GL_RENDERBUFFER, 0);
-  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depth);
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 
   GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
   glDrawBuffers (1, buffers);
@@ -1000,7 +1000,7 @@ void cFrameBuffer::initialize() {
   }
 //}}}
 //{{{
-void cFrameBuffer::remove_and_delete_attachments() {
+void cFrameBuffer::removeDeleteAttachments() {
 
   GLenum attachment[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT };
 
@@ -1015,7 +1015,7 @@ void cFrameBuffer::remove_and_delete_attachments() {
 
     switch (type) {
       case GL_TEXTURE:
-        m_pimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, attachment[i], 0, 0);
+        mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, attachment[i], 0, 0);
         glDeleteTextures (1, reinterpret_cast<const GLuint*>(&name));
         break;
 
@@ -1036,18 +1036,19 @@ void cFrameBuffer::remove_and_delete_attachments() {
 //{{{
 cProgramAttribute::cProgramAttribute()
     : m_ewa_filter(false), m_backface_culling(false),
-      m_visibility_pass(true), m_smooth(false), m_color_material(false),
+      m_visibility_pass(true), mSmooth(false), m_color_material(false),
       m_pointsize_method(0) {
 
   initShader();
   initProgram();
   }
 //}}}
+
 //{{{
 void cProgramAttribute::set_smooth (bool enable) {
 
-  if (m_smooth != enable) {
-    m_smooth = enable;
+  if (mSmooth != enable) {
+    mSmooth = enable;
     initProgram();
     }
   }
@@ -1120,7 +1121,7 @@ void cProgramAttribute::initProgram() {
     defines.insert (make_pair ("EWA_FILTER", m_ewa_filter ? 1 : 0));
     defines.insert (make_pair ("BACKFACE_CULLING", m_backface_culling ? 1 : 0));
     defines.insert (make_pair ("VISIBILITY_PASS", m_visibility_pass ? 1 : 0));
-    defines.insert (make_pair ("SMOOTH", m_smooth ? 1 : 0));
+    defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
     defines.insert (make_pair ("COLOR_MATERIAL", m_color_material ? 1 : 0));
     defines.insert (make_pair ("POINTSIZE_METHOD", static_cast<int>(m_pointsize_method)));
 
@@ -1156,17 +1157,18 @@ void cProgramAttribute::initProgram() {
 //{{{  cProgramFinal
 //{{{
 cProgramFinal::cProgramFinal()
-    : m_smooth(false), m_multisampling(false) {
+    : mSmooth(false), mMulitSample(false) {
 
   initShader();
   initProgram();
   }
 //}}}
+
 //{{{
 void cProgramFinal::set_smooth (bool enable) {
 
-  if (m_smooth != enable) {
-    m_smooth = enable;
+  if (mSmooth != enable) {
+    mSmooth = enable;
     initProgram();
     }
   }
@@ -1174,8 +1176,8 @@ void cProgramFinal::set_smooth (bool enable) {
 //{{{
 void cProgramFinal::set_multisampling (bool enable) {
 
-  if (m_multisampling != enable) {
-    m_multisampling = enable;
+  if (mMulitSample != enable) {
+    mMulitSample = enable;
     initProgram();
     }
   }
@@ -1199,8 +1201,8 @@ void cProgramFinal::initProgram() {
   try {
     // edit shader defines
     map <string, int> defines;
-    defines.insert (make_pair ("SMOOTH", m_smooth ? 1 : 0));
-    defines.insert (make_pair ("MULTISAMPLING", m_multisampling ? 1 : 0));
+    defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
+    defines.insert (make_pair ("MULTISAMPLING", mMulitSample ? 1 : 0));
 
     m_Final_vs_obj.compile (defines);
     m_Final_fs_obj.compile (defines);
@@ -1235,11 +1237,11 @@ void cProgramFinal::initProgram() {
 //{{{
 cSplatRender::cSplatRender (GLviz::Camera const& camera)
     : cRender(camera),
-      m_soft_zbuffer(true),
-      m_smooth(false),
-      m_ewa_filter(false),
+      mSoftZbuffer(true),
+      mSmooth(false),
+      mEwaFilter(false),
       m_pointsize_method(0),
-      m_backface_culling(false),
+      mBackFaceCull(false),
       m_epsilon(1.0f * 1e-3f),
       m_radius_scale(1.0f),
       m_ewa_radius(1.0f) {
@@ -1266,23 +1268,23 @@ cSplatRender::~cSplatRender() {
   }
 //}}}
 
-bool cSplatRender::smooth() const { return m_smooth; }
+bool cSplatRender::smooth() const { return mSmooth; }
 //{{{
 void cSplatRender::set_smooth (bool enable) {
 
-  if (m_smooth != enable) {
-    m_smooth = enable;
+  if (mSmooth != enable) {
+    mSmooth = enable;
 
     mAttribute.set_smooth (enable);
     mFinal.set_smooth (enable);
 
-    if (m_smooth) {
-      m_fbo.enable_depth_texture();
-      m_fbo.attach_normal_texture();
+    if (mSmooth) {
+      mFrameBuffer.enable_depth_texture();
+      mFrameBuffer.attachNormalTexture();
       }
     else {
-      m_fbo.disable_depth_texture();
-      m_fbo.detach_normal_texture();
+      mFrameBuffer.disable_depth_texture();
+      mFrameBuffer.detachNormalTexture();
       }
     }
   }
@@ -1310,7 +1312,7 @@ void cSplatRender::setMultiSample (bool enable) {
   if (getMultiSample() != enable) {
     cRender::setMultiSample (enable);
     mFinal.set_multisampling (enable);
-    m_fbo.set_multisample (enable);
+    mFrameBuffer.set_multisample (enable);
     }
   }
 //}}}
@@ -1409,7 +1411,7 @@ void cSplatRender::display (cModel* model) {
 
   cSurfelModel* surfelModel = dynamic_cast<cSurfelModel*>(model);
 
-  m_fbo.bind();
+  mFrameBuffer.bind();
 
   glDepthMask (GL_TRUE);
   glClearDepth (1.0);
@@ -1431,7 +1433,7 @@ void cSplatRender::display (cModel* model) {
       glMinSampleShading (4.0);
       }
 
-    if (m_soft_zbuffer)
+    if (mSoftZbuffer)
       renderPass (true);
 
     renderPass (false);
@@ -1442,29 +1444,29 @@ void cSplatRender::display (cModel* model) {
       }
     }
 
-  m_fbo.unbind();
+  mFrameBuffer.unbind();
 
   //{{{  finalise
   if (getMultiSample()) {
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.color_texture());
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.color_texture());
 
-    if (m_smooth) {
+    if (mSmooth) {
       glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.normal_texture());
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.normal_texture());
       glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, m_fbo.depth_texture());
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.depth_texture());
       }
     }
   else {
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, m_fbo.color_texture());
+    glBindTexture (GL_TEXTURE_2D, mFrameBuffer.color_texture());
 
-    if (m_smooth) {
+    if (mSmooth) {
       glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D, m_fbo.normal_texture());
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.normal_texture());
       glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D, m_fbo.depth_texture());
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.depth_texture());
       }
     }
 
@@ -1473,7 +1475,7 @@ void cSplatRender::display (cModel* model) {
   try {
     setupUniforms (mFinal);
     mFinal.setUniform1i ("color_texture", 0);
-    if (m_smooth) {
+    if (mSmooth) {
       mFinal.setUniform1i ("normal_texture", 1);
       mFinal.setUniform1i ("depth_texture", 2);
       }
@@ -1494,7 +1496,7 @@ void cSplatRender::display (cModel* model) {
   #endif
   }
 //}}}
-void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
+void cSplatRender::resize (int width, int height) { mFrameBuffer.resize (width, height); }
 
 // private
 //{{{
@@ -1502,17 +1504,17 @@ void cSplatRender::setupProgramObjects() {
 
   mVisibility.set_visibility_pass();
   mVisibility.set_pointsize_method (m_pointsize_method);
-  mVisibility.set_backface_culling (m_backface_culling);
+  mVisibility.set_backface_culling (mBackFaceCull);
 
   mAttribute.set_visibility_pass (false);
   mAttribute.set_pointsize_method (m_pointsize_method);
   mAttribute.set_backface_culling (getBackFaceCull());
   mAttribute.set_color_material (getMaterialColored());
-  mAttribute.set_ewa_filter (m_ewa_filter);
-  mAttribute.set_smooth (m_smooth);
+  mAttribute.set_ewa_filter (mEwaFilter);
+  mAttribute.set_smooth (mSmooth);
 
   mFinal.set_multisampling (getMultiSample());
-  mFinal.set_smooth (m_smooth);
+  mFinal.set_smooth (mSmooth);
   }
 //}}}
 //{{{
@@ -1638,7 +1640,7 @@ void cSplatRender::renderPass (bool depth_only) {
   glEnable (GL_DEPTH_TEST);
   glEnable (GL_PROGRAM_POINT_SIZE);
 
-  if (!depth_only && m_soft_zbuffer) {
+  if (!depth_only && mSoftZbuffer) {
     glEnable (GL_BLEND);
     glBlendEquationSeparate (GL_FUNC_ADD, GL_FUNC_ADD);
     glBlendFuncSeparate (GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
@@ -1652,7 +1654,7 @@ void cSplatRender::renderPass (bool depth_only) {
     glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     }
   else {
-    if (m_soft_zbuffer)
+    if (mSoftZbuffer)
       glDepthMask (GL_FALSE);
     else
       glDepthMask (GL_TRUE);
@@ -1662,7 +1664,7 @@ void cSplatRender::renderPass (bool depth_only) {
 
   setupUniforms (program);
 
-  if (!depth_only && m_soft_zbuffer && m_ewa_filter) {
+  if (!depth_only && mSoftZbuffer && mEwaFilter) {
     glActiveTexture (GL_TEXTURE1);
     glBindTexture (GL_TEXTURE_1D, mFilterKernel);
     program.setUniform1i ("filter_kernel", 1);

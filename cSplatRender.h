@@ -50,7 +50,7 @@ private:
   bool m_ewa_filter;
   bool m_backface_culling;
   bool m_visibility_pass;
-  bool m_smooth;
+  bool mSmooth;
   bool m_color_material;
   unsigned int m_pointsize_method;
   };
@@ -71,8 +71,8 @@ private:
   glFragmentShader m_Final_fs_obj;
   glFragmentShader m_lighting_fs_obj;
 
-  bool m_smooth;
-  bool m_multisampling;
+  bool mSmooth;
+  bool mMulitSample;
   };
 //}}}
 //{{{
@@ -87,8 +87,8 @@ public:
   void disable_depth_texture();
   GLuint depth_texture();
 
-  void attach_normal_texture();
-  void detach_normal_texture();
+  void attachNormalTexture();
+  void detachNormalTexture();
   GLuint normal_texture();
 
   void set_multisample (bool enable = true);
@@ -99,18 +99,18 @@ public:
 
 private:
   void initialize();
-  void remove_and_delete_attachments();
+  void removeDeleteAttachments();
 
-  GLuint m_fbo;
-  GLuint m_color;
-  GLuint m_normal;
-  GLuint m_depth;
+  GLuint mFbo;
+  GLuint mColor;
+  GLuint mNormal;
+  GLuint mDepth;
 
-  struct Impl;
-  struct Default;
-  struct Multisample;
+  struct sImpl;
+  struct sDefault;
+  struct sMultisample;
 
-  std::unique_ptr<Impl> m_pimpl;
+  std::unique_ptr<sImpl> mPimpl;
   };
 //}}}
 
@@ -135,17 +135,17 @@ private:
   void set_smooth (bool enable = true);
 
   // softZ
-  bool soft_zbuffer() const { return m_soft_zbuffer; }
+  bool soft_zbuffer() const { return mSoftZbuffer; }
   //{{{
   void set_soft_zbuffer (bool enable) {
 
-    if (m_soft_zbuffer != enable) {
+    if (mSoftZbuffer != enable) {
       if (!enable) {
-         m_ewa_filter = false;
+        mEwaFilter = false;
          mAttribute.set_ewa_filter(false);
          }
 
-      m_soft_zbuffer = enable;
+      mSoftZbuffer = enable;
       }
     }
   //}}}
@@ -154,12 +154,12 @@ private:
   void setSoftZbufferEpsilon (float epsilon) { m_epsilon = epsilon; }
 
   // ewa
-  bool ewa_filter() const { return m_ewa_filter; }
+  bool ewa_filter() const { return mEwaFilter; }
   //{{{
   void set_ewa_filter (bool enable) {
 
-    if (m_soft_zbuffer && m_ewa_filter != enable) {
-      m_ewa_filter = enable;
+    if (mSoftZbuffer && mEwaFilter != enable) {
+      mEwaFilter = enable;
       mAttribute.set_ewa_filter(enable);
       }
     }
@@ -199,12 +199,12 @@ private:
   cProgramAttribute mAttribute;
   cProgramFinal mFinal;
 
-  cFrameBuffer m_fbo;
+  cFrameBuffer mFrameBuffer;
 
-  bool m_soft_zbuffer;
-  bool m_backface_culling;
-  bool m_smooth;
-  bool m_ewa_filter;
+  bool mSoftZbuffer;
+  bool mBackFaceCull;
+  bool mSmooth;
+  bool mEwaFilter;
 
   unsigned int m_pointsize_method;
   float m_epsilon;
