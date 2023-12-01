@@ -9,7 +9,6 @@
 #include <exception>
 
 #include "glviz/camera.h"
-#include "glviz/program.h"
 #include "glviz/utility.h"
 
 //{{{  include stb

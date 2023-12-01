@@ -1,6 +1,7 @@
 #pragma once
 #include <Eigen/Dense>
 #include <memory>
+#include "buffer.h"
 
 class Trackball;
 
@@ -70,6 +71,14 @@ namespace GLviz {
     float m_begin_x, m_begin_y;
 
     std::unique_ptr<Trackball> m_trackball;
+    };
+  //}}}
+  //{{{
+  class UniformBufferCamera : public glUniformBuffer {
+  public:
+    UniformBufferCamera();
+
+    void set_buffer_data (Camera const& camera);
     };
   //}}}
   }

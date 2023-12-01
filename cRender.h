@@ -8,7 +8,6 @@
 
 #include "glviz/glviz.h"
 #include "glviz/camera.h"
-#include "glviz/program.h"
 
 //{{{
 class cModel {

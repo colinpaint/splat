@@ -1,5 +1,64 @@
 #pragma once
 #include "cRender.h"
+#include "glviz/buffer.h"
+#include "glviz/shader.h"
+
+//{{{
+class cUniformBufferMaterial : public GLviz::glUniformBuffer {
+public:
+  void set_buffer_data(const float* mbuf);
+  };
+//}}}
+//{{{
+class cUniformBufferWireFrame : public GLviz::glUniformBuffer {
+public:
+  cUniformBufferWireFrame();
+
+  void set_buffer_data(float const* color, int const* viewport);
+  };
+//}}}
+//{{{
+class cUniformBufferSphere : public GLviz::glUniformBuffer {
+public:
+  cUniformBufferSphere();
+
+  void set_buffer_data (float radius, float projection);
+  };
+//}}}
+
+//{{{
+class cProgramMesh : public glProgram {
+public:
+  cProgramMesh();
+
+  void set_wireFrame (bool enable);
+  void set_smooth (bool enable);
+
+private:
+  void initShader();
+  void initProgram();
+
+  glVertexShader m_mesh_vs_obj;
+  glGeometryShader m_mesh_gs_obj;
+  glFragmentShader m_mesh_fs_obj;
+
+  bool m_wireFrame;
+  bool m_smooth;
+  };
+//}}}
+//{{{
+class cProgramSphere : public glProgram {
+public:
+  cProgramSphere();
+
+private:
+  void initShader();
+  void initProgram();
+
+  glVertexShader m_sphere_vs_obj;
+  glFragmentShader m_sphere_fs_obj;
+  };
+//}}}
 
 class cMeshRender : public cRender {
 public:
@@ -21,12 +80,12 @@ public:
   GLviz::glElementArrayBuffer mIndexArrayBuffer;
 
   GLviz::UniformBufferCamera mUniformCamera;
-  GLviz::UniformBufferMaterial mUniformMaterial;
-  GLviz::UniformBufferWireFrame mUniformWireFrame;
-  GLviz::UniformBufferSphere mUniformWireSphere;
+  cUniformBufferMaterial mUniformMaterial;
+  cUniformBufferWireFrame mUniformWireFrame;
+  cUniformBufferSphere mUniformWireSphere;
 
-  GLviz::ProgramMesh3 mProgramMesh;
-  GLviz::ProgramSphere mProgramSphere;
+  cProgramMesh mProgramMesh;
+  cProgramSphere mProgramSphere;
 
   int mShadingMethod = 0;
   float mProjectionRadius = 0.0f;

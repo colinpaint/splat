@@ -3,7 +3,6 @@ project (glviz VERSION 1.0.0)
                                camera.h camera.cpp
                                shader.h shader.cpp
                                trackball.h trackball.cpp
-                               program.h program.cpp
                                buffer.h buffer.cpp
                                utility.h utility.cpp)
 

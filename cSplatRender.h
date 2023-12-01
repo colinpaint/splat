@@ -1,5 +1,7 @@
 #pragma once
 #include "cRender.h"
+#include "glviz/shader.h"
+#include "glviz/buffer.h"
 
 //{{{
 class cUniformBufferRaycast : public GLviz::glUniformBuffer {

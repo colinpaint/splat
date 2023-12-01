@@ -179,4 +179,21 @@ namespace GLviz {
     trackball_begin_motion(end_x, end_y);
     }
   //}}}
+
+  // UniformBufferCamera
+  UniformBufferCamera::UniformBufferCamera() : glUniformBuffer(48 * sizeof(GLfloat)) { }
+  //{{{
+  void UniformBufferCamera::set_buffer_data (Camera const& camera) {
+
+    Eigen::Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
+    Eigen::Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();
+    Eigen::Matrix4f const& projection_matrix = camera.get_projection_matrix();
+
+    bind();
+    glBufferSubData (GL_UNIFORM_BUFFER, 0, 16 * sizeof(GLfloat), modelview_matrix.data());
+    glBufferSubData (GL_UNIFORM_BUFFER, 16 * sizeof(GLfloat), 16 * sizeof(GLfloat), modelview_matrix_it.data());
+    glBufferSubData (GL_UNIFORM_BUFFER, 32 * sizeof(GLfloat), 16 * sizeof(GLfloat), projection_matrix.data());
+    unbind();
+    }
+  //}}}
   }
