@@ -124,8 +124,8 @@ void cMeshRender::display (cModel* model) {
   if (mDisplayMesh) {
     mUniformMaterial.set_buffer_data (mMeshMaterial);
 
-    int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
-    mUniformWireFrame.set_buffer_data (mWireFrameMaterial, screen);
+    array <int,2> screen = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
+    mUniformWireFrame.set_buffer_data (mWireFrameMaterial, screen.data());
 
     //{{{  display mesh
     mProgramMesh.set_wireFrame (mDisplayWireFrame);
@@ -136,13 +136,15 @@ void cMeshRender::display (cModel* model) {
     if (mShadingMethod == 0) {
       // Flat
       mVertexArrayVf.bind();
-      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces() * 3, 
+                      GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVf.unbind();
       }
     else {
       // Smooth
       mVertexArrayVnf.bind();
-      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces() * 3, 
+                      GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVnf.unbind();
       }
 

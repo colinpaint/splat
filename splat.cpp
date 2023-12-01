@@ -28,10 +28,10 @@ namespace {
   int gModelIndex = 0;
   bool gRipple = false;
 
-  bool gSplat = false;
-  cRender* gRender;
-  cMeshRender* gMeshRender;
   cSplatRender* gSplatRender;
+  cMeshRender* gMeshRender;
+  cRender* gRender;
+  bool gSplat = false;
 
   //{{{
   void display() {
@@ -42,8 +42,6 @@ namespace {
   void gui() {
 
     ImGui::Begin ("splat", nullptr);
-    //ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
-    //ImGui::SetWindowSize (ImVec2(350.0f, 435.0f), ImGuiCond_Once);
 
     if (ImGui::Checkbox ("splatRender", &gSplat)) {
       if (gSplat)
@@ -67,7 +65,7 @@ namespace {
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("scene"))
-      if (ImGui::Combo ("models", &gModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
+      if (ImGui::Combo ("model", &gModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
         gModel->load (gModelIndex);
 
     gRender->gui();
@@ -120,7 +118,6 @@ int main (int numArgs, char* args[]) {
   // parse params
   for (int i = 1; i < numArgs; i++) {
     string param = args[i];
-
     if (param == "log1")
       logLevel = LOGINFO1;
     else if (param == "log2")
