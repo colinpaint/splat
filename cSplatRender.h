@@ -76,10 +76,10 @@ private:
   };
 //}}}
 //{{{
-class cFramebuffer {
+class cFrameBuffer {
 public:
-  cFramebuffer();
-  ~cFramebuffer();
+  cFrameBuffer();
+  ~cFrameBuffer();
 
   GLuint color_texture();
 
@@ -199,7 +199,7 @@ private:
   cProgramAttribute mAttribute;
   cProgramFinal mFinal;
 
-  cFramebuffer m_fbo;
+  cFrameBuffer m_fbo;
 
   bool m_soft_zbuffer;
   bool m_backface_culling;

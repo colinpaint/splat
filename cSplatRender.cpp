@@ -654,7 +654,7 @@ void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, flo
 //}}}
 //{{{  Framebuffer
 //{{{
-struct cFramebuffer::Impl {
+struct cFrameBuffer::Impl {
   virtual bool multisample() const = 0;
 
   virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
@@ -668,7 +668,7 @@ struct cFramebuffer::Impl {
   };
 //}}}
 //{{{
-struct cFramebuffer::Default : public cFramebuffer::Impl {
+struct cFrameBuffer::Default : public cFrameBuffer::Impl {
   bool multisample() const { return false; }
 
   //{{{
@@ -723,7 +723,7 @@ struct cFramebuffer::Default : public cFramebuffer::Impl {
   };
 //}}}
 //{{{
-struct cFramebuffer::Multisample : public cFramebuffer::Impl {
+struct cFrameBuffer::Multisample : public cFrameBuffer::Impl {
   bool multisample() const { return true; }
 
   //{{{
@@ -774,7 +774,7 @@ struct cFramebuffer::Multisample : public cFramebuffer::Impl {
 //}}}
 
 //{{{
-cFramebuffer::cFramebuffer()
+cFrameBuffer::cFrameBuffer()
     : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl (new Default()) {
 
   // Create framebuffer object.
@@ -787,7 +787,7 @@ cFramebuffer::cFramebuffer()
   }
 //}}}
 //{{{
-cFramebuffer::~cFramebuffer() {
+cFrameBuffer::~cFrameBuffer() {
 
   bind();
   remove_and_delete_attachments();
@@ -797,9 +797,9 @@ cFramebuffer::~cFramebuffer() {
   }
 //}}}
 
-GLuint cFramebuffer::color_texture() { return m_color; }
+GLuint cFrameBuffer::color_texture() { return m_color; }
 //{{{
-void cFramebuffer::enable_depth_texture() {
+void cFrameBuffer::enable_depth_texture() {
 
   bind();
 
@@ -817,7 +817,7 @@ void cFramebuffer::enable_depth_texture() {
   }
 //}}}
 //{{{
-void cFramebuffer::disable_depth_texture() {
+void cFrameBuffer::disable_depth_texture() {
 
   bind();
 
@@ -837,10 +837,10 @@ void cFramebuffer::disable_depth_texture() {
   unbind();
   }
 //}}}
-GLuint cFramebuffer::depth_texture() { return m_depth; }
+GLuint cFrameBuffer::depth_texture() { return m_depth; }
 
 //{{{
-void cFramebuffer::attach_normal_texture() {
+void cFrameBuffer::attach_normal_texture() {
 
   bind();
 
@@ -858,7 +858,7 @@ void cFramebuffer::attach_normal_texture() {
   }
 //}}}
 //{{{
-void cFramebuffer::detach_normal_texture() {
+void cFrameBuffer::detach_normal_texture() {
 
   bind();
 
@@ -871,10 +871,10 @@ void cFramebuffer::detach_normal_texture() {
   unbind();
   }
 //}}}
-GLuint cFramebuffer::normal_texture() { return m_normal; }
+GLuint cFrameBuffer::normal_texture() { return m_normal; }
 
 //{{{
-void cFramebuffer::set_multisample (bool enable) {
+void cFrameBuffer::set_multisample (bool enable) {
 
   if (m_pimpl->multisample() != enable) {
     bind();
@@ -885,9 +885,9 @@ void cFramebuffer::set_multisample (bool enable) {
     remove_and_delete_attachments();
 
     if (m_pimpl->multisample())
-      m_pimpl = unique_ptr<cFramebuffer::Impl>(new cFramebuffer::Default());
+      m_pimpl = unique_ptr<cFrameBuffer::Impl>(new cFrameBuffer::Default());
     else
-      m_pimpl = unique_ptr<cFramebuffer::Impl>(new cFramebuffer::Multisample());
+      m_pimpl = unique_ptr<cFrameBuffer::Impl>(new cFrameBuffer::Multisample());
 
     initialize();
     if (type == GL_TEXTURE) {
@@ -910,11 +910,11 @@ void cFramebuffer::set_multisample (bool enable) {
   }
 //}}}
 
-void cFramebuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
-void cFramebuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
+void cFrameBuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
+void cFrameBuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
 
 //{{{
-void cFramebuffer::resize (GLint width, GLint height) {
+void cFrameBuffer::resize (GLint width, GLint height) {
 
   bind();
 
@@ -972,7 +972,7 @@ void cFramebuffer::resize (GLint width, GLint height) {
 
 // private
 //{{{
-void cFramebuffer::initialize() {
+void cFrameBuffer::initialize() {
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
@@ -1000,7 +1000,7 @@ void cFramebuffer::initialize() {
   }
 //}}}
 //{{{
-void cFramebuffer::remove_and_delete_attachments() {
+void cFrameBuffer::remove_and_delete_attachments() {
 
   GLenum attachment[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT };
 
