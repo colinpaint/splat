@@ -115,9 +115,9 @@ void cMeshRender::display (cModel* model) {
   glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  mVertexArrayBuffer.set_buffer_data (model->getNumVertices() * 3 * sizeof(GLfloat), model->mVertices.front().data());
-  mNormalArrayBuffer.set_buffer_data (model->getNumNormals() * 3 * sizeof(GLfloat), model->mNormals.front().data());
-  mIndexArrayBuffer.set_buffer_data (model->getNumFaces() * 3 * sizeof(GLfloat), model->mFaces.front().data());
+  mVertexArrayBuffer.set_buffer_data (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());
+  mNormalArrayBuffer.set_buffer_data (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
+  mIndexArrayBuffer.set_buffer_data (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
 
   mUniformCamera.set_buffer_data (mCamera);
 
@@ -136,13 +136,13 @@ void cMeshRender::display (cModel* model) {
     if (mShadingMethod == 0) {
       // Flat
       mVertexArrayVf.bind();
-      glDrawElements (GL_TRIANGLES, model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVf.unbind();
       }
     else {
       // Smooth
       mVertexArrayVnf.bind();
-      glDrawElements (GL_TRIANGLES, model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+      glDrawElements (GL_TRIANGLES, (GLsizei)model->getNumFaces()*3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
       mVertexArrayVnf.unbind();
       }
 

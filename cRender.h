@@ -20,8 +20,12 @@ public:
   virtual void load (int modelIndex);
 
   size_t getNumVertices() const { return mVertices.size(); }
-  size_t getNumNormals() const { return mFaces.size(); }
-  size_t getNumFaces() const { return mNormals.size(); }
+  size_t getNumNormals() const { return mNormals.size(); }
+  size_t getNumFaces() const { return mFaces.size(); }
+
+  float* getVerticesData() { return (float*)mVertices.front().data(); }
+  float* getNormalsData() { return (float*)mNormals.front().data(); }
+  float* getFacesData() { return (float*)mFaces.front().data(); }
 
   void ripple();
 
