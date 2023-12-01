@@ -22,7 +22,7 @@ class UniformBufferParameter : public GLviz::glUniformBuffer {
 public:
   UniformBufferParameter();
 
-  void set_buffer_data (Eigen::Vector3f const& color, float shininess,
+  void set_buffer_data (Eigen::Vector3f const& color, float shine,
                         float radius_scale, float ewa_radius, float epsilon);
   };
 //}}}
@@ -122,30 +122,54 @@ public:
   virtual void setBackFaceCull (bool enable = true) final;
   virtual void setMultiSample (bool enable = true) final;
 
-  virtual void resize (int width, int height) final;
-  virtual void render (cModel* model) final;
-  virtual bool keyboard (SDL_Keycode key) final;
+  virtual void bindUniforms() final;
+
   virtual void gui() final;
+  virtual bool keyboard (SDL_Keycode key) final;
+  virtual void display (cModel* model) final;
+  virtual void resize (int width, int height) final;
 
 private:
   //{{{  gui access
   bool smooth() const;
   void set_smooth (bool enable = true);
 
-  bool soft_zbuffer() const;
-  void set_soft_zbuffer (bool enable = true);
+  // softZ
+  bool soft_zbuffer() const { return m_soft_zbuffer; }
+  //{{{
+  void set_soft_zbuffer (bool enable) {
 
-  float getSoftZbufferEpsilon() const;
-  void setSoftZbufferEpsilon (float epsilon);
+    if (m_soft_zbuffer != enable) {
+      if (!enable) {
+         m_ewa_filter = false;
+         m_attribute.set_ewa_filter(false);
+         }
+
+      m_soft_zbuffer = enable;
+      }
+    }
+  //}}}
+
+  float getSoftZbufferEpsilon() const { return m_epsilon; }
+  void setSoftZbufferEpsilon (float epsilon) { m_epsilon = epsilon; }
+
+  // ewa
+  bool ewa_filter() const { return m_ewa_filter; }
+  //{{{
+  void set_ewa_filter (bool enable) {
+
+    if (m_soft_zbuffer && m_ewa_filter != enable) {
+      m_ewa_filter = enable;
+      m_attribute.set_ewa_filter(enable);
+      }
+    }
+  //}}}
+
+  float ewa_radius() const { return m_ewa_radius; }
+  void set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
 
   unsigned int pointsize_method() const;
   void set_pointsize_method (unsigned int pointsize_method);
-
-  bool ewa_filter() const;
-  void set_ewa_filter (bool enable = true);
-
-  float ewa_radius() const;
-  void set_ewa_radius (float ewa_radius);
 
   float radius_scale() const;
   void set_radius_scale (float radius_scale);
@@ -160,8 +184,8 @@ private:
   void renderPass (bool depth_only);
 
   //{{{  vars
-  GLuint m_vbo;
-  GLuint m_vao;
+  GLuint mVao;
+  GLuint mVbo;
   size_t mNumSurfels;
 
   GLuint m_uv_vbo;

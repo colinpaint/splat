@@ -6,28 +6,24 @@ public:
   cMeshRender (GLviz::Camera const& camera);
   virtual ~cMeshRender();
 
-  virtual void setBackFaceCull (bool enable = true) final;
-  virtual void setMultiSample (bool enable = true) final;
+  virtual void bindUniforms() final;
 
-  virtual void resize (int width, int height) final;
-  virtual void render (cModel* model) final;
-  virtual bool keyboard (SDL_Keycode key) final;
   virtual void gui() final;
+  virtual bool keyboard (SDL_Keycode key) final;
+  virtual void display (cModel* model) final;
 
   // vars
-  GLviz::glVertexArray vertex_array_v;
-  GLviz::glVertexArray vertex_array_vf;
-  GLviz::glVertexArray vertex_array_vnf;
-
-  GLviz::glArrayBuffer vertex_array_buffer;
+  GLviz::glVertexArray mVertexArrayV;
+  GLviz::glVertexArray mVertexArrayVf;
+  GLviz::glVertexArray mVertexArrayVnf;
+  GLviz::glArrayBuffer mVertexArrayBuffer;
   GLviz::glArrayBuffer normal_array_buffer;
+  GLviz::glElementArrayBuffer mIndexArrayBuffer;
 
-  GLviz::glElementArrayBuffer index_array_buffer;
-
-  GLviz::UniformBufferCamera uniform_camera;
-  GLviz::UniformBufferMaterial uniform_material;
-  GLviz::UniformBufferWireFrame uniform_wireFrame;
-  GLviz::UniformBufferSphere uniform_sphere;
+  GLviz::UniformBufferCamera mUniformCamera;
+  GLviz::UniformBufferMaterial mUniformMaterial;
+  GLviz::UniformBufferWireFrame mUniformWireFrame;
+  GLviz::UniformBufferSphere mUniformWireSphere;
 
   GLviz::ProgramMesh3 program_mesh3;
   GLviz::ProgramSphere program_sphere;

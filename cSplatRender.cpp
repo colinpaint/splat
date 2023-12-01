@@ -36,7 +36,7 @@ namespace {
 
     "layout(std140) uniform Parameter {"
       "vec3 material_color;"
-      "float material_shininess;"
+      "float material_shine;"
       "float radius_scale;"
       "float ewa_radius;"
       "float epsilon;"
@@ -71,7 +71,7 @@ namespace {
     "Out;",
     //}}}
     "#if !VISIBILITY_PASS",
-      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
+      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
     "#endif",
 
     //{{{
@@ -303,9 +303,9 @@ namespace {
           "#endif",
         "#else",
           "#if COLOR_MATERIAL",
-            "Out.color = lighting (n_eye, vec3(c_eye), material_color, material_shininess);",
+            "Out.color = lighting (n_eye, vec3(c_eye), material_color, material_shine);",
           "#else",
-            "Out.color = lighting (n_eye, vec3(c_eye), vec3(rgba), material_shininess);",
+            "Out.color = lighting (n_eye, vec3(c_eye), vec3(rgba), material_shine);",
           "#endif",
         "#endif",
       "#endif",
@@ -367,7 +367,7 @@ namespace {
 
     "layout(std140) uniform Parameter {"
       "vec3 material_color;"
-      "float material_shininess;"
+      "float material_shine;"
       "float radius_scale;"
       "float ewa_radius;"
       "float epsilon;"
@@ -502,7 +502,7 @@ namespace {
 
     "layout(std140) uniform Parameter {"
       "vec3 material_color;"
-      "float material_shininess;"
+      "float material_shine;"
       "float radius_scale;"
       "float ewa_radius;"
       "float epsilon;"
@@ -523,7 +523,7 @@ namespace {
         "uniform sampler2D depth_texture;",
       "#endif",
 
-      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shininess);",
+      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
     "#endif",
 
     "in block {"
@@ -566,7 +566,7 @@ namespace {
                                 "1.0 );"
               "vec4 v_eye = projection_matrix_inv * p_ndc;"
               "v_eye = v_eye / v_eye.w;"
-              "res += vec4(lighting(normal, v_eye.xyz, pixel.rgb / pixel.a, material_shininess), 1.0);",
+              "res += vec4(lighting(normal, v_eye.xyz, pixel.rgb / pixel.a, material_shine), 1.0);",
             "#else",
                "res += vec4(pixel.rgb / pixel.a, 1.0f);",
             "#endif",
@@ -589,13 +589,13 @@ namespace {
   const vector<string> kLightingGlsl = {
     "#version 330",
 
-    "vec3 lighting (vec3 normal_eye, vec3 v_eye, vec3 color, float shininess) {"
+    "vec3 lighting (vec3 normal_eye, vec3 v_eye, vec3 color, float shine) {"
       "const vec3 light_eye = vec3(0.0, 0.0, 1.0);"
       "float dif = max(dot(light_eye, normal_eye), 0.0);"
       "vec3 refl_eye = reflect(light_eye, normal_eye);"
       "vec3 view_eye = normalize(v_eye);"
 
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shininess);"
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), shine);"
       "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);"
 
       "vec3 res = 0.15 * color;"
@@ -639,12 +639,12 @@ void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane
 //{{{  UniformBufferParameter
 UniformBufferParameter::UniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
 //{{{
-void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shininess,
+void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shine,
                                               float radius_scale, float ewa_radius, float epsilon) {
 
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
-  glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shininess);
+  glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shine);
   glBufferSubData (GL_UNIFORM_BUFFER, 16, sizeof(float), &radius_scale);
   glBufferSubData (GL_UNIFORM_BUFFER, 20, sizeof(float), &ewa_radius);
   glBufferSubData (GL_UNIFORM_BUFFER, 24, sizeof(float), &epsilon);
@@ -1244,10 +1244,7 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
       m_radius_scale(1.0f),
       m_ewa_radius(1.0f) {
 
-  m_uniform_camera.bindBufferBase (0);
-  m_uniform_raycast.bindBufferBase (1);
-  m_uniform_frustum.bindBufferBase (2);
-  m_uniform_parameter.bindBufferBase (3);
+  bindUniforms();
 
   setupProgramObjects();
   setup_filter_kernel();
@@ -1258,8 +1255,8 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
 //{{{
 cSplatRender::~cSplatRender() {
 
-  glDeleteVertexArrays (1, &m_vao);
-  glDeleteBuffers (1, &m_vbo);
+  glDeleteVertexArrays (1, &mVao);
+  glDeleteBuffers (1, &mVbo);
 
   glDeleteBuffers (1, &m_rect_vertices_vbo);
   glDeleteBuffers (1, &m_rect_texture_uv_vbo);
@@ -1289,41 +1286,6 @@ void cSplatRender::set_smooth (bool enable) {
       }
     }
   }
-//}}}
-
-//{{{  soft z
-bool cSplatRender::soft_zbuffer() const { return m_soft_zbuffer; }
-//{{{
-void cSplatRender::set_soft_zbuffer (bool enable) {
-
-  if (m_soft_zbuffer != enable) {
-    if (!enable) {
-       m_ewa_filter = false;
-       m_attribute.set_ewa_filter(false);
-       }
-
-    m_soft_zbuffer = enable;
-    }
-  }
-//}}}
-
-float cSplatRender::getSoftZbufferEpsilon() const { return m_epsilon; }
-void cSplatRender::setSoftZbufferEpsilon (float epsilon) { m_epsilon = epsilon; }
-//}}}
-//{{{  EWA
-bool cSplatRender::ewa_filter() const { return m_ewa_filter; }
-//{{{
-void cSplatRender::set_ewa_filter (bool enable) {
-
-  if (m_soft_zbuffer && m_ewa_filter != enable) {
-    m_ewa_filter = enable;
-    m_attribute.set_ewa_filter(enable);
-    }
-  }
-//}}}
-
-float cSplatRender::ewa_radius() const { return m_ewa_radius; }
-void cSplatRender::set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
 //}}}
 
 unsigned int cSplatRender::pointsize_method() const { return m_pointsize_method; }
@@ -1363,9 +1325,87 @@ void cSplatRender::setBackFaceCull (bool enable) {
   }
 //}}}
 
-void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
 //{{{
-void cSplatRender::render (cModel* model) {
+void cSplatRender::bindUniforms() {
+// bind uniforms to binding points
+
+  m_uniform_camera.bindBufferBase (0);
+  m_uniform_raycast.bindBufferBase (1);
+  m_uniform_frustum.bindBufferBase (2);
+  m_uniform_parameter.bindBufferBase (3);
+  }
+//}}}
+
+//{{{
+void cSplatRender::gui() {
+
+  ImGui::SetNextItemOpen (true, ImGuiCond_Once);
+  if (ImGui::CollapsingHeader ("surface Splatting")) {
+    int shadingMethod = smooth() ? 1 : 0;
+    if (ImGui::Combo ("shading", &shadingMethod, "Flat\0Smooth\0\0"))
+      set_smooth (shadingMethod > 0 ? true : false);
+
+    // points
+    int pointSize = pointsize_method();
+    if (ImGui::Combo ("pointSize", &pointSize, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
+      set_pointsize_method (pointSize);
+
+    float radiusScale = radius_scale();
+    if (ImGui::DragFloat ("radiusScale", &radiusScale, 0.001f, 1e-6f, 2.0f))
+      set_radius_scale (min(max( 1e-6f, radiusScale), 2.0f));
+
+    // material
+    ImGui::Separator();
+    int color_material = getMaterialColored() ? 1 : 0;
+    if (ImGui::Combo ("colored", &color_material, "Surfel\0Material\0\0"))
+      setMaterialColored (color_material > 0 ? true : false);
+
+    float materialColor[3] =  { getMaterialColor()[0], getMaterialColor()[1], getMaterialColor()[2] };
+    if (ImGui::ColorEdit3 ("color", materialColor))
+      setMaterialColor (Eigen::Vector3f(materialColor[0], materialColor[1], materialColor[2]));
+
+    float materialShine = getMaterialShine();
+    if (ImGui::DragFloat ("shine", &materialShine, 0.05f, 1e-12f, 1000.0f))
+      setMaterialShine (min(max( 1e-12f, materialShine), 1000.0f));
+
+    // softZ
+    ImGui::Separator();
+    bool softZbuffer = soft_zbuffer();
+    if (ImGui::Checkbox("softZ", &softZbuffer))
+      set_soft_zbuffer (softZbuffer);
+
+    float soft_zbuffer_epsilon = getSoftZbufferEpsilon();
+    if (ImGui::DragFloat ("softZ epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
+      setSoftZbufferEpsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
+
+    // ewa
+    ImGui::Separator();
+    bool ewaFilter = ewa_filter();
+    if (ImGui::Checkbox ("ewaFilter", &ewaFilter))
+      set_ewa_filter (ewaFilter);
+
+    float ewaRadius = ewa_radius();
+    if (ImGui::DragFloat ("ewaRadius", &ewaRadius, 1e-3f, 0.1f, 4.0f))
+      set_ewa_radius (ewaRadius);
+    }
+  }
+//}}}
+//{{{
+bool cSplatRender::keyboard (SDL_Keycode key) {
+
+  switch (key) {
+    case SDLK_5: set_smooth (!smooth()); return true;
+    case SDLK_c: setMaterialColored (!getMaterialColored()); return true;
+    case SDLK_z: set_soft_zbuffer (!soft_zbuffer()); return true;
+    case SDLK_u: set_ewa_filter (!ewa_filter()); return true;
+    case SDLK_t: set_pointsize_method ((pointsize_method() + 1) % 4); return true;
+    }
+
+  return false;
+  }
+//}}}
+//{{{
+void cSplatRender::display (cModel* model) {
 
   cSurfelModel* surfelModel = dynamic_cast<cSurfelModel*>(model);
 
@@ -1379,7 +1419,7 @@ void cSplatRender::render (cModel* model) {
 
   mNumSurfels = surfelModel->getSize();
   if (mNumSurfels > 0) {
-    glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, mVbo);
     glBufferData (GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glBufferData (GL_ARRAY_BUFFER, sizeof(cSurfelModel::cSurfel) * mNumSurfels,
                                    (void*)(surfelModel->getArray()), GL_DYNAMIC_DRAW);
@@ -1454,86 +1494,7 @@ void cSplatRender::render (cModel* model) {
   #endif
   }
 //}}}
-//{{{
-bool cSplatRender::keyboard (SDL_Keycode key) {
-
-  switch (key) {
-    case SDLK_5: set_smooth (!smooth()); return true;
-    case SDLK_c: setColorMaterial (!getColorMaterial()); return true;
-    case SDLK_z: set_soft_zbuffer (!soft_zbuffer()); return true;
-    case SDLK_u: set_ewa_filter (!ewa_filter()); return true;
-    case SDLK_t: set_pointsize_method ((pointsize_method() + 1) % 4); return true;
-    }
-
-  return false;
-  }
-//}}}
-//{{{
-void cSplatRender::gui() {
-
-  ImGui::SetNextItemOpen (true, ImGuiCond_Once);
-  if (ImGui::CollapsingHeader ("Surface Splatting")) {
-    int shadingMethod = smooth() ? 1 : 0;
-    if (ImGui::Combo ("Shading", &shadingMethod, "Flat\0Smooth\0\0"))
-      set_smooth (shadingMethod > 0 ? true : false);
-
-    //{{{  material
-    ImGui::Separator();
-    int color_material = getColorMaterial() ? 1 : 0;
-    if (ImGui::Combo ("Color", &color_material, "Surfel\0Material\0\0"))
-      setColorMaterial (color_material > 0 ? true : false);
-
-    float materialColor[3] =  { getMaterialColor()[0],
-                                getMaterialColor()[1],
-                                getMaterialColor()[2] };
-    if (ImGui::ColorEdit3 ("Material color", materialColor))
-      setMaterialColor (Eigen::Vector3f(materialColor[0], materialColor[1], materialColor[2]));
-
-    float materialShininess = getMaterialShininess();
-    if (ImGui::DragFloat ("Material shininess", &materialShininess, 0.05f, 1e-12f, 1000.0f))
-      setMaterialShininess (min(max( 1e-12f, materialShininess), 1000.0f));
-    //}}}
-    //{{{  soft z
-    ImGui::Separator();
-    bool softZbuffer = soft_zbuffer();
-    if (ImGui::Checkbox("Soft z-buffer", &softZbuffer))
-      set_soft_zbuffer (softZbuffer);
-
-    float soft_zbuffer_epsilon = getSoftZbufferEpsilon();
-    if (ImGui::DragFloat ("Soft z-buffer epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
-      setSoftZbufferEpsilon (min(max(1e-5f, soft_zbuffer_epsilon), 1.0f));
-    //}}}
-    //{{{  ewa
-    ImGui::Separator();
-    bool ewaFilter = ewa_filter();
-    if (ImGui::Checkbox ("EWA filter", &ewaFilter))
-      set_ewa_filter (ewaFilter);
-
-    float ewaRadius = ewa_radius();
-    if (ImGui::DragFloat ("EWA radius", &ewaRadius, 1e-3f, 0.1f, 4.0f))
-      set_ewa_radius (ewaRadius);
-    //}}}
-
-    ImGui::Separator();
-    int pointSize = pointsize_method();
-    if (ImGui::Combo ("Point size", &pointSize, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
-      set_pointsize_method (pointSize);
-
-    float radiusScale = radius_scale();
-    if (ImGui::DragFloat ("Radius scale", &radiusScale, 0.001f, 1e-6f, 2.0f))
-      set_radius_scale (min(max( 1e-6f, radiusScale), 2.0f));
-
-    ImGui::Separator();
-    bool multiSample = getMultiSample();
-    if (ImGui::Checkbox ("MultiSample x4", &multiSample))
-      setMultiSample (multiSample);
-
-    bool backFaceCull = getBackFaceCull();
-    if (ImGui::Checkbox ("Backface cull", &backFaceCull))
-      setBackFaceCull (backFaceCull);
-    }
-  }
-//}}}
+void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height); }
 
 // private
 //{{{
@@ -1545,8 +1506,8 @@ void cSplatRender::setupProgramObjects() {
 
   m_attribute.set_visibility_pass (false);
   m_attribute.set_pointsize_method (m_pointsize_method);
-  m_attribute.set_backface_culling (m_backface_culling);
-  m_attribute.set_color_material (mColorMaterial);
+  m_attribute.set_backface_culling (getBackFaceCull());
+  m_attribute.set_color_material (getMaterialColored());
   m_attribute.set_ewa_filter (m_ewa_filter);
   m_attribute.set_smooth (m_smooth);
 
@@ -1614,30 +1575,30 @@ inline void cSplatRender::setup_screen_size_quad() {
 //{{{
 void cSplatRender::setup_vertex_array_buffer_object() {
 
-  glGenBuffers (1, &m_vbo);
+  glGenBuffers (1, &mVbo);
 
-  glGenVertexArrays (1, &m_vao);
-  glBindVertexArray (m_vao);
+  glGenVertexArrays (1, &mVao);
+  glBindVertexArray (mVao);
 
-  glBindBuffer (GL_ARRAY_BUFFER, m_vbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mVbo);
 
-  // Center c.
+  // Center
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(0));
 
-  // Tagent vector u.
+  // Tagent vector major
   glEnableVertexAttribArray (1);
   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(12));
 
-  // Tangent vector v.
+  // Tangent vector minor
   glEnableVertexAttribArray (2);
   glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(24));
 
-  // Clipping plane p.
+  // Clipping plane
   glEnableVertexAttribArray (3);
   glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLfloat*>(36));
 
-  // Color rgba.
+  // Color rgba
   glEnableVertexAttribArray (4);
   glVertexAttribPointer (4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(cSurfelModel::cSurfel), reinterpret_cast<const GLbyte*>(48));
 
@@ -1666,7 +1627,7 @@ void cSplatRender::setupUniforms (glProgram& program) {
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
   m_uniform_frustum.set_buffer_data (frustum_plane);
 
-  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShininess(),
+  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShine(),
                                        m_radius_scale, m_ewa_radius, m_epsilon);
   }
 //}}}
@@ -1707,7 +1668,7 @@ void cSplatRender::renderPass (bool depth_only) {
     program.setUniform1i ("filter_kernel", 1);
     }
 
-  glBindVertexArray (m_vao);
+  glBindVertexArray (mVao);
   glDrawArrays (GL_POINTS, 0, (GLsizei)mNumSurfels);
   glBindVertexArray (0);
 

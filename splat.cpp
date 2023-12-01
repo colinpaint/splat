@@ -35,36 +35,39 @@ namespace {
 
   //{{{
   void display() {
-    gRender->render (gModel);
-    }
-  //}}}
-  //{{{
-  void resize (int width, int height) {
-
-    const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    glViewport (0, 0, width, height);
-    gCamera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
+    gRender->display (gModel);
     }
   //}}}
   //{{{
   void gui() {
 
     ImGui::Begin ("splat", nullptr);
-    ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
-    ImGui::SetWindowSize (ImVec2(350.0f, 435.0f), ImGuiCond_Once);
+    //ImGui::SetWindowPos (ImVec2(3.0f, 3.0f), ImGuiCond_Once);
+    //ImGui::SetWindowSize (ImVec2(350.0f, 435.0f), ImGuiCond_Once);
 
-    ImGui::PushItemWidth (ImGui::GetContentRegionAvail().x * 0.55f);
-    ImGui::Text ("fps \t %.1f fps", ImGui::GetIO().Framerate);
-
-    if (ImGui::Checkbox ("splat", &gSplat))
+    if (ImGui::Checkbox ("splatRender", &gSplat)) {
       if (gSplat)
         gRender = gSplatRender;
       else
         gRender = gMeshRender;
+      gRender->bindUniforms();
+      }
+
+    bool multiSample = gRender->getMultiSample();
+    if (ImGui::Checkbox ("multiSample", &multiSample))
+      gRender->setMultiSample (multiSample);
+
+    bool backFaceCull = gRender->getBackFaceCull();
+    if (ImGui::Checkbox ("backfaceCull", &backFaceCull))
+      gRender->setBackFaceCull (backFaceCull);
+
+    ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
+
+    ImGui::PushItemWidth (0.5f * ImGui::GetContentRegionAvail().x);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
-    if (ImGui::CollapsingHeader ("Scene"))
-      if (ImGui::Combo ("Models", &gModelIndex, "DragonLo\0DragonHi\0Checker\0Cube\0Piccy\0\0"))
+    if (ImGui::CollapsingHeader ("scene"))
+      if (ImGui::Combo ("models", &gModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
         gModel->load (gModelIndex);
 
     gRender->gui();
@@ -77,12 +80,23 @@ namespace {
 
     if (!gRender->keyboard (key))
       switch (key) {
-        case SDLK_f: GLviz::toggleFullScreen(); break;
-        case SDLK_SPACE: gRipple = !gRipple; break;
+        case SDLK_f:      GLviz::toggleFullScreen(); break;
+
+        case SDLK_SPACE:  gRipple = !gRipple; break;
+
         case SDLK_q:
         case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
+
         default: break;
         }
+    }
+  //}}}
+  //{{{
+  void resize (int width, int height) {
+
+    const float aspect = static_cast<float>(width) / static_cast<float>(height);
+    glViewport (0, 0, width, height);
+    gCamera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
     }
   //}}}
   //{{{
@@ -91,7 +105,13 @@ namespace {
       gModel->ripple();
     }
   //}}}
-  void close() {}
+  //{{{
+  void close() {
+    delete gMeshRender;
+    delete gSplatRender;
+    delete gModel;
+    }
+  //}}}
   }
 
 int main (int numArgs, char* args[]) {
@@ -116,15 +136,16 @@ int main (int numArgs, char* args[]) {
   gModel = new cSurfelModel();
   gModel->load (gModelIndex);
   gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
-  gSplatRender = new cSplatRender (gCamera);
   gMeshRender = new cMeshRender (gCamera);
-  gRender = gMeshRender;
+  gSplatRender = new cSplatRender (gCamera);
+  gRender = gSplatRender;
 
   GLviz::displayCallback (display);
-  GLviz::resizeCallback (resize);
-  GLviz::closeCallback (close);
   GLviz::guiCallback (gui);
   GLviz::keyboardCallback (keyboard);
+  GLviz::resizeCallback (resize);
+  GLviz::timerCallback (timer, 40);
+  GLviz::closeCallback (close);
 
   return GLviz::mainUILoop (gCamera);
   }

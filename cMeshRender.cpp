@@ -14,96 +14,77 @@ using namespace std;
 //{{{
 cMeshRender::cMeshRender (GLviz::Camera const& camera) : cRender(camera) {
 
-  // Setup vertex array v
-  vertex_array_v.bind();
+  // setup vertex array v
+  mVertexArrayV.bind();
 
-  vertex_array_buffer.bind();
+  mVertexArrayBuffer.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
 
-  vertex_array_v.unbind();
+  mVertexArrayV.unbind();
 
-  // Setup vertex array vf.
-  vertex_array_vf.bind();
+  // setup vertex array vf
+  mVertexArrayVf.bind();
+  mVertexArrayBuffer.bind();
 
-  vertex_array_buffer.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+  mIndexArrayBuffer.bind();
 
-  index_array_buffer.bind();
-  vertex_array_buffer.unbind();
-  vertex_array_vf.unbind();
+  mVertexArrayBuffer.unbind();
+  mVertexArrayVf.unbind();
 
-  // Setup vertex array vnf.
-  vertex_array_vnf.bind();
+  // setup vertex array vnf
+  mVertexArrayVnf.bind();
+  mVertexArrayBuffer.bind();
 
-  vertex_array_buffer.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
   normal_array_buffer.bind();
+
   glEnableVertexAttribArray (1);
   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
+  mIndexArrayBuffer.bind();
 
-  index_array_buffer.bind();
-  vertex_array_buffer.unbind();
+  mVertexArrayBuffer.unbind();
+  mVertexArrayVnf.unbind();
 
-  vertex_array_vnf.unbind();
-
-  // Bind uniforms to their binding points
-  uniform_camera.bindBufferBase (0);
-  uniform_material.bindBufferBase (1);
-  uniform_wireFrame.bindBufferBase (2);
-  uniform_sphere.bindBufferBase (3);
+  bindUniforms();
   }
 //}}}
 cMeshRender::~cMeshRender() {}
 
-void cMeshRender::setMultiSample (bool enable) {}
-void cMeshRender::setBackFaceCull (bool enable) {}
-
-void cMeshRender::resize (int width, int height) {}
 //{{{
-void cMeshRender::render (cModel* model) {
+void cMeshRender::bindUniforms() {
+// bind uniforms to binding points
 
-  if (getMultiSample()) 
-    glEnable (GL_MULTISAMPLE);
-  glEnable (GL_DEPTH_TEST);
+  mUniformCamera.bindBufferBase (0);
+  mUniformMaterial.bindBufferBase (1);
+  mUniformWireFrame.bindBufferBase (2);
+  mUniformWireSphere.bindBufferBase (3);
+  }
+//}}}
 
-  glClearDepth (1.0f);
-  glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//{{{
+void cMeshRender::gui() {
 
-  vertex_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mVertices.size(),
-                                       model->mVertices.front().data());
-  normal_array_buffer.set_buffer_data (3 * sizeof(GLfloat) * model->mNormals.size(),
-                                       model->mNormals.front().data());
-  index_array_buffer.set_buffer_data (3 * sizeof(GLuint) * model->mFaces.size(),
-                                      model->mFaces.front().data());
+  if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Checkbox ("draw", &(mEnableMesh3));
+    ImGui::ColorEdit3 ("color", mMeshMaterial);
+    ImGui::DragFloat ("shine", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
+    ImGui::Combo ("shading", &mShadingMethod, "Flat\0Phong\0\0");
 
-  uniform_camera.set_buffer_data (mCamera);
-
-  if (mEnableMesh3) {
-    uniform_material.set_buffer_data (mMeshMaterial);
-    program_mesh3.set_wireFrame (mEnableWireFrame);
-    int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
-    uniform_wireFrame.set_buffer_data (mWireFrameMaterial, screen);
-    program_mesh3.set_smooth (mShadingMethod != 0);
-    renderMesh (mShadingMethod, static_cast<GLsizei>(3 * model->mFaces.size()));
+    ImGui::Separator();
+    ImGui::Checkbox ("draw", &mEnableWireFrame);
+    ImGui::ColorEdit3 ("color", mWireFrameMaterial);
     }
 
-  if (mEnableSpheres) {
-    uniform_material.set_buffer_data (mPointsMaterial);
-    GLviz::Frustum view_frustum = mCamera.get_frustum();
-    mProjectionRadius = view_frustum.near_() *
-                          (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
-    uniform_sphere.set_buffer_data (mPointRadius, mProjectionRadius);
-    renderSpheres (static_cast<GLsizei>(model->mVertices.size()));
+  if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Checkbox ("draw", &mEnableSpheres);
+    ImGui::DragFloat ("radius", &(mPointRadius), 1e-5f, 0.0f, 0.1f, "%.4f");
+    ImGui::ColorEdit3 ("color", mPointsMaterial);
+    ImGui::DragFloat ("shine", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
     }
-
-  glDisable (GL_DEPTH_TEST);
-  if (getMultiSample()) 
-    glDisable (GL_MULTISAMPLE);
   }
 //}}}
 //{{{
@@ -120,25 +101,43 @@ bool cMeshRender::keyboard (SDL_Keycode key) {
   }
 //}}}
 //{{{
-void cMeshRender::gui() {
+void cMeshRender::display (cModel* model) {
 
-  if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("Mesh draw", &(mEnableMesh3));
-    ImGui::ColorEdit3 ("Mesh color", mMeshMaterial);
-    ImGui::DragFloat ("Mesh shinines", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
-    ImGui::Combo ("Mesh shading", &mShadingMethod, "Flat\0Phong\0\0");
+  if (getMultiSample())
+    glEnable (GL_MULTISAMPLE);
+  glEnable (GL_DEPTH_TEST);
 
-    ImGui::Separator();
-    ImGui::Checkbox ("WireFrame draw", &mEnableWireFrame);
-    ImGui::ColorEdit3 ("WireFrame color", mWireFrameMaterial);
+  glClearDepth (1.0f);
+  glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  mVertexArrayBuffer.set_buffer_data (model->getNumVertices() * 3 * sizeof(GLfloat), model->mVertices.front().data());
+  normal_array_buffer.set_buffer_data (model->getNumNormals() * 3 * sizeof(GLfloat), model->mNormals.front().data());
+  mIndexArrayBuffer.set_buffer_data (model->getNumFaces() * 3 * sizeof(GLfloat), model->mFaces.front().data());
+
+  mUniformCamera.set_buffer_data (mCamera);
+
+  if (mEnableMesh3) {
+    mUniformMaterial.set_buffer_data (mMeshMaterial);
+    program_mesh3.set_wireFrame (mEnableWireFrame);
+    int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
+    mUniformWireFrame.set_buffer_data (mWireFrameMaterial, screen);
+    program_mesh3.set_smooth (mShadingMethod != 0);
+    renderMesh (mShadingMethod, static_cast<GLsizei>(3 * model->mFaces.size()));
     }
 
-  if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("Spheres draw", &mEnableSpheres);
-    ImGui::DragFloat ("Spheres radius", &(mPointRadius), 1e-5f, 0.0f, 0.1f, "%.4f");
-    ImGui::ColorEdit3 ("Spheres color", mPointsMaterial);
-    ImGui::DragFloat ("Spheres shininess", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
+  if (mEnableSpheres) {
+    mUniformMaterial.set_buffer_data (mPointsMaterial);
+    GLviz::Frustum view_frustum = mCamera.get_frustum();
+    mProjectionRadius = view_frustum.near_() *
+                          (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
+    mUniformWireSphere.set_buffer_data (mPointRadius, mProjectionRadius);
+    renderSpheres (static_cast<GLsizei>(model->mVertices.size()));
     }
+
+  glDisable (GL_DEPTH_TEST);
+  if (getMultiSample())
+    glDisable (GL_MULTISAMPLE);
   }
 //}}}
 
@@ -150,15 +149,15 @@ void cMeshRender::renderMesh (int shadingMethod, GLsizei nf) {
 
   if (shadingMethod == 0) {
     // Flat
-    vertex_array_vf.bind();
+    mVertexArrayVf.bind();
     glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
-    vertex_array_vf.unbind();
+    mVertexArrayVf.unbind();
     }
   else {
     // Smooth
-    vertex_array_vnf.bind();
+    mVertexArrayVnf.bind();
     glDrawElements (GL_TRIANGLES, nf, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
-    vertex_array_vnf.unbind();
+    mVertexArrayVnf.unbind();
     }
 
   program_mesh3.unuse();
@@ -172,9 +171,9 @@ void cMeshRender::renderSpheres (GLsizei nv) {
 
   program_sphere.use();
 
-  vertex_array_v.bind();
+  mVertexArrayV.bind();
   glDrawArrays (GL_POINTS, 0, nv);
-  vertex_array_v.unbind();
+  mVertexArrayV.unbind();
 
   program_sphere.unuse();
   glDisable (GL_PROGRAM_POINT_SIZE);

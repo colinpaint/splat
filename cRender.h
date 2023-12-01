@@ -19,6 +19,10 @@ public:
   void loadFile (std::string const& filename);
   virtual void load (int modelIndex);
 
+  size_t getNumVertices() const { return mVertices.size(); }
+  size_t getNumNormals() const { return mFaces.size(); }
+  size_t getNumFaces() const { return mNormals.size(); }
+
   void ripple();
 
   std::vector <Eigen::Vector3f> mVertices;
@@ -85,24 +89,25 @@ public:
   bool getMultiSample() const { return mMultiSample; }
   bool getBackFaceCull() const { return mBackFaceCull; }
 
-  bool getColorMaterial() const { return mColorMaterial; };
-  void setColorMaterial (bool enable = true) { mColorMaterial = enable; }
+  bool getMaterialColored() const { return mMaterialColored; };
+  void setMaterialColored (bool enable = true) { mMaterialColored = enable; }
 
-  Eigen::Vector3f getMaterialColor() const { return mColor; }
-  void setMaterialColor (Eigen::Vector3f const color) { mColor = color; }
+  Eigen::Vector3f getMaterialColor() const { return mMaterialColor; }
+  void setMaterialColor (Eigen::Vector3f const color) { mMaterialColor = color; }
 
-  float getMaterialShininess() const { return mShininess; }
-  void setMaterialShininess (float shininess) { mShininess = shininess; };
+  float getMaterialShine() const { return mMaterialShine; }
+  void setMaterialShine (float shine) { mMaterialShine = shine; };
 
   // overides
   virtual void setMultiSample (bool enable = true) { mMultiSample = enable; }
   virtual void setBackFaceCull (bool enable = true) { mBackFaceCull = enable; }
+  virtual void bindUniforms() = 0;
 
   // abstract
-  virtual bool keyboard (SDL_Keycode key) { return false; }
-  virtual void resize (int width, int height) = 0;
-  virtual void render (cModel* model) = 0;
+  virtual void display (cModel* model) = 0;
   virtual void gui() {}
+  virtual bool keyboard (SDL_Keycode key) { return false; }
+  virtual void resize (int width, int height) {};
 
 protected:
   GLviz::Camera const& mCamera;
@@ -111,7 +116,7 @@ protected:
   bool mMultiSample = false;
   bool mBackFaceCull = false;
 
-  bool mColorMaterial = false;
-  Eigen::Vector3f mColor;
-  float mShininess = 1.f;
+  bool mMaterialColored = false;
+  Eigen::Vector3f mMaterialColor;
+  float mMaterialShine = 1.f;
   };
