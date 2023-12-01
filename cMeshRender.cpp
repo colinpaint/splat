@@ -68,34 +68,34 @@ void cMeshRender::bindUniforms() {
 //{{{
 void cMeshRender::gui() {
 
-   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("draw", &mEnableMesh);
+  if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Checkbox ("draw", &mDisplayMesh);
     ImGui::ColorEdit3 ("color", mMeshMaterial);
     ImGui::DragFloat ("shine", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
     ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::Separator();
 
-    ImGui::Checkbox ("wireFrame", &mEnableWireFrame);
+    ImGui::Checkbox ("wireFrame", &mDisplayWireFrame);
     ImGui::ColorEdit3 ("color##wire", mWireFrameMaterial);
     ImGui::Separator();
     }
 
-  if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Checkbox ("draw##spheres", &mEnableSpheres);
-    ImGui::DragFloat ("radius##spheres", &mPointRadius, 1e-5f, 0.0f, 0.1f, "%.4f");
-    ImGui::ColorEdit3 ("color##spheres", mPointsMaterial);
-    ImGui::DragFloat ("shine##spheres", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
-    }
-  }
+ if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+   ImGui::Checkbox ("draw##spheres", &mDisplaySpheres);
+   ImGui::DragFloat ("radius##spheres", &mPointRadius, 1e-5f, 0.0f, 0.1f, "%.4f");
+   ImGui::ColorEdit3 ("color##spheres", mPointsMaterial);
+   ImGui::DragFloat ("shine##spheres", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
+   }
+ }
 //}}}
 //{{{
 bool cMeshRender::keyboard (SDL_Keycode key) {
 
   switch (key) {
-    case SDLK_1: mEnableMesh = !mEnableMesh; return true;
-    case SDLK_2: mEnableSpheres = !mEnableSpheres; return true;
+    case SDLK_1: mDisplayMesh = !mDisplayMesh; return true;
+    case SDLK_2: mDisplaySpheres = !mDisplaySpheres; return true;
     case SDLK_5: mShadingMethod = (mShadingMethod + 1) % 2; return true;
-    case SDLK_w: mEnableWireFrame = !mEnableWireFrame; return true;
+    case SDLK_w: mDisplayWireFrame = !mDisplayWireFrame; return true;
     }
 
   return false;
@@ -121,16 +121,16 @@ void cMeshRender::display (cModel* model) {
 
   mUniformCamera.set_buffer_data (mCamera);
 
-  if (mEnableMesh) {
+  if (mDisplayMesh) {
     mUniformMaterial.set_buffer_data (mMeshMaterial);
 
     int screen[2] = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
     mUniformWireFrame.set_buffer_data (mWireFrameMaterial, screen);
 
-    mProgramMesh.set_wireFrame (mEnableWireFrame);
+    //{{{  display mesh
+    mProgramMesh.set_wireFrame (mDisplayWireFrame);
     mProgramMesh.set_smooth (mShadingMethod != 0);
 
-    //{{{  display mesh
     mProgramMesh.use();
 
     if (mShadingMethod == 0) {
@@ -150,7 +150,7 @@ void cMeshRender::display (cModel* model) {
     //}}}
     }
 
-  if (mEnableSpheres) {
+  if (mDisplaySpheres) {
     mUniformMaterial.set_buffer_data (mPointsMaterial);
 
     GLviz::Frustum view_frustum = mCamera.get_frustum();

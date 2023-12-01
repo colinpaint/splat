@@ -31,13 +31,13 @@ public:
   int mShadingMethod = 0;
   float mProjectionRadius = 0.0f;
 
-  bool mEnableMesh = true;
+  bool mDisplayMesh = true;
   float mMeshMaterial[4] = { 0.0f, 0.25f, 1.0f, 8.0f };
 
-  bool mEnableWireFrame = false;
+  bool mDisplayWireFrame = false;
   float mWireFrameMaterial[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-  bool mEnableSpheres = false;
+  bool mDisplaySpheres = false;
   float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
   };
