@@ -31,7 +31,7 @@ namespace {
   cSplatRender* gSplatRender;
   cMeshRender* gMeshRender;
   cRender* gRender;
-  bool gSplat = false;
+  bool gUseSplatRender = false;
 
   //{{{
   void display() {
@@ -43,8 +43,8 @@ namespace {
 
     ImGui::Begin ("splat", nullptr);
 
-    if (ImGui::Checkbox ("splatRender", &gSplat)) {
-      if (gSplat)
+    if (ImGui::Checkbox ("splatRender", &gUseSplatRender)) {
+      if (gUseSplatRender)
         gRender = gSplatRender;
       else
         gRender = gMeshRender;
@@ -99,7 +99,7 @@ namespace {
   //}}}
   //{{{
   void timer (int delta_t_msec) {
-    if (!gSplat && gRipple)
+    if (!gUseSplatRender && gRipple)
       gModel->ripple();
     }
   //}}}
