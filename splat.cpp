@@ -44,6 +44,7 @@ namespace {
   void gui() {
 
     ImGui::Begin ("splat", nullptr);
+    ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
     if (ImGui::Checkbox ("splatRender", &gUseSplatRender)) {
       if (gUseSplatRender)
@@ -61,7 +62,6 @@ namespace {
 
     ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
 
-    ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
     ImGui::SetNextItemOpen (true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader ("scene"))
