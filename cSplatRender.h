@@ -2,25 +2,25 @@
 #include "cRender.h"
 
 //{{{
-class UniformBufferRaycast : public GLviz::glUniformBuffer {
+class cUniformBufferRaycast : public GLviz::glUniformBuffer {
 public:
-  UniformBufferRaycast();
+  cUniformBufferRaycast();
 
   void set_buffer_data (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
   };
 //}}}
 //{{{
-class UniformBufferFrustum : public GLviz::glUniformBuffer {
+class cUniformBufferFrustum : public GLviz::glUniformBuffer {
 public:
-  UniformBufferFrustum();
+  cUniformBufferFrustum();
 
   void set_buffer_data (Eigen::Vector4f const* frustum_plane);
   };
 //}}}
 //{{{
-class UniformBufferParameter : public GLviz::glUniformBuffer {
+class cUniformBufferParameter : public GLviz::glUniformBuffer {
 public:
-  UniformBufferParameter();
+  cUniformBufferParameter();
 
   void set_buffer_data (Eigen::Vector3f const& color, float shine,
                         float radius_scale, float ewa_radius, float epsilon);
@@ -28,9 +28,9 @@ public:
 //}}}
 
 //{{{
-class ProgramAttribute : public glProgram {
+class cProgramAttribute : public glProgram {
 public:
-  ProgramAttribute();
+  cProgramAttribute();
 
   void set_ewa_filter (bool enable = true);
   void set_pointsize_method (unsigned int pointsize_method);
@@ -56,9 +56,9 @@ private:
   };
 //}}}
 //{{{
-class ProgramFinal : public glProgram {
+class cProgramFinal : public glProgram {
 public:
-  ProgramFinal();
+  cProgramFinal();
 
   void set_multisampling (bool enable);
   void set_smooth (bool enable);
@@ -76,10 +76,10 @@ private:
   };
 //}}}
 //{{{
-class Framebuffer {
+class cFramebuffer {
 public:
-  Framebuffer();
-  ~Framebuffer();
+  cFramebuffer();
+  ~cFramebuffer();
 
   GLuint color_texture();
 
@@ -142,7 +142,7 @@ private:
     if (m_soft_zbuffer != enable) {
       if (!enable) {
          m_ewa_filter = false;
-         m_attribute.set_ewa_filter(false);
+         mAttribute.set_ewa_filter(false);
          }
 
       m_soft_zbuffer = enable;
@@ -160,7 +160,7 @@ private:
 
     if (m_soft_zbuffer && m_ewa_filter != enable) {
       m_ewa_filter = enable;
-      m_attribute.set_ewa_filter(enable);
+      mAttribute.set_ewa_filter(enable);
       }
     }
   //}}}
@@ -176,9 +176,9 @@ private:
   //}}}
 
   void setupProgramObjects();
-  void setup_filter_kernel();
-  void setup_screen_size_quad();
-  void setup_vertex_array_buffer_object();
+  void setupFilterKernel();
+  void setupScreenQuad();
+  void setupVertexArrayBuffer();
   void setupUniforms (glProgram& program);
 
   void renderPass (bool depth_only);
@@ -192,13 +192,14 @@ private:
   GLuint m_rect_vao;
   GLuint m_rect_vertices_vbo;
   GLuint m_rect_texture_uv_vbo;
-  GLuint m_filter_kernel;
 
-  ProgramAttribute m_visibility;
-  ProgramAttribute m_attribute;
-  ProgramFinal m_Final;
+  GLuint mFilterKernel;
 
-  Framebuffer m_fbo;
+  cProgramAttribute mVisibility;
+  cProgramAttribute mAttribute;
+  cProgramFinal mFinal;
+
+  cFramebuffer m_fbo;
 
   bool m_soft_zbuffer;
   bool m_backface_culling;
@@ -210,8 +211,8 @@ private:
   float m_radius_scale;
   float m_ewa_radius;
 
-  UniformBufferRaycast m_uniform_raycast;
-  UniformBufferFrustum m_uniform_frustum;
-  UniformBufferParameter m_uniform_parameter;
+  cUniformBufferRaycast m_uniform_raycast;
+  cUniformBufferFrustum m_uniform_frustum;
+  cUniformBufferParameter m_uniform_parameter;
   //}}}
   };

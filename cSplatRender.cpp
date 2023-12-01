@@ -608,10 +608,10 @@ namespace {
   //}}}
   }
 
-//{{{  UniformBufferRaycast
-UniformBufferRaycast::UniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
+//{{{  cUniformBufferRaycast
+cUniformBufferRaycast::cUniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 //{{{
-void UniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
+void cUniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
                                             projection_matrix_inv, GLint const* viewport) {
 
   float viewportf[4] = { static_cast<float>(viewport[0]),
@@ -625,10 +625,10 @@ void UniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
   }
 //}}}
 //}}}
-//{{{  UniformBufferFrustum
-UniformBufferFrustum::UniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
+//{{{  cUniformBufferFrustum
+cUniformBufferFrustum::cUniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
 //{{{
-void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
+void cUniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
 
   bind();
   glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), static_cast<void const*>(frustum_plane));
@@ -636,10 +636,10 @@ void UniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane
   }
 //}}}
 //}}}
-//{{{  UniformBufferParameter
-UniformBufferParameter::UniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
+//{{{  cUniformBufferParameter
+cUniformBufferParameter::cUniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
 //{{{
-void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shine,
+void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shine,
                                               float radius_scale, float ewa_radius, float epsilon) {
 
   bind();
@@ -654,7 +654,7 @@ void UniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, floa
 //}}}
 //{{{  Framebuffer
 //{{{
-struct Framebuffer::Impl {
+struct cFramebuffer::Impl {
   virtual bool multisample() const = 0;
 
   virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
@@ -668,7 +668,7 @@ struct Framebuffer::Impl {
   };
 //}}}
 //{{{
-struct Framebuffer::Default : public Framebuffer::Impl {
+struct cFramebuffer::Default : public cFramebuffer::Impl {
   bool multisample() const { return false; }
 
   //{{{
@@ -723,7 +723,7 @@ struct Framebuffer::Default : public Framebuffer::Impl {
   };
 //}}}
 //{{{
-struct Framebuffer::Multisample : public Framebuffer::Impl {
+struct cFramebuffer::Multisample : public cFramebuffer::Impl {
   bool multisample() const { return true; }
 
   //{{{
@@ -774,7 +774,7 @@ struct Framebuffer::Multisample : public Framebuffer::Impl {
 //}}}
 
 //{{{
-Framebuffer::Framebuffer()
+cFramebuffer::cFramebuffer()
     : m_fbo(0), m_color(0), m_normal(0), m_depth(0), m_pimpl (new Default()) {
 
   // Create framebuffer object.
@@ -787,7 +787,7 @@ Framebuffer::Framebuffer()
   }
 //}}}
 //{{{
-Framebuffer::~Framebuffer() {
+cFramebuffer::~cFramebuffer() {
 
   bind();
   remove_and_delete_attachments();
@@ -797,9 +797,9 @@ Framebuffer::~Framebuffer() {
   }
 //}}}
 
-GLuint Framebuffer::color_texture() { return m_color; }
+GLuint cFramebuffer::color_texture() { return m_color; }
 //{{{
-void Framebuffer::enable_depth_texture() {
+void cFramebuffer::enable_depth_texture() {
 
   bind();
 
@@ -817,7 +817,7 @@ void Framebuffer::enable_depth_texture() {
   }
 //}}}
 //{{{
-void Framebuffer::disable_depth_texture() {
+void cFramebuffer::disable_depth_texture() {
 
   bind();
 
@@ -837,10 +837,10 @@ void Framebuffer::disable_depth_texture() {
   unbind();
   }
 //}}}
-GLuint Framebuffer::depth_texture() { return m_depth; }
+GLuint cFramebuffer::depth_texture() { return m_depth; }
 
 //{{{
-void Framebuffer::attach_normal_texture() {
+void cFramebuffer::attach_normal_texture() {
 
   bind();
 
@@ -858,7 +858,7 @@ void Framebuffer::attach_normal_texture() {
   }
 //}}}
 //{{{
-void Framebuffer::detach_normal_texture() {
+void cFramebuffer::detach_normal_texture() {
 
   bind();
 
@@ -871,10 +871,10 @@ void Framebuffer::detach_normal_texture() {
   unbind();
   }
 //}}}
-GLuint Framebuffer::normal_texture() { return m_normal; }
+GLuint cFramebuffer::normal_texture() { return m_normal; }
 
 //{{{
-void Framebuffer::set_multisample (bool enable) {
+void cFramebuffer::set_multisample (bool enable) {
 
   if (m_pimpl->multisample() != enable) {
     bind();
@@ -885,9 +885,9 @@ void Framebuffer::set_multisample (bool enable) {
     remove_and_delete_attachments();
 
     if (m_pimpl->multisample())
-      m_pimpl = unique_ptr<Framebuffer::Impl>(new Framebuffer::Default());
+      m_pimpl = unique_ptr<cFramebuffer::Impl>(new cFramebuffer::Default());
     else
-      m_pimpl = unique_ptr<Framebuffer::Impl>(new Framebuffer::Multisample());
+      m_pimpl = unique_ptr<cFramebuffer::Impl>(new cFramebuffer::Multisample());
 
     initialize();
     if (type == GL_TEXTURE) {
@@ -910,11 +910,11 @@ void Framebuffer::set_multisample (bool enable) {
   }
 //}}}
 
-void Framebuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
-void Framebuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
+void cFramebuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, m_fbo); }
+void cFramebuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
 
 //{{{
-void Framebuffer::resize (GLint width, GLint height) {
+void cFramebuffer::resize (GLint width, GLint height) {
 
   bind();
 
@@ -972,7 +972,7 @@ void Framebuffer::resize (GLint width, GLint height) {
 
 // private
 //{{{
-void Framebuffer::initialize() {
+void cFramebuffer::initialize() {
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
@@ -1000,7 +1000,7 @@ void Framebuffer::initialize() {
   }
 //}}}
 //{{{
-void Framebuffer::remove_and_delete_attachments() {
+void cFramebuffer::remove_and_delete_attachments() {
 
   GLenum attachment[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT };
 
@@ -1032,9 +1032,9 @@ void Framebuffer::remove_and_delete_attachments() {
   }
 //}}}
 //}}}
-//{{{  ProgramAttribute
+//{{{  cProgramAttribute
 //{{{
-ProgramAttribute::ProgramAttribute()
+cProgramAttribute::cProgramAttribute()
     : m_ewa_filter(false), m_backface_culling(false),
       m_visibility_pass(true), m_smooth(false), m_color_material(false),
       m_pointsize_method(0) {
@@ -1044,7 +1044,7 @@ ProgramAttribute::ProgramAttribute()
   }
 //}}}
 //{{{
-void ProgramAttribute::set_smooth (bool enable) {
+void cProgramAttribute::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
@@ -1053,7 +1053,7 @@ void ProgramAttribute::set_smooth (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_ewa_filter (bool enable) {
+void cProgramAttribute::set_ewa_filter (bool enable) {
 
   if (m_ewa_filter != enable) {
     m_ewa_filter = enable;
@@ -1062,7 +1062,7 @@ void ProgramAttribute::set_ewa_filter (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_backface_culling (bool enable) {
+void cProgramAttribute::set_backface_culling (bool enable) {
 
   if (m_backface_culling != enable) {
     m_backface_culling = enable;
@@ -1071,7 +1071,7 @@ void ProgramAttribute::set_backface_culling (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_visibility_pass (bool enable) {
+void cProgramAttribute::set_visibility_pass (bool enable) {
 
   if (m_visibility_pass != enable) {
     m_visibility_pass = enable;
@@ -1080,7 +1080,7 @@ void ProgramAttribute::set_visibility_pass (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_color_material (bool enable) {
+void cProgramAttribute::set_color_material (bool enable) {
 
   if (m_color_material != enable) {
     m_color_material = enable;
@@ -1089,7 +1089,7 @@ void ProgramAttribute::set_color_material (bool enable) {
   }
 //}}}
 //{{{
-void ProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
+void cProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
 
   if (m_pointsize_method != pointsize_method) {
     m_pointsize_method = pointsize_method;
@@ -1098,7 +1098,7 @@ void ProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
   }
 //}}}
 //{{{
-void ProgramAttribute::initShader() {
+void cProgramAttribute::initShader() {
 
   mAttributeVs.load (kAttributeVsGlsl);
   mAttributeFs.load (kAttributeFsGlsl);
@@ -1106,7 +1106,7 @@ void ProgramAttribute::initShader() {
   }
 //}}}
 //{{{
-void ProgramAttribute::initProgram() {
+void cProgramAttribute::initProgram() {
 
   try {
     detach_all();
@@ -1153,9 +1153,9 @@ void ProgramAttribute::initProgram() {
   }
 //}}}
 //}}}
-//{{{  ProgramFinal
+//{{{  cProgramFinal
 //{{{
-ProgramFinal::ProgramFinal()
+cProgramFinal::cProgramFinal()
     : m_smooth(false), m_multisampling(false) {
 
   initShader();
@@ -1163,7 +1163,7 @@ ProgramFinal::ProgramFinal()
   }
 //}}}
 //{{{
-void ProgramFinal::set_smooth (bool enable) {
+void cProgramFinal::set_smooth (bool enable) {
 
   if (m_smooth != enable) {
     m_smooth = enable;
@@ -1172,7 +1172,7 @@ void ProgramFinal::set_smooth (bool enable) {
   }
 //}}}
 //{{{
-void ProgramFinal::set_multisampling (bool enable) {
+void cProgramFinal::set_multisampling (bool enable) {
 
   if (m_multisampling != enable) {
     m_multisampling = enable;
@@ -1182,7 +1182,7 @@ void ProgramFinal::set_multisampling (bool enable) {
 
 //}}}
 //{{{
-void ProgramFinal::initShader() {
+void cProgramFinal::initShader() {
 
   m_Final_vs_obj.load (kFinalVsGlsl);
   m_Final_fs_obj.load (kFinalFsGlsl);
@@ -1194,7 +1194,7 @@ void ProgramFinal::initShader() {
   }
 //}}}
 //{{{
-void ProgramFinal::initProgram() {
+void cProgramFinal::initProgram() {
 
   try {
     // edit shader defines
@@ -1247,9 +1247,9 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
   bindUniforms();
 
   setupProgramObjects();
-  setup_filter_kernel();
-  setup_screen_size_quad();
-  setup_vertex_array_buffer_object();
+  setupFilterKernel();
+  setupScreenQuad();
+  setupVertexArrayBuffer();
   }
 //}}}
 //{{{
@@ -1262,7 +1262,7 @@ cSplatRender::~cSplatRender() {
   glDeleteBuffers (1, &m_rect_texture_uv_vbo);
   glDeleteVertexArrays (1, &m_rect_vao);
 
-  glDeleteTextures (1, &m_filter_kernel);
+  glDeleteTextures (1, &mFilterKernel);
   }
 //}}}
 
@@ -1273,8 +1273,8 @@ void cSplatRender::set_smooth (bool enable) {
   if (m_smooth != enable) {
     m_smooth = enable;
 
-    m_attribute.set_smooth(enable);
-    m_Final.set_smooth(enable);
+    mAttribute.set_smooth (enable);
+    mFinal.set_smooth (enable);
 
     if (m_smooth) {
       m_fbo.enable_depth_texture();
@@ -1294,8 +1294,8 @@ void cSplatRender::set_pointsize_method (unsigned int pointsize_method) {
 
   if (m_pointsize_method != pointsize_method) {
     m_pointsize_method = pointsize_method;
-    m_visibility.set_pointsize_method(pointsize_method);
-    m_attribute.set_pointsize_method(pointsize_method);
+    mVisibility.set_pointsize_method (pointsize_method);
+    mAttribute.set_pointsize_method (pointsize_method);
     }
   }
 //}}}
@@ -1309,7 +1309,7 @@ void cSplatRender::setMultiSample (bool enable) {
 
   if (getMultiSample() != enable) {
     cRender::setMultiSample (enable);
-    m_Final.set_multisampling (enable);
+    mFinal.set_multisampling (enable);
     m_fbo.set_multisample (enable);
     }
   }
@@ -1319,8 +1319,8 @@ void cSplatRender::setBackFaceCull (bool enable) {
 
   if (getBackFaceCull() != enable) {
     cRender::setMultiSample (enable);
-    m_visibility.set_backface_culling (enable);
-    m_attribute.set_backface_culling (enable);
+    mVisibility.set_backface_culling (enable);
+    mAttribute.set_backface_culling (enable);
     }
   }
 //}}}
@@ -1468,14 +1468,14 @@ void cSplatRender::display (cModel* model) {
       }
     }
 
-  m_Final.use();
+  mFinal.use();
 
   try {
-    setupUniforms (m_Final);
-    m_Final.setUniform1i ("color_texture", 0);
+    setupUniforms (mFinal);
+    mFinal.setUniform1i ("color_texture", 0);
     if (m_smooth) {
-      m_Final.setUniform1i ("normal_texture", 1);
-      m_Final.setUniform1i ("depth_texture", 2);
+      mFinal.setUniform1i ("normal_texture", 1);
+      mFinal.setUniform1i ("depth_texture", 2);
       }
     }
   catch (uniform_not_found_error const& e) {
@@ -1500,23 +1500,23 @@ void cSplatRender::resize (int width, int height) { m_fbo.resize (width, height)
 //{{{
 void cSplatRender::setupProgramObjects() {
 
-  m_visibility.set_visibility_pass();
-  m_visibility.set_pointsize_method (m_pointsize_method);
-  m_visibility.set_backface_culling (m_backface_culling);
+  mVisibility.set_visibility_pass();
+  mVisibility.set_pointsize_method (m_pointsize_method);
+  mVisibility.set_backface_culling (m_backface_culling);
 
-  m_attribute.set_visibility_pass (false);
-  m_attribute.set_pointsize_method (m_pointsize_method);
-  m_attribute.set_backface_culling (getBackFaceCull());
-  m_attribute.set_color_material (getMaterialColored());
-  m_attribute.set_ewa_filter (m_ewa_filter);
-  m_attribute.set_smooth (m_smooth);
+  mAttribute.set_visibility_pass (false);
+  mAttribute.set_pointsize_method (m_pointsize_method);
+  mAttribute.set_backface_culling (getBackFaceCull());
+  mAttribute.set_color_material (getMaterialColored());
+  mAttribute.set_ewa_filter (m_ewa_filter);
+  mAttribute.set_smooth (m_smooth);
 
-  m_Final.set_multisampling (getMultiSample());
-  m_Final.set_smooth (m_smooth);
+  mFinal.set_multisampling (getMultiSample());
+  mFinal.set_smooth (m_smooth);
   }
 //}}}
 //{{{
-inline void cSplatRender::setup_filter_kernel() {
+inline void cSplatRender::setupFilterKernel() {
 
   const float sigma2 = 0.316228f; // Sqrt(0.1).
 
@@ -1527,8 +1527,8 @@ inline void cSplatRender::setup_filter_kernel() {
     yi[i] = std::exp(-w);
     }
 
-  glGenTextures (1, &m_filter_kernel);
-  glBindTexture (GL_TEXTURE_1D, m_filter_kernel);
+  glGenTextures (1, &mFilterKernel);
+  glBindTexture (GL_TEXTURE_1D, mFilterKernel);
   glPixelStorei (GL_UNPACK_ALIGNMENT, 4);
   glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1536,7 +1536,7 @@ inline void cSplatRender::setup_filter_kernel() {
   }
 //}}}
 //{{{
-inline void cSplatRender::setup_screen_size_quad() {
+inline void cSplatRender::setupScreenQuad() {
 
   float rect_vertices[12] = { 1.0f,  1.0f, 0.0f,
                               1.0f, -1.0f, 0.0f,
@@ -1573,7 +1573,7 @@ inline void cSplatRender::setup_screen_size_quad() {
   }
 //}}}
 //{{{
-void cSplatRender::setup_vertex_array_buffer_object() {
+void cSplatRender::setupVertexArrayBuffer() {
 
   glGenBuffers (1, &mVbo);
 
@@ -1644,7 +1644,7 @@ void cSplatRender::renderPass (bool depth_only) {
     glBlendFuncSeparate (GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     }
 
-  glProgram& program = depth_only ? m_visibility : m_attribute;
+  glProgram& program = depth_only ? mVisibility : mAttribute;
   program.use();
 
   if (depth_only) {
@@ -1664,7 +1664,7 @@ void cSplatRender::renderPass (bool depth_only) {
 
   if (!depth_only && m_soft_zbuffer && m_ewa_filter) {
     glActiveTexture (GL_TEXTURE1);
-    glBindTexture (GL_TEXTURE_1D, m_filter_kernel);
+    glBindTexture (GL_TEXTURE_1D, mFilterKernel);
     program.setUniform1i ("filter_kernel", 1);
     }
 
