@@ -80,6 +80,7 @@ public:
   GLviz::glElementArrayBuffer mIndexArrayBuffer;
 
   GLviz::UniformBufferCamera mUniformCamera;
+
   cUniformBufferMaterial mUniformMaterial;
   cUniformBufferWireFrame mUniformWireFrame;
   cUniformBufferSphere mUniformWireSphere;

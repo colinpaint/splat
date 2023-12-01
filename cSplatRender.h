@@ -201,20 +201,20 @@ private:
   cProgramAttribute mAttribute;
   cProgramFinal mFinal;
 
+  cUniformBufferRaycast m_uniform_raycast;
+  cUniformBufferFrustum m_uniform_frustum;
+  cUniformBufferParameter m_uniform_parameter;
+
   cFrameBuffer mFrameBuffer;
 
+  //
   bool mSoftZbuffer;
   bool mBackFaceCull;
   bool mSmooth;
   bool mEwaFilter;
-
   unsigned int m_pointsize_method;
   float m_epsilon;
   float m_radius_scale;
   float m_ewa_radius;
-
-  cUniformBufferRaycast m_uniform_raycast;
-  cUniformBufferFrustum m_uniform_frustum;
-  cUniformBufferParameter m_uniform_parameter;
   //}}}
   };
