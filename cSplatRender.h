@@ -34,12 +34,12 @@ class cProgramAttribute : public glProgram {
 public:
   cProgramAttribute();
 
-  void set_ewa_filter (bool enable = true);
-  void set_pointsize_method (unsigned int pointsize_method);
-  void set_backface_culling (bool enable = true);
-  void set_visibility_pass (bool enable = true);
-  void set_smooth (bool enable = true);
-  void set_color_material (bool enable = true);
+  void setBackFaceCull (bool enable = true);
+  void setSmooth (bool enable = true);
+  void setVisibilityPass (bool enable = true);
+  void setColorMaterial (bool enable = true);
+  void setEwaFilter (bool enable = true);
+  void setPointSizeType (unsigned int pointSizeType);
 
 private:
   void initShader();
@@ -49,12 +49,12 @@ private:
   glVertexShader mLightingVs;
   glFragmentShader mAttributeFs;
 
-  bool m_ewa_filter;
-  bool m_backface_culling;
-  bool m_visibility_pass;
+  bool mBackFaceCull;
   bool mSmooth;
-  bool m_color_material;
-  unsigned int m_pointsize_method;
+  bool mVisibilityPass;
+  bool mColorMaterial;
+  bool mEwaFilter;
+  unsigned int mPointSizeType;
   };
 //}}}
 //{{{
@@ -62,8 +62,8 @@ class cProgramFinal : public glProgram {
 public:
   cProgramFinal();
 
-  void set_multisampling (bool enable);
-  void set_smooth (bool enable);
+  void setMultiSample (bool enable);
+  void setSmooth (bool enable);
 
 private:
   void initShader();
@@ -73,8 +73,8 @@ private:
   glFragmentShader m_Final_fs_obj;
   glFragmentShader m_lighting_fs_obj;
 
-  bool mSmooth;
   bool mMulitSample;
+  bool mSmooth;
   };
 //}}}
 //{{{
@@ -83,17 +83,17 @@ public:
   cFrameBuffer();
   ~cFrameBuffer();
 
-  GLuint color_texture();
+  GLuint getColorTexture();
+  GLuint getDepthTexture();
+  GLuint getNormalTexture();
 
-  void enable_depth_texture();
-  void disable_depth_texture();
-  GLuint depth_texture();
+  void enableDepthTexture();
+  void disableDepthTexture();
 
   void attachNormalTexture();
   void detachNormalTexture();
-  GLuint normal_texture();
 
-  void set_multisample (bool enable = true);
+  void setMultiSample (bool enable = true);
 
   void bind();
   void unbind();
@@ -133,48 +133,28 @@ public:
 
 private:
   //{{{  gui access
-  bool smooth() const;
-  void set_smooth (bool enable = true);
+  bool getSmooth() const { return mSmooth; }
+  void setSmooth (bool enable = true);
 
   // softZ
-  bool soft_zbuffer() const { return mSoftZbuffer; }
-  //{{{
-  void set_soft_zbuffer (bool enable) {
+  bool getSoftZbuffer() const { return mSoftZbuffer; }
+  void setSoftZbuffer (bool enable);
 
-    if (mSoftZbuffer != enable) {
-      if (!enable) {
-        mEwaFilter = false;
-         mAttribute.set_ewa_filter(false);
-         }
-
-      mSoftZbuffer = enable;
-      }
-    }
-  //}}}
-
-  float getSoftZbufferEpsilon() const { return m_epsilon; }
-  void setSoftZbufferEpsilon (float epsilon) { m_epsilon = epsilon; }
+  float getSoftZbufferEpsilon() const { return mEpsilon; }
+  void setSoftZbufferEpsilon (float epsilon) { mEpsilon = epsilon; }
 
   // ewa
-  bool ewa_filter() const { return mEwaFilter; }
-  //{{{
-  void set_ewa_filter (bool enable) {
+  bool getEwaFilter() const { return mEwaFilter; }
+  void setEwaFilter (bool enable);
 
-    if (mSoftZbuffer && mEwaFilter != enable) {
-      mEwaFilter = enable;
-      mAttribute.set_ewa_filter(enable);
-      }
-    }
-  //}}}
+  float getEwaRadius() const { return mEwaRadius; }
+  void setEwaRadius (float ewaRadius) { mEwaRadius = ewaRadius; }
 
-  float ewa_radius() const { return m_ewa_radius; }
-  void set_ewa_radius (float ewa_radius) { m_ewa_radius = ewa_radius; }
+  unsigned int getPointSizeType() const { return mPointSizeType; }
+  void setPointSizeType (unsigned int pointSizeType);
 
-  unsigned int pointsize_method() const;
-  void set_pointsize_method (unsigned int pointsize_method);
-
-  float radius_scale() const;
-  void set_radius_scale (float radius_scale);
+  float getRadiusScale() const { return mRadiusScale; }
+  void setRadiusScale (float radiusScale) { mRadiusScale = radiusScale; }
   //}}}
 
   void setupProgramObjects();
@@ -211,12 +191,12 @@ private:
   bool mSmooth;
 
   bool mSoftZbuffer;
-  float m_epsilon;
+  float mEpsilon;
 
   bool mEwaFilter;
-  float m_ewa_radius;
+  float mEwaRadius;
 
-  unsigned int m_pointsize_method;
-  float m_radius_scale;
+  unsigned int mPointSizeType;
+  float mRadiusScale;
   //}}}
   };

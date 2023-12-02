@@ -797,9 +797,10 @@ cFrameBuffer::~cFrameBuffer() {
   }
 //}}}
 
-GLuint cFrameBuffer::color_texture() { return mColor; }
+GLuint cFrameBuffer::getColorTexture() { return mColor; }
+GLuint cFrameBuffer::getDepthTexture() { return mDepth; }
 //{{{
-void cFrameBuffer::enable_depth_texture() {
+void cFrameBuffer::enableDepthTexture() {
 
   bind();
 
@@ -817,7 +818,7 @@ void cFrameBuffer::enable_depth_texture() {
   }
 //}}}
 //{{{
-void cFrameBuffer::disable_depth_texture() {
+void cFrameBuffer::disableDepthTexture() {
 
   bind();
 
@@ -837,7 +838,6 @@ void cFrameBuffer::disable_depth_texture() {
   unbind();
   }
 //}}}
-GLuint cFrameBuffer::depth_texture() { return mDepth; }
 
 //{{{
 void cFrameBuffer::attachNormalTexture() {
@@ -871,10 +871,10 @@ void cFrameBuffer::detachNormalTexture() {
   unbind();
   }
 //}}}
-GLuint cFrameBuffer::normal_texture() { return mNormal; }
+GLuint cFrameBuffer::getNormalTexture() { return mNormal; }
 
 //{{{
-void cFrameBuffer::set_multisample (bool enable) {
+void cFrameBuffer::setMultiSample (bool enable) {
 
   if (mPimpl->multisample() != enable) {
     bind();
@@ -892,7 +892,7 @@ void cFrameBuffer::set_multisample (bool enable) {
     initialize();
     if (type == GL_TEXTURE) {
       attachNormalTexture();
-      enable_depth_texture();
+      enableDepthTexture();
       }
 
     #ifndef NDEBUG
@@ -1035,9 +1035,9 @@ void cFrameBuffer::removeDeleteAttachments() {
 //{{{  cProgramAttribute
 //{{{
 cProgramAttribute::cProgramAttribute()
-    : m_ewa_filter(false), m_backface_culling(false),
-      m_visibility_pass(true), mSmooth(false), m_color_material(false),
-      m_pointsize_method(0) {
+    : mEwaFilter(false), mBackFaceCull(false),
+      mVisibilityPass(true), mSmooth(false), mColorMaterial(false),
+      mPointSizeType(0) {
 
   initShader();
   initProgram();
@@ -1045,7 +1045,7 @@ cProgramAttribute::cProgramAttribute()
 //}}}
 
 //{{{
-void cProgramAttribute::set_smooth (bool enable) {
+void cProgramAttribute::setSmooth (bool enable) {
 
   if (mSmooth != enable) {
     mSmooth = enable;
@@ -1054,50 +1054,51 @@ void cProgramAttribute::set_smooth (bool enable) {
   }
 //}}}
 //{{{
-void cProgramAttribute::set_ewa_filter (bool enable) {
+void cProgramAttribute::setEwaFilter (bool enable) {
 
-  if (m_ewa_filter != enable) {
-    m_ewa_filter = enable;
+  if (mEwaFilter != enable) {
+    mEwaFilter = enable;
     initProgram();
     }
   }
 //}}}
 //{{{
-void cProgramAttribute::set_backface_culling (bool enable) {
+void cProgramAttribute::setBackFaceCull (bool enable) {
 
-  if (m_backface_culling != enable) {
-    m_backface_culling = enable;
+  if (mBackFaceCull != enable) {
+    mBackFaceCull = enable;
     initProgram();
     }
   }
 //}}}
 //{{{
-void cProgramAttribute::set_visibility_pass (bool enable) {
+void cProgramAttribute::setVisibilityPass (bool enable) {
 
-  if (m_visibility_pass != enable) {
-    m_visibility_pass = enable;
+  if (mVisibilityPass != enable) {
+    mVisibilityPass = enable;
     initProgram();
     }
   }
 //}}}
 //{{{
-void cProgramAttribute::set_color_material (bool enable) {
+void cProgramAttribute::setColorMaterial (bool enable) {
 
-  if (m_color_material != enable) {
-    m_color_material = enable;
+  if (mColorMaterial != enable) {
+    mColorMaterial = enable;
     initProgram();
     }
   }
 //}}}
 //{{{
-void cProgramAttribute::set_pointsize_method (unsigned int pointsize_method) {
+void cProgramAttribute::setPointSizeType (unsigned int pointSizeType) {
 
-  if (m_pointsize_method != pointsize_method) {
-    m_pointsize_method = pointsize_method;
+  if (mPointSizeType != pointSizeType) {
+    mPointSizeType = pointSizeType;
     initProgram();
     }
   }
 //}}}
+
 //{{{
 void cProgramAttribute::initShader() {
 
@@ -1118,12 +1119,12 @@ void cProgramAttribute::initProgram() {
 
     // edit shader defines
     map <string, int> defines;
-    defines.insert (make_pair ("EWA_FILTER", m_ewa_filter ? 1 : 0));
-    defines.insert (make_pair ("BACKFACE_CULLING", m_backface_culling ? 1 : 0));
-    defines.insert (make_pair ("VISIBILITY_PASS", m_visibility_pass ? 1 : 0));
+    defines.insert (make_pair ("EWA_FILTER", mEwaFilter ? 1 : 0));
+    defines.insert (make_pair ("BACKFACE_CULLING", mBackFaceCull ? 1 : 0));
+    defines.insert (make_pair ("VISIBILITY_PASS", mVisibilityPass ? 1 : 0));
     defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
-    defines.insert (make_pair ("COLOR_MATERIAL", m_color_material ? 1 : 0));
-    defines.insert (make_pair ("POINTSIZE_METHOD", static_cast<int>(m_pointsize_method)));
+    defines.insert (make_pair ("COLOR_MATERIAL", mColorMaterial ? 1 : 0));
+    defines.insert (make_pair ("POINTSIZE_METHOD", static_cast<int>(mPointSizeType)));
 
     mAttributeVs.compile (defines);
     mAttributeFs.compile (defines);
@@ -1165,16 +1166,7 @@ cProgramFinal::cProgramFinal()
 //}}}
 
 //{{{
-void cProgramFinal::set_smooth (bool enable) {
-
-  if (mSmooth != enable) {
-    mSmooth = enable;
-    initProgram();
-    }
-  }
-//}}}
-//{{{
-void cProgramFinal::set_multisampling (bool enable) {
+void cProgramFinal::setMultiSample (bool enable) {
 
   if (mMulitSample != enable) {
     mMulitSample = enable;
@@ -1183,6 +1175,16 @@ void cProgramFinal::set_multisampling (bool enable) {
   }
 
 //}}}
+//{{{
+void cProgramFinal::setSmooth (bool enable) {
+
+  if (mSmooth != enable) {
+    mSmooth = enable;
+    initProgram();
+    }
+  }
+//}}}
+
 //{{{
 void cProgramFinal::initShader() {
 
@@ -1239,11 +1241,11 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
     : cRender(camera),
       mSmooth(false),
       mSoftZbuffer(true),
-      m_epsilon(1.0f * 1e-3f),
+      mEpsilon(1.0f * 1e-3f),
       mEwaFilter(false),
-      m_ewa_radius(1.0f),
-      m_pointsize_method(0),
-      m_radius_scale(1.0f) {
+      mEwaRadius(1.0f),
+      mPointSizeType(0),
+      mRadiusScale(1.0f) {
 
   bindUniforms (mMultiSample, mBackFaceCull);
 
@@ -1267,58 +1269,74 @@ cSplatRender::~cSplatRender() {
   }
 //}}}
 
-bool cSplatRender::smooth() const { return mSmooth; }
 //{{{
-void cSplatRender::set_smooth (bool enable) {
+void cSplatRender::setSmooth (bool enable) {
 
   if (mSmooth != enable) {
     mSmooth = enable;
 
-    mAttribute.set_smooth (enable);
-    mFinal.set_smooth (enable);
+    mAttribute.setSmooth (enable);
+    mFinal.setSmooth (enable);
 
     if (mSmooth) {
-      mFrameBuffer.enable_depth_texture();
+      mFrameBuffer.enableDepthTexture();
       mFrameBuffer.attachNormalTexture();
       }
     else {
-      mFrameBuffer.disable_depth_texture();
+      mFrameBuffer.disableDepthTexture();
       mFrameBuffer.detachNormalTexture();
       }
     }
   }
 //}}}
-
-unsigned int cSplatRender::pointsize_method() const { return m_pointsize_method; }
 //{{{
-void cSplatRender::set_pointsize_method (unsigned int pointsize_method) {
+void cSplatRender::setPointSizeType (unsigned int pointSizeType) {
 
-  if (m_pointsize_method != pointsize_method) {
-    m_pointsize_method = pointsize_method;
-    mVisibility.set_pointsize_method (pointsize_method);
-    mAttribute.set_pointsize_method (pointsize_method);
+  if (mPointSizeType != pointSizeType) {
+    mPointSizeType = pointSizeType;
+    mVisibility.setPointSizeType (pointSizeType);
+    mAttribute.setPointSizeType (pointSizeType);
     }
   }
 //}}}
-
-float cSplatRender::radius_scale() const { return m_radius_scale; }
-void cSplatRender::set_radius_scale (float radius_scale) { m_radius_scale = radius_scale; }
 
 // overrides
 //{{{
 void cSplatRender::setMultiSample (bool enable) {
 
   mMultiSample = enable;
-  mFinal.set_multisampling (enable);
-  mFrameBuffer.set_multisample (enable);
+  mFinal.setMultiSample (enable);
+  mFrameBuffer.setMultiSample (enable);
   }
 //}}}
 //{{{
 void cSplatRender::setBackFaceCull (bool enable) {
 
   mBackFaceCull = enable;
-  mVisibility.set_backface_culling (enable);
-  mAttribute.set_backface_culling (enable);
+  mVisibility.setBackFaceCull (enable);
+  mAttribute.setBackFaceCull (enable);
+  }
+//}}}
+//{{{
+void cSplatRender::setSoftZbuffer (bool enable) {
+
+  if (mSoftZbuffer != enable) {
+    if (!enable) {
+      mEwaFilter = false;
+      mAttribute.setEwaFilter (false);
+      }
+
+    mSoftZbuffer = enable;
+    }
+  }
+//}}}
+//{{{
+void cSplatRender::setEwaFilter (bool enable) {
+
+  if (mSoftZbuffer && mEwaFilter != enable) {
+    mEwaFilter = enable;
+    mAttribute.setEwaFilter (enable);
+    }
   }
 //}}}
 
@@ -1328,7 +1346,7 @@ void cSplatRender::bindUniforms (bool multiSample, bool backFaceCull) {
 
   mMultiSample = multiSample;
   mBackFaceCull = backFaceCull;
-  
+
   m_uniform_camera.bindBufferBase (0);
   m_uniform_raycast.bindBufferBase (1);
   m_uniform_frustum.bindBufferBase (2);
@@ -1341,18 +1359,18 @@ void cSplatRender::gui() {
 
   ImGui::SetNextItemOpen (true, ImGuiCond_Once);
   if (ImGui::CollapsingHeader ("surface Splatting")) {
-    int shadingMethod = smooth() ? 1 : 0;
+    int shadingMethod = getSmooth() ? 1 : 0;
     if (ImGui::Combo ("shading", &shadingMethod, "Flat\0Smooth\0\0"))
-      set_smooth (shadingMethod > 0 ? true : false);
+      setSmooth (shadingMethod > 0 ? true : false);
 
     // points
-    int pointSize = pointsize_method();
+    int pointSize = getPointSizeType();
     if (ImGui::Combo ("pointSize", &pointSize, "PBP\0BHZK05\0WHA+07\0ZRB+04\0\0"))
-      set_pointsize_method (pointSize);
+      setPointSizeType (pointSize);
 
-    float radiusScale = radius_scale();
+    float radiusScale = getRadiusScale();
     if (ImGui::DragFloat ("radiusScale", &radiusScale, 0.001f, 1e-6f, 2.0f))
-      set_radius_scale (min(max( 1e-6f, radiusScale), 2.0f));
+      setRadiusScale (min(max( 1e-6f, radiusScale), 2.0f));
 
     // material
     ImGui::Separator();
@@ -1370,9 +1388,9 @@ void cSplatRender::gui() {
 
     // softZ
     ImGui::Separator();
-    bool softZbuffer = soft_zbuffer();
+    bool softZbuffer = getSoftZbuffer();
     if (ImGui::Checkbox("softZ", &softZbuffer))
-      set_soft_zbuffer (softZbuffer);
+      setSoftZbuffer (softZbuffer);
 
     float soft_zbuffer_epsilon = getSoftZbufferEpsilon();
     if (ImGui::DragFloat ("softZ epsilon", &soft_zbuffer_epsilon, 1e-5f, 1e-5f, 1.0f, "%.5f"))
@@ -1380,13 +1398,13 @@ void cSplatRender::gui() {
 
     // ewa
     ImGui::Separator();
-    bool ewaFilter = ewa_filter();
+    bool ewaFilter = getEwaFilter();
     if (ImGui::Checkbox ("ewaFilter", &ewaFilter))
-      set_ewa_filter (ewaFilter);
+      setEwaFilter (ewaFilter);
 
-    float ewaRadius = ewa_radius();
+    float ewaRadius = getEwaRadius();
     if (ImGui::DragFloat ("ewaRadius", &ewaRadius, 1e-3f, 0.1f, 4.0f))
-      set_ewa_radius (ewaRadius);
+      setEwaRadius (ewaRadius);
     }
   }
 //}}}
@@ -1394,11 +1412,11 @@ void cSplatRender::gui() {
 bool cSplatRender::keyboard (SDL_Keycode key) {
 
   switch (key) {
-    case SDLK_5: set_smooth (!smooth()); return true;
+    case SDLK_5: setSmooth (!getSmooth()); return true;
     case SDLK_c: setMaterialColored (!getMaterialColored()); return true;
-    case SDLK_z: set_soft_zbuffer (!soft_zbuffer()); return true;
-    case SDLK_u: set_ewa_filter (!ewa_filter()); return true;
-    case SDLK_t: set_pointsize_method ((pointsize_method() + 1) % 4); return true;
+    case SDLK_z: setSoftZbuffer (!getSoftZbuffer()); return true;
+    case SDLK_u: setEwaFilter (!getEwaFilter()); return true;
+    case SDLK_t: setPointSizeType ((getPointSizeType() + 1) % 4); return true;
     }
 
   return false;
@@ -1447,24 +1465,24 @@ void cSplatRender::display (cModel* model) {
   //{{{  finalise
   if (getMultiSample()) {
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.color_texture());
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getColorTexture());
 
     if (mSmooth) {
       glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.normal_texture());
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getNormalTexture());
       glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.depth_texture());
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getDepthTexture());
       }
     }
   else {
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, mFrameBuffer.color_texture());
+    glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getColorTexture());
 
     if (mSmooth) {
       glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.normal_texture());
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getNormalTexture());
       glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.depth_texture());
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getDepthTexture());
       }
     }
 
@@ -1500,19 +1518,19 @@ void cSplatRender::resize (int width, int height) { mFrameBuffer.resize (width, 
 //{{{
 void cSplatRender::setupProgramObjects() {
 
-  mVisibility.set_visibility_pass();
-  mVisibility.set_pointsize_method (m_pointsize_method);
-  mVisibility.set_backface_culling (mBackFaceCull);
+  mVisibility.setVisibilityPass();
+  mVisibility.setPointSizeType (mPointSizeType);
+  mVisibility.setBackFaceCull (mBackFaceCull);
 
-  mAttribute.set_visibility_pass (false);
-  mAttribute.set_pointsize_method (m_pointsize_method);
-  mAttribute.set_backface_culling (getBackFaceCull());
-  mAttribute.set_color_material (getMaterialColored());
-  mAttribute.set_ewa_filter (mEwaFilter);
-  mAttribute.set_smooth (mSmooth);
+  mAttribute.setVisibilityPass (false);
+  mAttribute.setPointSizeType (mPointSizeType);
+  mAttribute.setBackFaceCull (getBackFaceCull());
+  mAttribute.setColorMaterial (getMaterialColored());
+  mAttribute.setEwaFilter (mEwaFilter);
+  mAttribute.setSmooth (mSmooth);
 
-  mFinal.set_multisampling (getMultiSample());
-  mFinal.set_smooth (mSmooth);
+  mFinal.setMultiSample (getMultiSample());
+  mFinal.setSmooth (mSmooth);
   }
 //}}}
 //{{{
@@ -1628,7 +1646,7 @@ void cSplatRender::setupUniforms (glProgram& program) {
   m_uniform_frustum.set_buffer_data (frustum_plane);
 
   m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShine(),
-                                       m_radius_scale, m_ewa_radius, m_epsilon);
+                                       mRadiusScale, mEwaRadius, mEpsilon);
   }
 //}}}
 
