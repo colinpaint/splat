@@ -608,11 +608,10 @@ namespace {
   //}}}
   }
 
-//{{{  cUniformBufferRaycast
-cUniformBufferRaycast::cUniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
+//{{{  cUniformRaycast
+cUniformRaycast::cUniformRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 
-void cUniformBufferRaycast::setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport) {
-
+void cUniformRaycast::setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport) {
   float viewportf[4] = { static_cast<float>(viewport[0]),
                          static_cast<float>(viewport[1]),
                          static_cast<float>(viewport[2]),
@@ -623,29 +622,31 @@ void cUniformBufferRaycast::setBuffer (Eigen::Matrix4f const& projection_matrix_
   unbind();
   }
 //}}}
-//{{{  cUniformBufferFrustum
-cUniformBufferFrustum::cUniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
+//{{{  cUniformFrustum
+cUniformFrustum::cUniformFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
 
-void cUniformBufferFrustum::setBuffer (Eigen::Vector4f const* frustum_plane) {
+void cUniformFrustum::setBuffer (Eigen::Vector4f const* frustum_plane) {
   bind();
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), static_cast<void const*>(frustum_plane));
+  glBufferSubData (GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), 
+                                             static_cast<void const*>(frustum_plane));
   unbind();
   }
 //}}}
-//{{{  cUniformBufferParameter
-cUniformBufferParameter::cUniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
+//{{{  cUniformParameter
+cUniformParameter::cUniformParameter() : glUniformBuffer(8 * sizeof(float)) { }
 
-void cUniformBufferParameter::setBuffer (Eigen::Vector3f const& color, float shine,
-                                         float radius_scale, float ewa_radius, float epsilon) {
+void cUniformParameter::setBuffer (Eigen::Vector3f const& color, float shine,
+                                   float radiusScale, float ewaRadius, float epsilon) {
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
   glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shine);
-  glBufferSubData (GL_UNIFORM_BUFFER, 16, sizeof(float), &radius_scale);
-  glBufferSubData (GL_UNIFORM_BUFFER, 20, sizeof(float), &ewa_radius);
+  glBufferSubData (GL_UNIFORM_BUFFER, 16, sizeof(float), &radiusScale);
+  glBufferSubData (GL_UNIFORM_BUFFER, 20, sizeof(float), &ewaRadius);
   glBufferSubData (GL_UNIFORM_BUFFER, 24, sizeof(float), &epsilon);
   unbind();
   }
 //}}}
+
 //{{{  cProgramAttribute
 //{{{
 cProgramAttribute::cProgramAttribute() {
@@ -1595,7 +1596,7 @@ void cSplatRender::setupUniforms (glProgram& program) {
   Eigen::Vector4f frustum_plane[6];
   Eigen::Matrix4f const& projection_matrix = mCamera.get_projection_matrix();
   for (unsigned int i = 0; i < 6; ++i)
-    frustum_plane[i] = 
+    frustum_plane[i] =
       projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
   for (unsigned int i = 0; i < 6; ++i)
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];

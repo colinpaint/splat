@@ -4,24 +4,23 @@
 #include "glviz/shader.h"
 
 //{{{
-class cUniformBufferMaterial : public GLviz::glUniformBuffer {
+class cUniformMaterial : public GLviz::glUniformBuffer {
 public:
-  void setBuffer(const float* mbuf);
+  cUniformMaterial();
+  void setBuffer (const float* mbuf);
   };
 //}}}
 //{{{
-class cUniformBufferWireFrame : public GLviz::glUniformBuffer {
+class cUniformWireFrame : public GLviz::glUniformBuffer {
 public:
-  cUniformBufferWireFrame();
-
+  cUniformWireFrame();
   void setBuffer(float const* color, int const* viewport);
   };
 //}}}
 //{{{
-class cUniformBufferSphere : public GLviz::glUniformBuffer {
+class cUniformSphere : public GLviz::glUniformBuffer {
 public:
-  cUniformBufferSphere();
-
+  cUniformSphere();
   void setBuffer (float radius, float projection);
   };
 //}}}
@@ -31,19 +30,19 @@ class cProgramMesh : public glProgram {
 public:
   cProgramMesh();
 
-  void set_wireFrame (bool enable);
-  void set_smooth (bool enable);
+  void setWireFrame (bool enable);
+  void setSmooth (bool enable);
 
 private:
   void initShader();
   void initProgram();
 
-  glVertexShader m_mesh_vs_obj;
-  glGeometryShader m_mesh_gs_obj;
-  glFragmentShader m_mesh_fs_obj;
+  glVertexShader mMeshVs;
+  glGeometryShader mMeshGs;
+  glFragmentShader mMeshFs;
 
-  bool m_wireFrame;
-  bool m_smooth;
+  bool mWireFrame;
+  bool mSmooth;
   };
 //}}}
 //{{{
@@ -55,10 +54,11 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader m_sphere_vs_obj;
-  glFragmentShader m_sphere_fs_obj;
+  glVertexShader mSphereVs;
+  glFragmentShader mSphereFs;
   };
 //}}}
+
 
 class cMeshRender : public cRender {
 public:
@@ -81,9 +81,9 @@ public:
 
   GLviz::UniformBufferCamera mUniformCamera;
 
-  cUniformBufferMaterial mUniformMaterial;
-  cUniformBufferWireFrame mUniformWireFrame;
-  cUniformBufferSphere mUniformWireSphere;
+  cUniformMaterial mUniformMaterial;
+  cUniformWireFrame mUniformWireFrame;
+  cUniformSphere mUniformWireSphere;
 
   cProgramMesh mProgramMesh;
   cProgramSphere mProgramSphere;

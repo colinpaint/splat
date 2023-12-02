@@ -156,7 +156,7 @@ namespace {
 
     "layout(std140) uniform Material {"
       "vec3 color;"
-      "float shininess;"
+      "float shine;"
       "}"
     "material;",
 
@@ -199,7 +199,7 @@ namespace {
       "vec3 view_eye = normalize(In.position);"
       "vec3 refl_eye = reflect(light_eye, normal_eye);"
 
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);"
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shine);"
       "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);"
 
       "vec3 color = 0.15 * material.color;"
@@ -266,7 +266,7 @@ namespace {
 
     "layout(std140) uniform Material {"
       "vec3 color;"
-      "float shininess;"
+      "float shine;"
       "}"
     "material;",
 
@@ -293,7 +293,7 @@ namespace {
       "float dif = max(dot(light_eye, normal_eye), 0.0);"
       "vec3 view_eye = normalize(position_eye);"
       "vec3 refl_eye = reflect(light_eye, normal_eye);"
-      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shininess);"
+      "float spe = pow(clamp(dot(refl_eye, view_eye), 0.0, 1.0), material.shine);"
       "float rim = pow(1.0 + dot(normal_eye, view_eye), 3.0);"
 
       "vec3 color = 0.15 * material.color;"
@@ -308,156 +308,142 @@ namespace {
   //}}}
   }
 
-//{{{  cUniformBufferMaterial
-//{{{
-void cUniformBufferMaterial::setBuffer (float const* mbuf) {
+//{{{  cUniformMaterial
+cUniformMaterial::cUniformMaterial() : glUniformBuffer (4 * sizeof(GLfloat)) {}
 
+void cUniformMaterial::setBuffer (float const* mbuf) {
   bind();
   glBufferData (GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), mbuf, GL_DYNAMIC_DRAW);
   unbind();
   }
 //}}}
-//}}}
-//{{{  cUniformBufferWireFrame
-cUniformBufferWireFrame::cUniformBufferWireFrame() : glUniformBuffer(4 * sizeof(GLfloat) + 2 * sizeof(GLint)) { }
-//{{{
-void cUniformBufferWireFrame::setBuffer (float const* color, int const* viewport) {
+//{{{  cUniformWireFrame
+cUniformWireFrame::cUniformWireFrame()
+  : glUniformBuffer (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
 
+void cUniformWireFrame::setBuffer (float const* color, int const* viewport) {
   bind();
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(GLfloat), color);
-  glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 2 * sizeof(GLint), viewport);
+  glBufferSubData (GL_UNIFORM_BUFFER, 0, 4 * sizeof(GLfloat), color);
+  glBufferSubData (GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 2 * sizeof(GLint), viewport);
   unbind();
   }
 //}}}
-//}}}
-//{{{  cUniformBufferSphere
-cUniformBufferSphere::cUniformBufferSphere() : glUniformBuffer(2 * sizeof(GLfloat)) { }
-//{{{
-void cUniformBufferSphere::setBuffer (float radius, float projection) {
+//{{{  cUniformSphere
+cUniformSphere::cUniformSphere() : glUniformBuffer(2 * sizeof(GLfloat)) {}
 
+void cUniformSphere::setBuffer (float radius, float projection) {
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &radius);
   glBufferSubData (GL_UNIFORM_BUFFER, sizeof(GLfloat), sizeof(GLfloat), &projection);
   unbind();
   }
 //}}}
-//}}}
 
 //{{{  cProgramMesh
 //{{{
-cProgramMesh::cProgramMesh() : glProgram(), m_wireFrame(false), m_smooth(false) {
+cProgramMesh::cProgramMesh() : glProgram(), mWireFrame(false), mSmooth(false) {
 
   initShader();
   initProgram();
   }
 //}}}
 
-//{{{
-void cProgramMesh::set_wireFrame (bool enable) {
-
-  if (m_wireFrame != enable) {
-    m_wireFrame = enable;
+void cProgramMesh::setWireFrame (bool enable) {
+  if (mWireFrame != enable) {
+    mWireFrame = enable;
     initProgram();
     }
   }
-//}}}
-//{{{
-void cProgramMesh::set_smooth (bool enable) {
 
-  if (m_smooth != enable) {
-    m_smooth = enable;
+void cProgramMesh::setSmooth (bool enable) {
+  if (mSmooth != enable) {
+    mSmooth = enable;
     initProgram();
     }
   }
-//}}}
 
-//{{{
 void cProgramMesh::initShader() {
-
-  m_mesh_vs_obj.load (kMeshVsGlsl);
-  m_mesh_gs_obj.load (kMeshGsGlsl);
-  m_mesh_fs_obj.load (kMeshFsGlsl);
-
-  attach_shader (m_mesh_vs_obj);
-  attach_shader (m_mesh_gs_obj);
-  attach_shader (m_mesh_fs_obj);
+  mMeshVs.load (kMeshVsGlsl);
+  mMeshGs.load (kMeshGsGlsl);
+  mMeshFs.load (kMeshFsGlsl);
+  attach_shader (mMeshVs);
+  attach_shader (mMeshGs);
+  attach_shader (mMeshFs);
   }
-//}}}
-//{{{
-void cProgramMesh::initProgram() {
 
+void cProgramMesh::initProgram() {
   try {
     map <string, int> defines;
-    defines.insert (make_pair("WIREFRAME", m_wireFrame ? 1 : 0));
-    defines.insert (make_pair("SMOOTH", m_smooth ? 1 : 0));
-
-    m_mesh_vs_obj.compile (defines);
-    m_mesh_gs_obj.compile (defines);
-    m_mesh_fs_obj.compile (defines);
+    defines.insert (make_pair ("WIREFRAME", mWireFrame ? 1 : 0));
+    defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
+    mMeshVs.compile (defines);
+    mMeshGs.compile (defines);
+    mMeshFs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
+    //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed compile {}", e.what()));
     exit(EXIT_FAILURE);
     }
+    //}}}
 
   try {
     link();
     }
   catch (shader_link_error const& e) {
+    //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed link {}", e.what()));
     exit(EXIT_FAILURE);
     }
+    //}}}
 
   try {
     setUniformBind ("Camera", 0);
     setUniformBind ("Material", 1);
-    if (m_wireFrame)
+    if (mWireFrame)
       setUniformBind ("Wireframe", 2);
     }
   catch (uniform_not_found_error const& e) {
+    //{{{  error
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed setUniformBind {}", e.what()));
     }
+    //}}}
   }
 //}}}
-//}}}
 //{{{  cProgramSphere
-//{{{
 cProgramSphere::cProgramSphere() {
-
   initShader();
   initProgram();
   }
-//}}}
 
-//{{{
 void cProgramSphere::initShader() {
-
-  m_sphere_vs_obj.load (kSphereVsGlsl);
-  m_sphere_fs_obj.load (kSphereFsGlsl);
-
-  attach_shader (m_sphere_vs_obj);
-  attach_shader (m_sphere_fs_obj);
+  mSphereVs.load (kSphereVsGlsl);
+  mSphereFs.load (kSphereFsGlsl);
+  attach_shader (mSphereVs);
+  attach_shader (mSphereFs);
   }
-//}}}
-//{{{
-void cProgramSphere::initProgram() {
 
+void cProgramSphere::initProgram() {
   try {
-    m_sphere_vs_obj.compile();
-    m_sphere_fs_obj.compile();
+    mSphereVs.compile();
+    mSphereFs.compile();
     }
   catch (shader_compilation_error const& e) {
+    //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed compile {}", e.what()));
     exit(EXIT_FAILURE);
     }
+    //}}}
 
   try {
     link();
     }
   catch (shader_link_error const& e) {
+    //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed link {}", e.what()));
     exit(EXIT_FAILURE);
     }
+    //}}}
 
   try {
     setUniformBind ("Camera", 0);
@@ -465,10 +451,11 @@ void cProgramSphere::initProgram() {
     setUniformBind ("Sphere", 3);
     }
   catch (uniform_not_found_error const& e) {
+    //{{{  error
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed setUniformBind {}", e.what()));
     }
+    //}}}
   }
-//}}}
 //}}}
 
 //{{{
@@ -533,9 +520,9 @@ void cMeshRender::gui() {
 
   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::Checkbox ("draw", &mDisplayMesh);
+    ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::ColorEdit3 ("color", mMeshMaterial);
     ImGui::DragFloat ("shine", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
-    ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::Separator();
 
     ImGui::Checkbox ("wireFrame", &mDisplayWireFrame);
@@ -591,8 +578,8 @@ void cMeshRender::display (cModel* model) {
     mUniformWireFrame.setBuffer (mWireFrameMaterial, screen.data());
 
     //{{{  display mesh
-    mProgramMesh.set_wireFrame (mDisplayWireFrame);
-    mProgramMesh.set_smooth (mShadingMethod != 0);
+    mProgramMesh.setWireFrame (mDisplayWireFrame);
+    mProgramMesh.setSmooth (mShadingMethod != 0);
 
     mProgramMesh.use();
 

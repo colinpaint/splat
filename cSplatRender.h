@@ -4,28 +4,25 @@
 #include "glviz/buffer.h"
 
 //{{{
-class cUniformBufferRaycast : public GLviz::glUniformBuffer {
+class cUniformRaycast : public GLviz::glUniformBuffer {
 public:
-  cUniformBufferRaycast();
-
+  cUniformRaycast();
   void setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
   };
 //}}}
 //{{{
-class cUniformBufferFrustum : public GLviz::glUniformBuffer {
+class cUniformFrustum : public GLviz::glUniformBuffer {
 public:
-  cUniformBufferFrustum();
-
+  cUniformFrustum();
   void setBuffer (Eigen::Vector4f const* frustum_plane);
   };
 //}}}
 //{{{
-class cUniformBufferParameter : public GLviz::glUniformBuffer {
+class cUniformParameter : public GLviz::glUniformBuffer {
 public:
-  cUniformBufferParameter();
-
+  cUniformParameter();
   void setBuffer (Eigen::Vector3f const& color, float shine,
-                        float radius_scale, float ewa_radius, float epsilon);
+                  float radius_scale, float ewa_radius, float epsilon);
   };
 //}}}
 
@@ -174,13 +171,13 @@ private:
 
   GLuint mFilterKernel;
 
+  cUniformRaycast mUniformRaycast;
+  cUniformFrustum mUniformFrustum;
+  cUniformParameter mUniformParameter;
+
   cProgramAttribute mVisibility;
   cProgramAttribute mAttribute;
   cProgramFinal mFinal;
-
-  cUniformBufferRaycast mUniformRaycast;
-  cUniformBufferFrustum mUniformFrustum;
-  cUniformBufferParameter mUniformParameter;
 
   cFrameBuffer mFrameBuffer;
 
