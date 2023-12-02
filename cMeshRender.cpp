@@ -509,13 +509,13 @@ cMeshRender::cMeshRender (GLviz::Camera const& camera) : cRender(camera) {
   mVertexArrayBuffer.unbind();
   mVertexArrayVnf.unbind();
 
-  bindUniforms (mMultiSample, mBackFaceCull);
+  use (mMultiSample, mBackFaceCull);
   }
 //}}}
 cMeshRender::~cMeshRender() {}
 
 //{{{
-void cMeshRender::bindUniforms (bool multiSample, bool backFaceCull) {
+void cMeshRender::use (bool multiSample, bool backFaceCull) {
 // bind uniforms to binding points
 
   mMultiSample = multiSample;

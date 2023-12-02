@@ -104,7 +104,8 @@ public:
   // overides
   virtual void setMultiSample (bool enable = true) { mMultiSample = enable; }
   virtual void setBackFaceCull (bool enable = true) { mBackFaceCull = enable; }
-  virtual void bindUniforms (bool multiSample, bool backFaceCull) = 0;
+
+  virtual void use (bool multiSample, bool backFaceCull) = 0;
 
   // abstract
   virtual void display (cModel* model) = 0;
@@ -114,7 +115,7 @@ public:
 
 protected:
   GLviz::Camera const& mCamera;
-  GLviz::UniformBufferCamera m_uniform_camera;
+  GLviz::UniformBufferCamera mUniformCamera;
 
   bool mMultiSample = false;
   bool mBackFaceCull = false;

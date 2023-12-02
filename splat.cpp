@@ -51,7 +51,7 @@ namespace {
         gRender = gSplatRender;
       else
         gRender = gMeshRender;
-      gRender->bindUniforms (gMultiSample, gBackFaceCull);
+      gRender->use (gMultiSample, gBackFaceCull);
       }
 
     if (ImGui::Checkbox ("multiSample", &gMultiSample))

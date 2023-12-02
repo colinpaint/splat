@@ -71,7 +71,7 @@ namespace {
     "Out;",
     //}}}
     "#if !VISIBILITY_PASS",
-      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
+      "vec3 light (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
     "#endif",
 
     //{{{
@@ -303,9 +303,9 @@ namespace {
           "#endif",
         "#else",
           "#if COLOR_MATERIAL",
-            "Out.color = lighting (n_eye, vec3(c_eye), material_color, material_shine);",
+            "Out.color = light (n_eye, vec3(c_eye), material_color, material_shine);",
           "#else",
-            "Out.color = lighting (n_eye, vec3(c_eye), vec3(rgba), material_shine);",
+            "Out.color = light (n_eye, vec3(c_eye), vec3(rgba), material_shine);",
           "#endif",
         "#endif",
       "#endif",
@@ -523,7 +523,7 @@ namespace {
         "uniform sampler2D depth_texture;",
       "#endif",
 
-      "vec3 lighting (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
+      "vec3 light (vec3 n_eye, vec3 v_eye, vec3 color, float shine);",
     "#endif",
 
     "in block {"
@@ -566,7 +566,7 @@ namespace {
                                 "1.0 );"
               "vec4 v_eye = projection_matrix_inv * p_ndc;"
               "v_eye = v_eye / v_eye.w;"
-              "res += vec4(lighting(normal, v_eye.xyz, pixel.rgb / pixel.a, material_shine), 1.0);",
+              "res += vec4(light(normal, v_eye.xyz, pixel.rgb / pixel.a, material_shine), 1.0);",
             "#else",
                "res += vec4(pixel.rgb / pixel.a, 1.0f);",
             "#endif",
@@ -586,10 +586,10 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kLightingGlsl = {
+  const vector<string> kLightGlsl = {
     "#version 330",
 
-    "vec3 lighting (vec3 normal_eye, vec3 v_eye, vec3 color, float shine) {"
+    "vec3 light (vec3 normal_eye, vec3 v_eye, vec3 color, float shine) {"
       "const vec3 light_eye = vec3(0.0, 0.0, 1.0);"
       "float dif = max(dot(light_eye, normal_eye), 0.0);"
       "vec3 refl_eye = reflect(light_eye, normal_eye);"
@@ -714,7 +714,7 @@ void cProgramAttribute::setPointSizeType (unsigned int pointSizeType) {
 void cProgramAttribute::initShader() {
   mAttributeVs.load (kAttributeVsGlsl);
   mAttributeFs.load (kAttributeFsGlsl);
-  mLightingVs.load (kLightingGlsl);
+  mLightVs.load (kLightGlsl);
   }
 //}}}
 //{{{
@@ -725,7 +725,7 @@ void cProgramAttribute::initProgram() {
 
     attach_shader (mAttributeVs);
     attach_shader (mAttributeFs);
-    attach_shader (mLightingVs);
+    attach_shader (mLightVs);
 
     // edit shader defines
     map <string, int> defines;
@@ -738,7 +738,7 @@ void cProgramAttribute::initProgram() {
 
     mAttributeVs.compile (defines);
     mAttributeFs.compile (defines);
-    mLightingVs.compile (defines);
+    mLightVs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
@@ -796,13 +796,13 @@ void cProgramFinal::setSmooth (bool enable) {
 //{{{
 void cProgramFinal::initShader() {
 
-  m_Final_vs_obj.load (kFinalVsGlsl);
-  m_Final_fs_obj.load (kFinalFsGlsl);
-  m_lighting_fs_obj.load (kLightingGlsl);
+  mFinalVs.load (kFinalVsGlsl);
+  mFinalFs.load (kFinalFsGlsl);
+  mLightFs.load (kLightGlsl);
 
-  attach_shader (m_Final_vs_obj);
-  attach_shader (m_Final_fs_obj);
-  attach_shader (m_lighting_fs_obj);
+  attach_shader (mFinalVs);
+  attach_shader (mFinalFs);
+  attach_shader (mLightFs);
   }
 //}}}
 //{{{
@@ -814,9 +814,9 @@ void cProgramFinal::initProgram() {
     defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
     defines.insert (make_pair ("MULTISAMPLING", mMulitSample ? 1 : 0));
 
-    m_Final_vs_obj.compile (defines);
-    m_Final_fs_obj.compile (defines);
-    m_lighting_fs_obj.compile (defines);
+    mFinalVs.compile (defines);
+    mFinalFs.compile (defines);
+    mLightFs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed compile {}", e.what()));
@@ -1203,15 +1203,10 @@ void cFrameBuffer::removeDeleteAttachments() {
 //{{{
 cSplatRender::cSplatRender (GLviz::Camera const& camera)
     : cRender(camera),
-      mSmooth(false),
-      mSoftZbuffer(true),
-      mEpsilon(1.0f * 1e-3f),
-      mEwaFilter(false),
-      mEwaRadius(1.0f),
-      mPointSizeType(0),
-      mRadiusScale(1.0f) {
+      mSmooth(false), mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
+      mEwaFilter(false), mEwaRadius(1.0f), mPointSizeType(0), mRadiusScale(1.0f) {
 
-  bindUniforms (mMultiSample, mBackFaceCull);
+  use (mMultiSample, mBackFaceCull);
 
   setupProgramObjects();
   setupFilterKernel();
@@ -1225,14 +1220,33 @@ cSplatRender::~cSplatRender() {
   glDeleteVertexArrays (1, &mVao);
   glDeleteBuffers (1, &mVbo);
 
-  glDeleteBuffers (1, &m_rect_vertices_vbo);
-  glDeleteBuffers (1, &m_rect_texture_uv_vbo);
-  glDeleteVertexArrays (1, &m_rect_vao);
+  glDeleteBuffers (1, &mQuadVerticesVbo);
+  glDeleteBuffers (1, &mQuadTextureUvVbo);
+  glDeleteVertexArrays (1, &mQuadVao);
 
   glDeleteTextures (1, &mFilterKernel);
   }
 //}}}
 
+// set overrides
+//{{{
+void cSplatRender::setMultiSample (bool enable) {
+
+  mMultiSample = enable;
+  mFinal.setMultiSample (enable);
+  mFrameBuffer.setMultiSample (enable);
+  }
+//}}}
+//{{{
+void cSplatRender::setBackFaceCull (bool enable) {
+
+  mBackFaceCull = enable;
+  mVisibility.setBackFaceCull (enable);
+  mAttribute.setBackFaceCull (enable);
+  }
+//}}}
+
+//  sets
 //{{{
 void cSplatRender::setSmooth (bool enable) {
 
@@ -1263,24 +1277,6 @@ void cSplatRender::setPointSizeType (unsigned int pointSizeType) {
     }
   }
 //}}}
-
-// overrides
-//{{{
-void cSplatRender::setMultiSample (bool enable) {
-
-  mMultiSample = enable;
-  mFinal.setMultiSample (enable);
-  mFrameBuffer.setMultiSample (enable);
-  }
-//}}}
-//{{{
-void cSplatRender::setBackFaceCull (bool enable) {
-
-  mBackFaceCull = enable;
-  mVisibility.setBackFaceCull (enable);
-  mAttribute.setBackFaceCull (enable);
-  }
-//}}}
 //{{{
 void cSplatRender::setSoftZbuffer (bool enable) {
 
@@ -1305,16 +1301,16 @@ void cSplatRender::setEwaFilter (bool enable) {
 //}}}
 
 //{{{
-void cSplatRender::bindUniforms (bool multiSample, bool backFaceCull) {
+void cSplatRender::use (bool multiSample, bool backFaceCull) {
 // bind uniforms to binding points
 
   mMultiSample = multiSample;
   mBackFaceCull = backFaceCull;
 
-  m_uniform_camera.bindBufferBase (0);
-  m_uniform_raycast.bindBufferBase (1);
-  m_uniform_frustum.bindBufferBase (2);
-  m_uniform_parameter.bindBufferBase (3);
+  mUniformCamera.bindBufferBase (0);
+  mUniformRaycast.bindBufferBase (1);
+  mUniformFrustum.bindBufferBase (2);
+  mUniformParameter.bindBufferBase (3);
   }
 //}}}
 
@@ -1464,7 +1460,7 @@ void cSplatRender::display (cModel* model) {
     cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
     }
 
-  glBindVertexArray (m_rect_vao);
+  glBindVertexArray (mQuadVao);
   glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
   glBindVertexArray (0);
   //}}}
@@ -1530,24 +1526,24 @@ inline void cSplatRender::setupScreenQuad() {
                                0.0f, 1.0f,
                                0.0f, 0.0f };
 
-  glGenBuffers (1, &m_rect_vertices_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, m_rect_vertices_vbo);
+  glGenBuffers (1, &mQuadVerticesVbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
   glBufferData (GL_ARRAY_BUFFER, 12 * sizeof(float), rect_vertices, GL_STATIC_DRAW);
   glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-  glGenBuffers (1, &m_rect_texture_uv_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
+  glGenBuffers (1, &mQuadTextureUvVbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureUvVbo);
   glBufferData (GL_ARRAY_BUFFER, 8 * sizeof(float), rect_texture_uv, GL_STATIC_DRAW);
   glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-  glGenVertexArrays (1, &m_rect_vao);
-  glBindVertexArray (m_rect_vao);
+  glGenVertexArrays (1, &mQuadVao);
+  glBindVertexArray (mQuadVao);
 
-  glBindBuffer (GL_ARRAY_BUFFER, m_rect_vertices_vbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
 
-  glBindBuffer (GL_ARRAY_BUFFER, m_rect_texture_uv_vbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureUvVbo);
   glEnableVertexAttribArray (1);
   glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
 
@@ -1590,13 +1586,13 @@ void cSplatRender::setupVertexArrayBuffer() {
 //{{{
 void cSplatRender::setupUniforms (glProgram& program) {
 
-  m_uniform_camera.set_buffer_data (mCamera);
+  mUniformCamera.set_buffer_data (mCamera);
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
   GLviz::Frustum view_frustum = mCamera.get_frustum();
 
-  m_uniform_raycast.set_buffer_data (mCamera.get_projection_matrix().inverse(), viewport);
+  mUniformRaycast.set_buffer_data (mCamera.get_projection_matrix().inverse(), viewport);
 
   Eigen::Vector4f frustum_plane[6];
 
@@ -1607,9 +1603,9 @@ void cSplatRender::setupUniforms (glProgram& program) {
 
   for (unsigned int i(0); i < 6; ++i)
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
-  m_uniform_frustum.set_buffer_data (frustum_plane);
+  mUniformFrustum.set_buffer_data (frustum_plane);
 
-  m_uniform_parameter.set_buffer_data (getMaterialColor(), getMaterialShine(),
+  mUniformParameter.set_buffer_data (getMaterialColor(), getMaterialShine(),
                                        mRadiusScale, mEwaRadius, mEpsilon);
   }
 //}}}

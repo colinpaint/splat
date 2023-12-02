@@ -65,7 +65,7 @@ public:
   cMeshRender (GLviz::Camera const& camera);
   virtual ~cMeshRender();
 
-  virtual void bindUniforms (bool multiSample, bool backFaceCull) final;
+  virtual void use (bool multiSample, bool backFaceCull) final;
 
   virtual void gui() final;
   virtual bool keyboard (SDL_Keycode key) final;

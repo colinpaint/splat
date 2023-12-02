@@ -46,7 +46,7 @@ private:
   void initProgram();
 
   glVertexShader mAttributeVs;
-  glVertexShader mLightingVs;
+  glVertexShader mLightVs;
   glFragmentShader mAttributeFs;
 
   bool mBackFaceCull = false;
@@ -69,9 +69,9 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader m_Final_vs_obj;
-  glFragmentShader m_Final_fs_obj;
-  glFragmentShader m_lighting_fs_obj;
+  glVertexShader mFinalVs;
+  glFragmentShader mFinalFs;
+  glFragmentShader mLightFs;
 
   bool mMulitSample = false;
   bool mSmooth = false;;
@@ -124,7 +124,7 @@ public:
   virtual void setBackFaceCull (bool enable = true) final;
   virtual void setMultiSample (bool enable = true) final;
 
-  virtual void bindUniforms (bool multiSample, bool backFaceCull) final;
+  virtual void use (bool multiSample, bool backFaceCull) final;
 
   virtual void gui() final;
   virtual bool keyboard (SDL_Keycode key) final;
@@ -167,10 +167,10 @@ private:
   GLuint mVbo;
   size_t mNumSurfels;
 
-  GLuint m_uv_vbo;
-  GLuint m_rect_vao;
-  GLuint m_rect_vertices_vbo;
-  GLuint m_rect_texture_uv_vbo;
+  GLuint muvVbo;
+  GLuint mQuadVao;
+  GLuint mQuadVerticesVbo;
+  GLuint mQuadTextureUvVbo;
 
   GLuint mFilterKernel;
 
@@ -178,9 +178,9 @@ private:
   cProgramAttribute mAttribute;
   cProgramFinal mFinal;
 
-  cUniformBufferRaycast m_uniform_raycast;
-  cUniformBufferFrustum m_uniform_frustum;
-  cUniformBufferParameter m_uniform_parameter;
+  cUniformBufferRaycast mUniformRaycast;
+  cUniformBufferFrustum mUniformFrustum;
+  cUniformBufferParameter mUniformParameter;
 
   cFrameBuffer mFrameBuffer;
 
