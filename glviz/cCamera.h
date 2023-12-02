@@ -74,10 +74,10 @@ namespace GLviz {
     };
   //}}}
   //{{{
-  class cUniformCamera : public glUniformBuffer {
+  class cUniformCamera : public cUniformBuffer {
   public:
     cUniformCamera();
-    void setBuffer (cCamera const& camera);
+    void set (cCamera const& camera);
     };
   //}}}
   }

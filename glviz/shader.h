@@ -27,9 +27,9 @@ struct uniform_not_found_error : public std::logic_error {
 //}}}
 
 //{{{
-class glShader {
+class cShader {
 public:
-  virtual ~glShader();
+  virtual ~cShader();
 
   void load (const std::vector <std::string>& source);
   void loadFile (std::string const& filename);
@@ -40,50 +40,50 @@ public:
   std::string infolog();
 
 protected:
-  glShader();
+  cShader();
 
   GLuint mShader;
   std::string m_source;
 
-  friend class glProgram;
+  friend class cProgram;
   };
 //}}}
 //{{{
-class glVertexShader : public glShader {
+class cVertexShader : public cShader {
 public:
-  glVertexShader();
+  cVertexShader();
   };
 //}}}
 //{{{
-class glGeometryShader : public glShader {
+class cGeometryShader : public cShader {
 public:
-  glGeometryShader();
+  cGeometryShader();
   };
 //}}}
 //{{{
-class glFragmentShader : public glShader {
+class cFragmentShader : public cShader {
 public:
-  glFragmentShader();
+  cFragmentShader();
   };
 //}}}
 
 //{{{
-class glProgram {
+class cProgram {
 public:
-    glProgram();
-    virtual ~glProgram();
+    cProgram();
+    virtual ~cProgram();
 
     void use() const;
     void unuse() const;
     void link();
 
-    void attach_shader(glShader& shader);
-    void detach_shader(glShader& shader);
+    void attach_shader(cShader& shader);
+    void detach_shader(cShader& shader);
 
     void detach_all();
 
     bool is_linked();
-    bool is_attached(glShader const& shader);
+    bool is_attached(cShader const& shader);
     std::string infolog();
 
     void setUniform1i (GLchar const* name, GLint value);

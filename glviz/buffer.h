@@ -3,10 +3,10 @@
 
 namespace GLviz {
   //{{{
-  class glVertexArray {
+  class cVertexArray {
   public:
-    glVertexArray();
-    ~glVertexArray();
+    cVertexArray();
+    ~cVertexArray();
 
     void bind();
     void unbind();
@@ -16,42 +16,40 @@ namespace GLviz {
     };
   //}}}
   //{{{
-  class glArrayBuffer {
+  class cArrayBuffer {
   public:
-    glArrayBuffer();
-    ~glArrayBuffer();
+    cArrayBuffer();
+    ~cArrayBuffer();
 
     void bind();
     void unbind();
-
-    void setBuffer(GLsizeiptr size, GLvoid const* ptr);
+    void set(GLsizeiptr size, GLvoid const* ptr);
 
   private:
     GLuint m_array_buffer_obj;
     };
   //}}}
   //{{{
-  class glElementArrayBuffer {
+  class cElementArrayBuffer {
   public:
-    glElementArrayBuffer();
-    ~glElementArrayBuffer();
+    cElementArrayBuffer();
+    ~cElementArrayBuffer();
 
     void bind();
     void unbind();
-
-    void setBuffer(GLsizeiptr size, GLvoid const* ptr);
+    void set(GLsizeiptr size, GLvoid const* ptr);
 
   private:
     GLuint m_element_array_buffer_obj;
     };
   //}}}
   //{{{
-  class glUniformBuffer {
+  class cUniformBuffer {
   public:
-    glUniformBuffer();
-    glUniformBuffer(GLsizeiptr size);
+    cUniformBuffer();
+    cUniformBuffer(GLsizeiptr size);
 
-    ~glUniformBuffer();
+    ~cUniformBuffer();
 
     void bindBufferBase (GLuint index);
 

@@ -309,9 +309,9 @@ namespace {
   }
 
 //{{{  cUniformMaterial
-cUniformMaterial::cUniformMaterial() : glUniformBuffer (4 * sizeof(GLfloat)) {}
+cUniformMaterial::cUniformMaterial() : cUniformBuffer (4 * sizeof(GLfloat)) {}
 
-void cUniformMaterial::setBuffer (float const* mbuf) {
+void cUniformMaterial::set (float const* mbuf) {
   bind();
   glBufferData (GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), mbuf, GL_DYNAMIC_DRAW);
   unbind();
@@ -319,9 +319,9 @@ void cUniformMaterial::setBuffer (float const* mbuf) {
 //}}}
 //{{{  cUniformWireFrame
 cUniformWireFrame::cUniformWireFrame()
-  : glUniformBuffer (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
+  : cUniformBuffer (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
 
-void cUniformWireFrame::setBuffer (float const* color, int const* viewport) {
+void cUniformWireFrame::set (float const* color, int const* viewport) {
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 4 * sizeof(GLfloat), color);
   glBufferSubData (GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 2 * sizeof(GLint), viewport);
@@ -329,9 +329,9 @@ void cUniformWireFrame::setBuffer (float const* color, int const* viewport) {
   }
 //}}}
 //{{{  cUniformSphere
-cUniformSphere::cUniformSphere() : glUniformBuffer(2 * sizeof(GLfloat)) {}
+cUniformSphere::cUniformSphere() : cUniformBuffer(2 * sizeof(GLfloat)) {}
 
-void cUniformSphere::setBuffer (float radius, float projection) {
+void cUniformSphere::set (float radius, float projection) {
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &radius);
   glBufferSubData (GL_UNIFORM_BUFFER, sizeof(GLfloat), sizeof(GLfloat), &projection);
@@ -341,7 +341,7 @@ void cUniformSphere::setBuffer (float radius, float projection) {
 
 //{{{  cProgramMesh
 //{{{
-cProgramMesh::cProgramMesh() : glProgram(), mWireFrame(false), mSmooth(false) {
+cProgramMesh::cProgramMesh() : cProgram(), mWireFrame(false), mSmooth(false) {
 
   initShader();
   initProgram();
@@ -565,17 +565,17 @@ void cMeshRender::display (cModel* model) {
   glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  mVertexArrayBuffer.setBuffer (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());
-  mNormalArrayBuffer.setBuffer (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
-  mIndexArrayBuffer.setBuffer (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
+  mVertexArrayBuffer.set (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());
+  mNormalArrayBuffer.set (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
+  mIndexArrayBuffer.set (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
 
-  mUniformCamera.setBuffer (mCamera);
+  mUniformCamera.set (mCamera);
 
   if (mDisplayMesh) {
-    mUniformMaterial.setBuffer (mMeshMaterial);
+    mUniformMaterial.set (mMeshMaterial);
 
     array <int,2> screen = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
-    mUniformWireFrame.setBuffer (mWireFrameMaterial, screen.data());
+    mUniformWireFrame.set (mWireFrameMaterial, screen.data());
 
     //{{{  display mesh
     mProgramMesh.setWireFrame (mDisplayWireFrame);
@@ -603,12 +603,12 @@ void cMeshRender::display (cModel* model) {
     }
 
   if (mDisplaySpheres) {
-    mUniformMaterial.setBuffer (mPointsMaterial);
+    mUniformMaterial.set (mPointsMaterial);
 
     GLviz::Frustum view_frustum = mCamera.get_frustum();
     mProjectionRadius =
       view_frustum.near_() * (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
-    mUniformWireSphere.setBuffer (mPointRadius, mProjectionRadius);
+    mUniformWireSphere.set (mPointRadius, mProjectionRadius);
 
     //{{{  display spheres
     glEnable (GL_PROGRAM_POINT_SIZE);

@@ -13,11 +13,11 @@
 using namespace std;
 //}}}
 
-glShader::glShader() {}
-glShader::~glShader() { glDeleteShader(mShader); }
+cShader::cShader() {}
+cShader::~cShader() { glDeleteShader(mShader); }
 
 //{{{
-void glShader::load (const vector <string>& source) {
+void cShader::load (const vector <string>& source) {
 
   m_source = "";
   for (auto& line : source)
@@ -25,7 +25,7 @@ void glShader::load (const vector <string>& source) {
   }
 //}}}
 //{{{
-void glShader::loadFile (string const& filename) {
+void cShader::loadFile (string const& filename) {
 
   ifstream input (filename.c_str());
   if (input.fail())
@@ -41,7 +41,7 @@ void glShader::loadFile (string const& filename) {
 //}}}
 
 //{{{
-void glShader::compile (map<string, int> const& define_list) {
+void cShader::compile (map<string, int> const& define_list) {
 
   // Configure source.
   string source = m_source;
@@ -67,7 +67,7 @@ void glShader::compile (map<string, int> const& define_list) {
   }
 //}}}
 //{{{
-bool glShader::isCompiled() const {
+bool cShader::isCompiled() const {
 
   GLint status;
   glGetShaderiv (mShader, GL_COMPILE_STATUS, &status);
@@ -77,7 +77,7 @@ bool glShader::isCompiled() const {
 //}}}
 
 //{{{
-string glShader::infolog() {
+string cShader::infolog() {
 
   GLint infoLogLength = 0;
   glGetShaderiv (mShader, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -90,24 +90,24 @@ string glShader::infolog() {
   }
 //}}}
 
-glVertexShader::glVertexShader() { mShader = glCreateShader(GL_VERTEX_SHADER); }
-glFragmentShader::glFragmentShader() { mShader = glCreateShader(GL_FRAGMENT_SHADER); }
-glGeometryShader::glGeometryShader() { mShader = glCreateShader(GL_GEOMETRY_SHADER); }
+cVertexShader::cVertexShader() { mShader = glCreateShader (GL_VERTEX_SHADER); }
+cFragmentShader::cFragmentShader() { mShader = glCreateShader (GL_FRAGMENT_SHADER); }
+cGeometryShader::cGeometryShader() { mShader = glCreateShader (GL_GEOMETRY_SHADER); }
 
-glProgram::glProgram() : mProgram(glCreateProgram()) { }
+cProgram::cProgram() : mProgram(glCreateProgram()) { }
 //{{{
-glProgram::~glProgram() {
+cProgram::~cProgram() {
 
   detach_all();
   glDeleteProgram (mProgram);
   }
 //}}}
 
-void glProgram::use() const { glUseProgram(mProgram); }
-void glProgram::unuse() const { glUseProgram(0); }
+void cProgram::use() const { glUseProgram(mProgram); }
+void cProgram::unuse() const { glUseProgram(0); }
 
 //{{{
-void glProgram::link() {
+void cProgram::link() {
 
   glLinkProgram (mProgram);
   if (!is_linked())
@@ -115,10 +115,10 @@ void glProgram::link() {
   }
 //}}}
 
-void glProgram::attach_shader (glShader& shader) { glAttachShader (mProgram, shader.mShader); }
-void glProgram::detach_shader (glShader& shader) { glDetachShader (mProgram, shader.mShader); }
+void cProgram::attach_shader (cShader& shader) { glAttachShader (mProgram, shader.mShader); }
+void cProgram::detach_shader (cShader& shader) { glDetachShader (mProgram, shader.mShader); }
 //{{{
-void glProgram::detach_all() {
+void cProgram::detach_all() {
 
   GLsizei count;
   GLuint shader[64];
@@ -130,7 +130,7 @@ void glProgram::detach_all() {
 //}}}
 
 //{{{
-bool glProgram::is_linked() {
+bool cProgram::is_linked() {
 
   GLint status;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
@@ -139,7 +139,7 @@ bool glProgram::is_linked() {
   }
 //}}}
 //{{{
-bool glProgram::is_attached (glShader const& shader) {
+bool cProgram::is_attached (cShader const& shader) {
 
   GLint number_shader_attached;
   glGetProgramiv (mProgram, GL_ATTACHED_SHADERS, &number_shader_attached);
@@ -157,7 +157,7 @@ bool glProgram::is_attached (glShader const& shader) {
 //}}}
 
 //{{{
-string glProgram::infolog() {
+string cProgram::infolog() {
 
   GLint infoLogLength = 0;
   glGetProgramiv (mProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -171,7 +171,7 @@ string glProgram::infolog() {
 //}}}
 
 //{{{
-void glProgram::setUniform1i (GLchar const* name, GLint value) {
+void cProgram::setUniform1i (GLchar const* name, GLint value) {
 
   GLint location = glGetUniformLocation (mProgram, name);
   if (location == -1)
@@ -181,7 +181,7 @@ void glProgram::setUniform1i (GLchar const* name, GLint value) {
   }
 //}}}
 //{{{
-void glProgram::setUniformBind (GLchar const* name, GLuint blockBind) {
+void cProgram::setUniformBind (GLchar const* name, GLuint blockBind) {
 // bind uniform block
 
   GLuint blockIndex = glGetUniformBlockIndex (mProgram, name);

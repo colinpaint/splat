@@ -4,29 +4,29 @@
 #include "glviz/shader.h"
 
 //{{{
-class cUniformMaterial : public GLviz::glUniformBuffer {
+class cUniformMaterial : public GLviz::cUniformBuffer {
 public:
   cUniformMaterial();
-  void setBuffer (const float* mbuf);
+  void set (const float* mbuf);
   };
 //}}}
 //{{{
-class cUniformWireFrame : public GLviz::glUniformBuffer {
+class cUniformWireFrame : public GLviz::cUniformBuffer {
 public:
   cUniformWireFrame();
-  void setBuffer(float const* color, int const* viewport);
+  void set(float const* color, int const* viewport);
   };
 //}}}
 //{{{
-class cUniformSphere : public GLviz::glUniformBuffer {
+class cUniformSphere : public GLviz::cUniformBuffer {
 public:
   cUniformSphere();
-  void setBuffer (float radius, float projection);
+  void set (float radius, float projection);
   };
 //}}}
 
 //{{{
-class cProgramMesh : public glProgram {
+class cProgramMesh : public cProgram {
 public:
   cProgramMesh();
 
@@ -37,16 +37,16 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader mMeshVs;
-  glGeometryShader mMeshGs;
-  glFragmentShader mMeshFs;
+  cVertexShader mMeshVs;
+  cGeometryShader mMeshGs;
+  cFragmentShader mMeshFs;
 
   bool mWireFrame;
   bool mSmooth;
   };
 //}}}
 //{{{
-class cProgramSphere : public glProgram {
+class cProgramSphere : public cProgram {
 public:
   cProgramSphere();
 
@@ -54,11 +54,10 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader mSphereVs;
-  glFragmentShader mSphereFs;
+  cVertexShader mSphereVs;
+  cFragmentShader mSphereFs;
   };
 //}}}
-
 
 class cMeshRender : public cRender {
 public:
@@ -72,20 +71,6 @@ public:
   virtual void display (cModel* model) final;
 
   // vars
-  GLviz::glVertexArray mVertexArrayV;
-  GLviz::glVertexArray mVertexArrayVf;
-  GLviz::glVertexArray mVertexArrayVnf;
-  GLviz::glArrayBuffer mVertexArrayBuffer;
-  GLviz::glArrayBuffer mNormalArrayBuffer;
-  GLviz::glElementArrayBuffer mIndexArrayBuffer;
-
-  cUniformMaterial mUniformMaterial;
-  cUniformWireFrame mUniformWireFrame;
-  cUniformSphere mUniformWireSphere;
-
-  cProgramMesh mProgramMesh;
-  cProgramSphere mProgramSphere;
-
   int mShadingMethod = 0;
   float mProjectionRadius = 0.0f;
 
@@ -98,4 +83,18 @@ public:
   bool mDisplaySpheres = false;
   float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
+
+  GLviz::cVertexArray mVertexArrayV;
+  GLviz::cVertexArray mVertexArrayVf;
+  GLviz::cVertexArray mVertexArrayVnf;
+  GLviz::cArrayBuffer mVertexArrayBuffer;
+  GLviz::cArrayBuffer mNormalArrayBuffer;
+  GLviz::cElementArrayBuffer mIndexArrayBuffer;
+
+  cUniformMaterial mUniformMaterial;
+  cUniformWireFrame mUniformWireFrame;
+  cUniformSphere mUniformWireSphere;
+
+  cProgramMesh mProgramMesh;
+  cProgramSphere mProgramSphere;
   };

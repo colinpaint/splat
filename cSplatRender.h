@@ -4,30 +4,30 @@
 #include "glviz/buffer.h"
 
 //{{{
-class cUniformRaycast : public GLviz::glUniformBuffer {
+class cUniformRaycast : public GLviz::cUniformBuffer {
 public:
   cUniformRaycast();
-  void setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
+  void set (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
   };
 //}}}
 //{{{
-class cUniformFrustum : public GLviz::glUniformBuffer {
+class cUniformFrustum : public GLviz::cUniformBuffer {
 public:
   cUniformFrustum();
-  void setBuffer (Eigen::Vector4f const* frustum_plane);
+  void set (Eigen::Vector4f const* frustum_plane);
   };
 //}}}
 //{{{
-class cUniformParameter : public GLviz::glUniformBuffer {
+class cUniformParameter : public GLviz::cUniformBuffer {
 public:
   cUniformParameter();
-  void setBuffer (Eigen::Vector3f const& color, float shine,
-                  float radius_scale, float ewa_radius, float epsilon);
+  void set (Eigen::Vector3f const& color, float shine,
+            float radius_scale, float ewa_radius, float epsilon);
   };
 //}}}
 
 //{{{
-class cProgramAttribute : public glProgram {
+class cProgramAttribute : public cProgram {
 public:
   cProgramAttribute();
 
@@ -42,9 +42,9 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader mAttributeVs;
-  glVertexShader mLightVs;
-  glFragmentShader mAttributeFs;
+  cVertexShader mAttributeVs;
+  cVertexShader mLightVs;
+  cFragmentShader mAttributeFs;
 
   bool mBackFaceCull = false;
   bool mSmooth = false;
@@ -55,7 +55,7 @@ private:
   };
 //}}}
 //{{{
-class cProgramFinal : public glProgram {
+class cProgramFinal : public cProgram {
 public:
   cProgramFinal();
 
@@ -66,9 +66,9 @@ private:
   void initShader();
   void initProgram();
 
-  glVertexShader mFinalVs;
-  glFragmentShader mFinalFs;
-  glFragmentShader mLightFs;
+  cVertexShader mFinalVs;
+  cFragmentShader mFinalFs;
+  cFragmentShader mLightFs;
 
   bool mMulitSample = false;
   bool mSmooth = false;;
@@ -130,7 +130,7 @@ public:
 
 private:
   bool getSmooth() const { return mSmooth; }
-  void setSmooth (bool enable = true);
+  void setSmooth (bool enable);
 
   bool getSoftZbuffer() const { return mSoftZbuffer; }
   void setSoftZbuffer (bool enable);
@@ -153,11 +153,19 @@ private:
   void setupFilterKernel();
   void setupVertexArrayBuffer();
   void setupScreenQuad();
-  void setupUniforms (glProgram& program);
+  void setupUniforms (cProgram& program);
 
   void renderPass (bool depth_only);
 
   //{{{  vars
+  bool mSmooth;
+  bool mSoftZbuffer;
+  float mEpsilon;
+  bool mEwaFilter;
+  float mEwaRadius;
+  unsigned int mPointSizeType;
+  float mRadiusScale;
+
   GLuint mVao;
   GLuint mVbo;
   size_t mNumSurfels;
@@ -178,17 +186,5 @@ private:
   cProgramFinal mFinal;
 
   cFrameBuffer mFrameBuffer;
-
-  //
-  bool mSmooth;
-
-  bool mSoftZbuffer;
-  float mEpsilon;
-
-  bool mEwaFilter;
-  float mEwaRadius;
-
-  unsigned int mPointSizeType;
-  float mRadiusScale;
   //}}}
   };
