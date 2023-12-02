@@ -1477,7 +1477,7 @@ void cSplatRender::resize (int width, int height) { mFrameBuffer.resize (width, 
 //{{{
 void cSplatRender::setupProgramObjects() {
 
-  mVisibility.setVisibilityPass();
+  mVisibility.setVisibilityPass (true);
   mVisibility.setPointSizeType (mPointSizeType);
   mVisibility.setBackFaceCull (mBackFaceCull);
 

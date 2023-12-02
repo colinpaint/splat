@@ -31,11 +31,11 @@ class cProgramAttribute : public cProgram {
 public:
   cProgramAttribute();
 
-  void setBackFaceCull (bool enable = true);
-  void setSmooth (bool enable = true);
-  void setVisibilityPass (bool enable = true);
-  void setColorMaterial (bool enable = true);
-  void setEwaFilter (bool enable = true);
+  void setBackFaceCull (bool enable);
+  void setSmooth (bool enable);
+  void setVisibilityPass (bool enable);
+  void setColorMaterial (bool enable);
+  void setEwaFilter (bool enable);
   void setPointSizeType (unsigned int pointSizeType);
 
 private:
