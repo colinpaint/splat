@@ -181,7 +181,8 @@ void glProgram::setUniform1i (GLchar const* name, GLint value) {
   }
 //}}}
 //{{{
-void glProgram::setUniformBlockBind (GLchar const* name, GLuint blockBind) {
+void glProgram::setUniformBind (GLchar const* name, GLuint blockBind) {
+// bind uniform block
 
   GLuint blockIndex = glGetUniformBlockIndex (mProgram, name);
   if (blockIndex == GL_INVALID_INDEX)

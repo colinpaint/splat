@@ -610,7 +610,7 @@ namespace {
 
 //{{{  cUniformBufferRaycast
 cUniformBufferRaycast::cUniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
-//{{{
+
 void cUniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
                                             projection_matrix_inv, GLint const* viewport) {
 
@@ -624,24 +624,20 @@ void cUniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
   unbind();
   }
 //}}}
-//}}}
 //{{{  cUniformBufferFrustum
 cUniformBufferFrustum::cUniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
-//{{{
-void cUniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
 
+void cUniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
   bind();
   glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), static_cast<void const*>(frustum_plane));
   unbind();
   }
 //}}}
-//}}}
 //{{{  cUniformBufferParameter
 cUniformBufferParameter::cUniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
-//{{{
+
 void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shine,
                                               float radius_scale, float ewa_radius, float epsilon) {
-
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
   glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shine);
@@ -651,394 +647,9 @@ void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, flo
   unbind();
   }
 //}}}
-//}}}
-//{{{  cFramebuffer
-//{{{
-struct cFrameBuffer::sImpl {
-  virtual bool multisample() const = 0;
-
-  virtual void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
-  virtual void renderbuffer_storage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) = 0;
-
-  virtual void allocate_depth_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
-  virtual void allocate_rgba_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
-
-  virtual void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
-  virtual void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height) = 0;
-  };
-//}}}
-//{{{
-struct cFrameBuffer::sDefault : public cFrameBuffer::sImpl {
-  bool multisample() const { return false; }
-
-  //{{{
-  void framebuffer_texture_2d (GLenum target, GLenum attachment, GLuint texture, GLint level) {
-    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D, texture, level);
-    }
-  //}}}
-  //{{{
-  void renderbuffer_storage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
-    glRenderbufferStorage(target, internalformat, width, height);
-    }
-  //}}}
-
-  //{{{
-  void allocate_depth_texture (GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture (GL_TEXTURE_2D, texture);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    glBindTexture (GL_TEXTURE_2D, 0);
-    }
-  //}}}
-  //{{{
-  void allocate_rgba_texture (GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture (GL_TEXTURE_2D, texture);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glBindTexture (GL_TEXTURE_2D, 0);
-    }
-  //}}}
-
-  //{{{
-  void resize_rgba_texture (GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture (GL_TEXTURE_2D, texture);
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glBindTexture (GL_TEXTURE_2D, 0);
-    }
-  //}}}
-  //{{{
-  void resize_depth_texture (GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture (GL_TEXTURE_2D, texture);
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    glBindTexture (GL_TEXTURE_2D, 0);
-    }
-  //}}}
-  };
-//}}}
-//{{{
-struct cFrameBuffer::sMultisample : public cFrameBuffer::sImpl {
-  bool multisample() const { return true; }
-
-  //{{{
-  void framebuffer_texture_2d(GLenum target, GLenum attachment, GLuint texture, GLint level) {
-    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D_MULTISAMPLE, texture, level);
-    }
-  //}}}
-  //{{{
-  void renderbuffer_storage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
-    glRenderbufferStorageMultisample(target, 4, internalformat, width, height);
-    }
-  //}}}
-
-  //{{{
-  void allocate_depth_texture(GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT32F, width, height, GL_TRUE);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-    }
-  //}}}
-  //{{{
-  void allocate_rgba_texture(GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F, width, height, GL_TRUE);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-    }
-  //}}}
-
-  //{{{
-  void resize_rgba_texture(GLuint texture, GLsizei width, GLsizei height) {
-
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, texture);
-
-    GLint internal_format;
-    glGetTexLevelParameteriv (GL_TEXTURE_2D_MULTISAMPLE, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
-    glTexImage2DMultisample (GL_TEXTURE_2D_MULTISAMPLE, 4, internal_format, width, height, GL_TRUE);
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, 0);
-    }
-  //}}}
-  //{{{
-  void resize_depth_texture(GLuint texture, GLsizei width, GLsizei height) {
-    resize_rgba_texture (texture, width, height);
-    }
-  //}}}
-  };
-//}}}
-
-//{{{
-cFrameBuffer::cFrameBuffer()
-    : mFbo(0), mColor(0), mNormal(0), mDepth(0), mPimpl (new sDefault()) {
-
-  // Create framebuffer object.
-  glGenFramebuffers (1, &mFbo);
-
-  // Initialize.
-  bind();
-  initialize();
-  unbind();
-  }
-//}}}
-//{{{
-cFrameBuffer::~cFrameBuffer() {
-
-  bind();
-  removeDeleteAttachments();
-  unbind();
-
-  glDeleteFramebuffers(1, &mFbo);
-  }
-//}}}
-
-GLuint cFrameBuffer::getColorTexture() { return mColor; }
-GLuint cFrameBuffer::getDepthTexture() { return mDepth; }
-//{{{
-void cFrameBuffer::enableDepthTexture() {
-
-  bind();
-
-  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-  glDeleteRenderbuffers (1, &mDepth);
-
-  GLint viewport[4];
-  glGetIntegerv (GL_VIEWPORT, viewport);
-
-  glGenTextures (1, &mDepth);
-  mPimpl->allocate_depth_texture (mDepth, viewport[2], viewport[3]);
-  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepth, 0);
-
-  unbind();
-  }
-//}}}
-//{{{
-void cFrameBuffer::disableDepthTexture() {
-
-  bind();
-
-  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
-  glDeleteTextures (1, &mDepth);
-
-  GLint viewport[4];
-  glGetIntegerv (GL_VIEWPORT, viewport);
-
-  glGenRenderbuffers (1, &mDepth);
-  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
-  mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
-  glBindRenderbuffer (GL_RENDERBUFFER, 0);
-
-  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
-
-  unbind();
-  }
-//}}}
-
-//{{{
-void cFrameBuffer::attachNormalTexture() {
-
-  bind();
-
-  GLint viewport[4];
-  glGetIntegerv (GL_VIEWPORT, viewport);
-
-  glGenTextures (1, &mNormal);
-  mPimpl->allocate_rgba_texture (mNormal, viewport[2], viewport[3]);
-  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mNormal, 0);
-
-  GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers (2, buffers);
-
-  unbind();
-  }
-//}}}
-//{{{
-void cFrameBuffer::detachNormalTexture() {
-
-  bind();
-
-  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-  glDeleteTextures (1, &mNormal);
-
-  GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
-  glDrawBuffers (1, buffers);
-
-  unbind();
-  }
-//}}}
-GLuint cFrameBuffer::getNormalTexture() { return mNormal; }
-
-//{{{
-void cFrameBuffer::setMultiSample (bool enable) {
-
-  if (mPimpl->multisample() != enable) {
-    bind();
-
-    GLint type;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                           GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-    removeDeleteAttachments();
-
-    if (mPimpl->multisample())
-      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sDefault());
-    else
-      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sMultisample());
-
-    initialize();
-    if (type == GL_TEXTURE) {
-      attachNormalTexture();
-      enableDepthTexture();
-      }
-
-    #ifndef NDEBUG
-      GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-      if (status != GL_FRAMEBUFFER_COMPLETE)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
-
-      GLenum gl_error = glGetError();
-      if (GL_NO_ERROR != gl_error)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
-    #endif
-
-    unbind();
-    }
-  }
-//}}}
-
-void cFrameBuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, mFbo); }
-void cFrameBuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
-
-//{{{
-void cFrameBuffer::resize (GLint width, GLint height) {
-
-  bind();
-
-  GLenum attachment[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-
-  for (unsigned int i(0); i < 2; ++i) {
-    GLint type;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
-                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-
-    GLint name;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
-                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-    if (type == GL_TEXTURE)
-      mPimpl->resize_rgba_texture (name, width, height);
-    }
-
-    {
-    GLint type;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-    GLint name;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-    switch (type) {
-      case GL_TEXTURE:
-        mPimpl->resize_depth_texture(name, width, height);
-        break;
-
-      case GL_RENDERBUFFER:
-        glBindRenderbuffer (GL_RENDERBUFFER, name);
-        mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-        glBindRenderbuffer (GL_RENDERBUFFER, 0);
-        break;
-
-      case GL_NONE:
-      default:
-        break;
-      }
-    }
-
-  #ifndef NDEBUG
-    GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
-
-    GLenum gl_error = glGetError();
-    if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
-  #endif
-
-  unbind();
-  }
-//}}}
-
-// private
-//{{{
-void cFrameBuffer::initialize() {
-
-  GLint viewport[4];
-  glGetIntegerv (GL_VIEWPORT, viewport);
-
-  // Attach color texture to framebuffer object.
-  glGenTextures (1, &mColor);
-  mPimpl->allocate_rgba_texture (mColor, viewport[2], viewport[3]);
-  mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColor, 0);
-
-  // Attach renderbuffer object to framebuffer object.
-  glGenRenderbuffers (1, &mDepth);
-  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
-  mPimpl->renderbuffer_storage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
-  glBindRenderbuffer (GL_RENDERBUFFER, 0);
-  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
-
-  GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
-  glDrawBuffers (1, buffers);
-
-  #ifndef NDEBUG
-    GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
-  #endif
-  }
-//}}}
-//{{{
-void cFrameBuffer::removeDeleteAttachments() {
-
-  GLenum attachment[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT };
-
-  for (unsigned int i(0); i < 3; ++i) {
-    GLint type;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-
-    GLint name;
-    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-
-    switch (type) {
-      case GL_TEXTURE:
-        mPimpl->framebuffer_texture_2d (GL_FRAMEBUFFER, attachment[i], 0, 0);
-        glDeleteTextures (1, reinterpret_cast<const GLuint*>(&name));
-        break;
-
-      case GL_RENDERBUFFER:
-        glFramebufferRenderbuffer (GL_FRAMEBUFFER, attachment[i], GL_RENDERBUFFER, 0);
-        glDeleteRenderbuffers (1, reinterpret_cast<const GLuint*>(&name));
-        break;
-
-      case GL_NONE:
-      default:
-        break;
-      }
-    }
-  }
-//}}}
-//}}}
 //{{{  cProgramAttribute
 //{{{
-cProgramAttribute::cProgramAttribute()
-    : mEwaFilter(false), mBackFaceCull(false),
-      mVisibilityPass(true), mSmooth(false), mColorMaterial(false),
-      mPointSizeType(0) {
-
+cProgramAttribute::cProgramAttribute() {
   initShader();
   initProgram();
   }
@@ -1101,7 +712,6 @@ void cProgramAttribute::setPointSizeType (unsigned int pointSizeType) {
 
 //{{{
 void cProgramAttribute::initShader() {
-
   mAttributeVs.load (kAttributeVsGlsl);
   mAttributeFs.load (kAttributeFsGlsl);
   mLightingVs.load (kLightingGlsl);
@@ -1131,7 +741,7 @@ void cProgramAttribute::initProgram() {
     mLightingVs.compile (defines);
     }
   catch (shader_compilation_error const& e) {
-    cLog::log(LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -1144,22 +754,20 @@ void cProgramAttribute::initProgram() {
     }
 
   try {
-    setUniformBlockBind ("Camera", 0);
-    setUniformBlockBind ("Raycast", 1);
-    setUniformBlockBind ("Frustum", 2);
-    setUniformBlockBind ("Parameter", 3);
+    setUniformBind ("Camera", 0);
+    setUniformBind ("Raycast", 1);
+    setUniformBind ("Frustum", 2);
+    setUniformBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed setUniformBlockBind {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed setUniformBind {}", e.what()));
     }
   }
 //}}}
 //}}}
 //{{{  cProgramFinal
 //{{{
-cProgramFinal::cProgramFinal()
-    : mSmooth(false), mMulitSample(false) {
-
+cProgramFinal::cProgramFinal() {
   initShader();
   initProgram();
   }
@@ -1224,12 +832,368 @@ void cProgramFinal::initProgram() {
     }
 
   try {
-    setUniformBlockBind ("Camera", 0);
-    setUniformBlockBind ("Raycast", 1);
-    setUniformBlockBind ("Parameter", 3);
+    setUniformBind ("Camera", 0);
+    setUniformBind ("Raycast", 1);
+    setUniformBind ("Parameter", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed setUniformBlockBindto {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed setUniformBindto {}", e.what()));
+    }
+  }
+//}}}
+//}}}
+//{{{  cFramebuffer
+//{{{
+struct cFrameBuffer::sImpl {
+  virtual void framebufferTexture2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
+  virtual void renderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) = 0;
+
+  virtual void allocateRgbaTexture (GLuint texture, GLsizei width, GLsizei height) = 0;
+  virtual void allocateDepthTexture (GLuint texture, GLsizei width, GLsizei height) = 0;
+
+  virtual void resizeRgbaTexture (GLuint texture, GLsizei width, GLsizei height) = 0;
+  virtual void resizeDepthTexture (GLuint texture, GLsizei width, GLsizei height) = 0;
+
+  virtual bool getMultiSample() const = 0;
+  };
+//}}}
+//{{{
+struct cFrameBuffer::sDefault : public cFrameBuffer::sImpl {
+  bool getMultiSample() const { return false; }
+
+  void framebufferTexture2d (GLenum target, GLenum attachment, GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D, texture, level);
+    }
+
+  void renderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+    glRenderbufferStorage(target, internalformat, width, height);
+    }
+
+  void allocateRgbaTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
+
+  void allocateDepthTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
+
+  void resizeRgbaTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
+
+  void resizeDepthTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D, texture);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glBindTexture (GL_TEXTURE_2D, 0);
+    }
+  };
+//}}}
+//{{{
+struct cFrameBuffer::sMultisample : public cFrameBuffer::sImpl {
+  bool getMultiSample() const { return true; }
+
+  void framebufferTexture2d (GLenum target, GLenum attachment, GLuint texture, GLint level) {
+    glFramebufferTexture2D (target, attachment, GL_TEXTURE_2D_MULTISAMPLE, texture, level);
+    }
+
+  void renderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+    glRenderbufferStorageMultisample (target, 4, internalformat, width, height);
+    }
+
+  void allocateDepthTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, texture);
+    glTexImage2DMultisample (GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT32F, width, height, GL_TRUE);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
+
+  void allocateRgbaTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, texture);
+    glTexImage2DMultisample (GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F, width, height, GL_TRUE);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
+
+  void resizeRgbaTexture (GLuint texture, GLsizei width, GLsizei height) {
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, texture);
+    GLint internal_format;
+    glGetTexLevelParameteriv (GL_TEXTURE_2D_MULTISAMPLE, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
+    glTexImage2DMultisample (GL_TEXTURE_2D_MULTISAMPLE, 4, internal_format, width, height, GL_TRUE);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
+
+  // ??????
+  void resizeDepthTexture (GLuint texture, GLsizei width, GLsizei height) {
+    resizeRgbaTexture (texture, width, height);
+    }
+  };
+//}}}
+
+//{{{
+cFrameBuffer::cFrameBuffer()
+    : mFbo(0), mColor(0), mNormal(0), mDepth(0), mPimpl (new sDefault()) {
+
+  // Create framebuffer object.
+  glGenFramebuffers (1, &mFbo);
+
+  // Initialize.
+  bind();
+  initialize();
+  unbind();
+  }
+//}}}
+//{{{
+cFrameBuffer::~cFrameBuffer() {
+
+  bind();
+  removeDeleteAttachments();
+  unbind();
+
+  glDeleteFramebuffers(1, &mFbo);
+  }
+//}}}
+
+GLuint cFrameBuffer::getColorTexture() { return mColor; }
+GLuint cFrameBuffer::getDepthTexture() { return mDepth; }
+GLuint cFrameBuffer::getNormalTexture() { return mNormal; }
+
+//{{{
+void cFrameBuffer::enableDepthTexture() {
+
+  bind();
+
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+  glDeleteRenderbuffers (1, &mDepth);
+
+  GLint viewport[4];
+  glGetIntegerv (GL_VIEWPORT, viewport);
+
+  glGenTextures (1, &mDepth);
+  mPimpl->allocateDepthTexture (mDepth, viewport[2], viewport[3]);
+  mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepth, 0);
+
+  unbind();
+  }
+//}}}
+//{{{
+void cFrameBuffer::disableDepthTexture() {
+
+  bind();
+
+  mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+  glDeleteTextures (1, &mDepth);
+
+  GLint viewport[4];
+  glGetIntegerv (GL_VIEWPORT, viewport);
+
+  glGenRenderbuffers (1, &mDepth);
+  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
+  mPimpl->renderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
+  glBindRenderbuffer (GL_RENDERBUFFER, 0);
+
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+
+  unbind();
+  }
+//}}}
+
+//{{{
+void cFrameBuffer::attachNormalTexture() {
+
+  bind();
+
+  GLint viewport[4];
+  glGetIntegerv (GL_VIEWPORT, viewport);
+
+  glGenTextures (1, &mNormal);
+  mPimpl->allocateRgbaTexture (mNormal, viewport[2], viewport[3]);
+  mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mNormal, 0);
+
+  GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers (2, buffers);
+
+  unbind();
+  }
+//}}}
+//{{{
+void cFrameBuffer::detachNormalTexture() {
+
+  bind();
+
+  mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+  glDeleteTextures (1, &mNormal);
+
+  GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
+  glDrawBuffers (1, buffers);
+
+  unbind();
+  }
+//}}}
+
+//{{{
+void cFrameBuffer::setMultiSample (bool enable) {
+
+  if (mPimpl->getMultiSample() != enable) {
+    bind();
+
+    GLint type;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                           GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+    removeDeleteAttachments();
+
+    if (mPimpl->getMultiSample())
+      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sDefault());
+    else
+      mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sMultisample());
+
+    initialize();
+    if (type == GL_TEXTURE) {
+      attachNormalTexture();
+      enableDepthTexture();
+      }
+
+    #ifndef NDEBUG
+      GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+      if (status != GL_FRAMEBUFFER_COMPLETE)
+        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+
+      GLenum gl_error = glGetError();
+      if (GL_NO_ERROR != gl_error)
+        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
+    #endif
+
+    unbind();
+    }
+  }
+//}}}
+
+void cFrameBuffer::bind() { glBindFramebuffer (GL_FRAMEBUFFER, mFbo); }
+void cFrameBuffer::unbind() { glBindFramebuffer (GL_FRAMEBUFFER, 0); }
+
+//{{{
+void cFrameBuffer::resize (GLint width, GLint height) {
+
+  bind();
+
+  GLenum attachment[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+  for (unsigned int i(0); i < 2; ++i) {
+    GLint type;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
+                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+
+    GLint name;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
+                                           GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+    if (type == GL_TEXTURE)
+      mPimpl->resizeRgbaTexture (name, width, height);
+    }
+
+    {
+    GLint type;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+    GLint name;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                           GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+    switch (type) {
+      case GL_TEXTURE:
+        mPimpl->resizeDepthTexture (name, width, height);
+        break;
+
+      case GL_RENDERBUFFER:
+        glBindRenderbuffer (GL_RENDERBUFFER, name);
+        mPimpl->renderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glBindRenderbuffer (GL_RENDERBUFFER, 0);
+        break;
+
+      case GL_NONE:
+      default:
+        break;
+      }
+    }
+
+  #ifndef NDEBUG
+    GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+
+    GLenum gl_error = glGetError();
+    if (GL_NO_ERROR != gl_error)
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
+  #endif
+
+  unbind();
+  }
+//}}}
+
+// private
+//{{{
+void cFrameBuffer::initialize() {
+
+  GLint viewport[4];
+  glGetIntegerv (GL_VIEWPORT, viewport);
+
+  // Attach color texture to framebuffer object.
+  glGenTextures (1, &mColor);
+  mPimpl->allocateRgbaTexture (mColor, viewport[2], viewport[3]);
+  mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColor, 0);
+
+  // Attach renderbuffer object to framebuffer object.
+  glGenRenderbuffers (1, &mDepth);
+  glBindRenderbuffer (GL_RENDERBUFFER, mDepth);
+  mPimpl->renderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, viewport[2], viewport[3]);
+  glBindRenderbuffer (GL_RENDERBUFFER, 0);
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+
+  GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
+  glDrawBuffers (1, buffers);
+
+  #ifndef NDEBUG
+    GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+  #endif
+  }
+//}}}
+//{{{
+void cFrameBuffer::removeDeleteAttachments() {
+
+  GLenum attachment[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT };
+
+  for (unsigned int i(0); i < 3; ++i) {
+    GLint type;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+
+    GLint name;
+    glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                           attachment[i], GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+
+    switch (type) {
+      case GL_TEXTURE:
+        mPimpl->framebufferTexture2d (GL_FRAMEBUFFER, attachment[i], 0, 0);
+        glDeleteTextures (1, reinterpret_cast<const GLuint*>(&name));
+        break;
+
+      case GL_RENDERBUFFER:
+        glFramebufferRenderbuffer (GL_FRAMEBUFFER, attachment[i], GL_RENDERBUFFER, 0);
+        glDeleteRenderbuffers (1, reinterpret_cast<const GLuint*>(&name));
+        break;
+
+      case GL_NONE:
+      default:
+        break;
+      }
     }
   }
 //}}}

@@ -49,12 +49,12 @@ private:
   glVertexShader mLightingVs;
   glFragmentShader mAttributeFs;
 
-  bool mBackFaceCull;
-  bool mSmooth;
-  bool mVisibilityPass;
-  bool mColorMaterial;
-  bool mEwaFilter;
-  unsigned int mPointSizeType;
+  bool mBackFaceCull = false;
+  bool mSmooth = false;
+  bool mVisibilityPass = true;
+  bool mColorMaterial = false;
+  bool mEwaFilter = false;
+  unsigned int mPointSizeType = 0;
   };
 //}}}
 //{{{
@@ -73,8 +73,8 @@ private:
   glFragmentShader m_Final_fs_obj;
   glFragmentShader m_lighting_fs_obj;
 
-  bool mMulitSample;
-  bool mSmooth;
+  bool mMulitSample = false;
+  bool mSmooth = false;;
   };
 //}}}
 //{{{
@@ -132,30 +132,27 @@ public:
   virtual void resize (int width, int height) final;
 
 private:
-  //{{{  gui access
   bool getSmooth() const { return mSmooth; }
   void setSmooth (bool enable = true);
-
-  // softZ
+  //{{{  softZ
   bool getSoftZbuffer() const { return mSoftZbuffer; }
   void setSoftZbuffer (bool enable);
 
   float getSoftZbufferEpsilon() const { return mEpsilon; }
   void setSoftZbufferEpsilon (float epsilon) { mEpsilon = epsilon; }
-
-  // ewa
+  //}}}
+  //{{{  ewa
   bool getEwaFilter() const { return mEwaFilter; }
   void setEwaFilter (bool enable);
 
   float getEwaRadius() const { return mEwaRadius; }
   void setEwaRadius (float ewaRadius) { mEwaRadius = ewaRadius; }
-
+  //}}}
   unsigned int getPointSizeType() const { return mPointSizeType; }
   void setPointSizeType (unsigned int pointSizeType);
 
   float getRadiusScale() const { return mRadiusScale; }
   void setRadiusScale (float radiusScale) { mRadiusScale = radiusScale; }
-  //}}}
 
   void setupProgramObjects();
   void setupFilterKernel();

@@ -409,13 +409,13 @@ void cProgramMesh::initProgram() {
     }
 
   try {
-    setUniformBlockBind ("Camera", 0);
-    setUniformBlockBind ("Material", 1);
+    setUniformBind ("Camera", 0);
+    setUniformBind ("Material", 1);
     if (m_wireFrame)
-      setUniformBlockBind ("Wireframe", 2);
+      setUniformBind ("Wireframe", 2);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed setUniformBlockBind {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed setUniformBind {}", e.what()));
     }
   }
 //}}}
@@ -460,12 +460,12 @@ void cProgramSphere::initProgram() {
     }
 
   try {
-    setUniformBlockBind ("Camera", 0);
-    setUniformBlockBind ("Material", 1);
-    setUniformBlockBind ("Sphere", 3);
+    setUniformBind ("Camera", 0);
+    setUniformBind ("Material", 1);
+    setUniformBind ("Sphere", 3);
     }
   catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed setUniformBlockBind {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed setUniformBind {}", e.what()));
     }
   }
 //}}}

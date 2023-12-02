@@ -87,7 +87,7 @@ public:
     std::string infolog();
 
     void setUniform1i (GLchar const* name, GLint value);
-    void setUniformBlockBind (GLchar const* name, GLuint blockBind);
+    void setUniformBind (GLchar const* name, GLuint blockBind);
 
 protected:
     GLuint mProgram;
