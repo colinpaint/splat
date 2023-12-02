@@ -78,7 +78,7 @@ namespace GLviz {
   public:
     UniformBufferCamera();
 
-    void set_buffer_data (Camera const& camera);
+    void setBuffer (Camera const& camera);
     };
   //}}}
   }

@@ -611,8 +611,7 @@ namespace {
 //{{{  cUniformBufferRaycast
 cUniformBufferRaycast::cUniformBufferRaycast() : glUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 
-void cUniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
-                                            projection_matrix_inv, GLint const* viewport) {
+void cUniformBufferRaycast::setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport) {
 
   float viewportf[4] = { static_cast<float>(viewport[0]),
                          static_cast<float>(viewport[1]),
@@ -627,7 +626,7 @@ void cUniformBufferRaycast::set_buffer_data (Eigen::Matrix4f const&
 //{{{  cUniformBufferFrustum
 cUniformBufferFrustum::cUniformBufferFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
 
-void cUniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plane) {
+void cUniformBufferFrustum::setBuffer (Eigen::Vector4f const* frustum_plane) {
   bind();
   glBufferSubData(GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), static_cast<void const*>(frustum_plane));
   unbind();
@@ -636,8 +635,8 @@ void cUniformBufferFrustum::set_buffer_data (Eigen::Vector4f const* frustum_plan
 //{{{  cUniformBufferParameter
 cUniformBufferParameter::cUniformBufferParameter() : glUniformBuffer(8 * sizeof(float)) { }
 
-void cUniformBufferParameter::set_buffer_data (Eigen::Vector3f const& color, float shine,
-                                              float radius_scale, float ewa_radius, float epsilon) {
+void cUniformBufferParameter::setBuffer (Eigen::Vector3f const& color, float shine,
+                                         float radius_scale, float ewa_radius, float epsilon) {
   bind();
   glBufferSubData (GL_UNIFORM_BUFFER, 0, 3 * sizeof(float), color.data());
   glBufferSubData (GL_UNIFORM_BUFFER, 12, sizeof(float), &shine);
@@ -1210,8 +1209,8 @@ cSplatRender::cSplatRender (GLviz::Camera const& camera)
 
   setupProgramObjects();
   setupFilterKernel();
-  setupScreenQuad();
   setupVertexArrayBuffer();
+  setupScreenQuad();
   }
 //}}}
 //{{{
@@ -1221,7 +1220,7 @@ cSplatRender::~cSplatRender() {
   glDeleteBuffers (1, &mVbo);
 
   glDeleteBuffers (1, &mQuadVerticesVbo);
-  glDeleteBuffers (1, &mQuadTextureUvVbo);
+  glDeleteBuffers (1, &mQuadTextureVbo);
   glDeleteVertexArrays (1, &mQuadVao);
 
   glDeleteTextures (1, &mFilterKernel);
@@ -1494,7 +1493,7 @@ void cSplatRender::setupProgramObjects() {
   }
 //}}}
 //{{{
-inline void cSplatRender::setupFilterKernel() {
+void cSplatRender::setupFilterKernel() {
 
   const float sigma2 = 0.316228f; // Sqrt(0.1).
 
@@ -1511,43 +1510,6 @@ inline void cSplatRender::setupFilterKernel() {
   glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage1D (GL_TEXTURE_1D, 0, GL_R32F, 256, 0, GL_RED, GL_FLOAT, yi);
-  }
-//}}}
-//{{{
-inline void cSplatRender::setupScreenQuad() {
-
-  float rect_vertices[12] = { 1.0f,  1.0f, 0.0f,
-                              1.0f, -1.0f, 0.0f,
-                             -1.0f,  1.0f, 0.0f,
-                             -1.0f, -1.0f, 0.0f };
-
-  float rect_texture_uv[8] = { 1.0f, 1.0f,
-                               1.0f, 0.0f,
-                               0.0f, 1.0f,
-                               0.0f, 0.0f };
-
-  glGenBuffers (1, &mQuadVerticesVbo);
-  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
-  glBufferData (GL_ARRAY_BUFFER, 12 * sizeof(float), rect_vertices, GL_STATIC_DRAW);
-  glBindBuffer (GL_ARRAY_BUFFER, 0);
-
-  glGenBuffers (1, &mQuadTextureUvVbo);
-  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureUvVbo);
-  glBufferData (GL_ARRAY_BUFFER, 8 * sizeof(float), rect_texture_uv, GL_STATIC_DRAW);
-  glBindBuffer (GL_ARRAY_BUFFER, 0);
-
-  glGenVertexArrays (1, &mQuadVao);
-  glBindVertexArray (mQuadVao);
-
-  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
-  glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
-
-  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureUvVbo);
-  glEnableVertexAttribArray (1);
-  glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
-
-  glBindVertexArray (0);
   }
 //}}}
 //{{{
@@ -1584,29 +1546,62 @@ void cSplatRender::setupVertexArrayBuffer() {
   }
 //}}}
 //{{{
+void cSplatRender::setupScreenQuad() {
+
+  const float kQuadVertices[12] = { 1.0f,  1.0f, 0.0f,
+                                    1.0f, -1.0f, 0.0f,
+                                   -1.0f,  1.0f, 0.0f,
+                                   -1.0f, -1.0f, 0.0f };
+
+  const float kQuadTexture[8] = { 1.0f, 1.0f,
+                                  1.0f, 0.0f,
+                                  0.0f, 1.0f,
+                                  0.0f, 0.0f };
+
+  glGenBuffers (1, &mQuadVerticesVbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
+  glBufferData (GL_ARRAY_BUFFER, 12 * sizeof(float), kQuadVertices, GL_STATIC_DRAW);
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+  glGenBuffers (1, &mQuadTextureVbo);
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureVbo);
+  glBufferData (GL_ARRAY_BUFFER, 8 * sizeof(float), kQuadTexture, GL_STATIC_DRAW);
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+  glGenVertexArrays (1, &mQuadVao);
+  glBindVertexArray (mQuadVao);
+
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadVerticesVbo);
+  glEnableVertexAttribArray (0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
+
+  glBindBuffer (GL_ARRAY_BUFFER, mQuadTextureVbo);
+  glEnableVertexAttribArray (1);
+  glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), reinterpret_cast<const GLvoid*>(0));
+
+  glBindVertexArray (0);
+  }
+//}}}
+//{{{
 void cSplatRender::setupUniforms (glProgram& program) {
 
-  mUniformCamera.set_buffer_data (mCamera);
+  mUniformCamera.setBuffer (mCamera);
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
   GLviz::Frustum view_frustum = mCamera.get_frustum();
-
-  mUniformRaycast.set_buffer_data (mCamera.get_projection_matrix().inverse(), viewport);
+  mUniformRaycast.setBuffer (mCamera.get_projection_matrix().inverse(), viewport);
 
   Eigen::Vector4f frustum_plane[6];
-
   Eigen::Matrix4f const& projection_matrix = mCamera.get_projection_matrix();
-  for (unsigned int i(0); i < 6; ++i)
-    frustum_plane[i] = projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) *
-                       projection_matrix.row(i / 2);
-
-  for (unsigned int i(0); i < 6; ++i)
+  for (unsigned int i = 0; i < 6; ++i)
+    frustum_plane[i] = 
+      projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);
+  for (unsigned int i = 0; i < 6; ++i)
     frustum_plane[i] = (1.0f / frustum_plane[i].block<3, 1>( 0, 0).norm()) * frustum_plane[i];
-  mUniformFrustum.set_buffer_data (frustum_plane);
+  mUniformFrustum.setBuffer (frustum_plane);
 
-  mUniformParameter.set_buffer_data (getMaterialColor(), getMaterialShine(),
-                                       mRadiusScale, mEwaRadius, mEpsilon);
+  mUniformParameter.setBuffer (getMaterialColor(), getMaterialShine(), mRadiusScale, mEwaRadius, mEpsilon);
   }
 //}}}
 

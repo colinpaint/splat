@@ -8,7 +8,7 @@ class cUniformBufferRaycast : public GLviz::glUniformBuffer {
 public:
   cUniformBufferRaycast();
 
-  void set_buffer_data (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
+  void setBuffer (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
   };
 //}}}
 //{{{
@@ -16,7 +16,7 @@ class cUniformBufferFrustum : public GLviz::glUniformBuffer {
 public:
   cUniformBufferFrustum();
 
-  void set_buffer_data (Eigen::Vector4f const* frustum_plane);
+  void setBuffer (Eigen::Vector4f const* frustum_plane);
   };
 //}}}
 //{{{
@@ -24,7 +24,7 @@ class cUniformBufferParameter : public GLviz::glUniformBuffer {
 public:
   cUniformBufferParameter();
 
-  void set_buffer_data (Eigen::Vector3f const& color, float shine,
+  void setBuffer (Eigen::Vector3f const& color, float shine,
                         float radius_scale, float ewa_radius, float epsilon);
   };
 //}}}
@@ -156,8 +156,8 @@ private:
 
   void setupProgramObjects();
   void setupFilterKernel();
-  void setupScreenQuad();
   void setupVertexArrayBuffer();
+  void setupScreenQuad();
   void setupUniforms (glProgram& program);
 
   void renderPass (bool depth_only);
@@ -170,7 +170,7 @@ private:
   GLuint muvVbo;
   GLuint mQuadVao;
   GLuint mQuadVerticesVbo;
-  GLuint mQuadTextureUvVbo;
+  GLuint mQuadTextureVbo;
 
   GLuint mFilterKernel;
 

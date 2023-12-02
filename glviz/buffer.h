@@ -24,7 +24,7 @@ namespace GLviz {
     void bind();
     void unbind();
 
-    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
+    void setBuffer(GLsizeiptr size, GLvoid const* ptr);
 
   private:
     GLuint m_array_buffer_obj;
@@ -39,7 +39,7 @@ namespace GLviz {
     void bind();
     void unbind();
 
-    void set_buffer_data(GLsizeiptr size, GLvoid const* ptr);
+    void setBuffer(GLsizeiptr size, GLvoid const* ptr);
 
   private:
     GLuint m_element_array_buffer_obj;

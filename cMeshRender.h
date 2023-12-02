@@ -6,7 +6,7 @@
 //{{{
 class cUniformBufferMaterial : public GLviz::glUniformBuffer {
 public:
-  void set_buffer_data(const float* mbuf);
+  void setBuffer(const float* mbuf);
   };
 //}}}
 //{{{
@@ -14,7 +14,7 @@ class cUniformBufferWireFrame : public GLviz::glUniformBuffer {
 public:
   cUniformBufferWireFrame();
 
-  void set_buffer_data(float const* color, int const* viewport);
+  void setBuffer(float const* color, int const* viewport);
   };
 //}}}
 //{{{
@@ -22,7 +22,7 @@ class cUniformBufferSphere : public GLviz::glUniformBuffer {
 public:
   cUniformBufferSphere();
 
-  void set_buffer_data (float radius, float projection);
+  void setBuffer (float radius, float projection);
   };
 //}}}
 

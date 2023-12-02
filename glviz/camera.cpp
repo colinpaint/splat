@@ -183,7 +183,7 @@ namespace GLviz {
   // UniformBufferCamera
   UniformBufferCamera::UniformBufferCamera() : glUniformBuffer(48 * sizeof(GLfloat)) { }
   //{{{
-  void UniformBufferCamera::set_buffer_data (Camera const& camera) {
+  void UniformBufferCamera::setBuffer (Camera const& camera) {
 
     Eigen::Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
     Eigen::Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();
