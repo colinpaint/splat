@@ -8,7 +8,7 @@
 #include <thread>
 #include <exception>
 
-#include "glviz/camera.h"
+#include "glviz/cCamera.h"
 #include "glviz/utility.h"
 
 //{{{  include stb

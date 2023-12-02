@@ -4,7 +4,7 @@
 
 #include "glviz.h"
 #include "utility.h"
-#include "camera.h"
+#include "cCamera.h"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -29,7 +29,7 @@ namespace GLviz {
     SDL_GLContext m_gl_context;
     bool gFullScreen = false;
 
-    Camera* mCamera;
+    cCamera* mCamera;
 
     function<void()> m_guiCallback;
     function<void()> m_displayCallback;
@@ -126,8 +126,8 @@ namespace GLviz {
   int getScreenWidth() { return mScreenWidth; }
   int getScreenHeight() { return mScreenHeight; }
 
-  Camera* camera() { return mCamera; }
-  void set_camera (Camera& camera) { mCamera = &camera; }
+  cCamera* camera() { return mCamera; }
+  void setCamera (cCamera& camera) { mCamera = &camera; }
 
   //{{{
   void init (int screenWidth, int screenHeight) {
@@ -259,7 +259,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  int mainUILoop (Camera& camera) {
+  int mainUILoop (cCamera& camera) {
 
     mCamera = &camera;
     Uint32 last_time = 0;

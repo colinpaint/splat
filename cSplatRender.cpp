@@ -627,8 +627,8 @@ cUniformFrustum::cUniformFrustum() : glUniformBuffer(6 * sizeof(Eigen::Vector4f)
 
 void cUniformFrustum::setBuffer (Eigen::Vector4f const* frustum_plane) {
   bind();
-  glBufferSubData (GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f), 
-                                             static_cast<void const*>(frustum_plane));
+  glBufferSubData (GL_UNIFORM_BUFFER, 0, 6 * sizeof(Eigen::Vector4f),
+                                         static_cast<void const*>(frustum_plane));
   unbind();
   }
 //}}}
@@ -1005,7 +1005,6 @@ void cFrameBuffer::disableDepthTexture() {
   unbind();
   }
 //}}}
-
 //{{{
 void cFrameBuffer::attachNormalTexture() {
 
@@ -1062,7 +1061,7 @@ void cFrameBuffer::setMultiSample (bool enable) {
       }
 
     #ifndef NDEBUG
-      GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+      GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
         cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
 
@@ -1086,7 +1085,7 @@ void cFrameBuffer::resize (GLint width, GLint height) {
 
   GLenum attachment[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
-  for (unsigned int i(0); i < 2; ++i) {
+  for (unsigned int i = 0; i < 2; ++i) {
     GLint type;
     glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER, attachment[i],
                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
@@ -1201,7 +1200,7 @@ void cFrameBuffer::removeDeleteAttachments() {
 
 // cSplatRender
 //{{{
-cSplatRender::cSplatRender (GLviz::Camera const& camera)
+cSplatRender::cSplatRender (GLviz::cCamera const& camera)
     : cRender(camera),
       mSmooth(false), mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
       mEwaFilter(false), mEwaRadius(1.0f), mPointSizeType(0), mRadiusScale(1.0f) {

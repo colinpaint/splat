@@ -22,7 +22,7 @@
 using namespace std;
 //}}}
 namespace {
-  GLviz::Camera gCamera;
+  GLviz::cCamera gCamera;
 
   cModel* gModel;
   int gModelIndex = 0;

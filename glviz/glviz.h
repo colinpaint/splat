@@ -1,19 +1,19 @@
 #pragma once
-#include "camera.h"
+#include "cCamera.h"
 
 #include <imgui.h>
 #include "SDL_keycode.h"
 
 namespace GLviz {
   // singleton statics, so use namespace
-  Camera* camera();
+  cCamera* camera();
 
   void init (int screenWidth, int screen_height);
 
   int getScreenWidth();
   int getScreenHeight();
 
-  void set_camera (Camera& camera);
+  void setCamera (cCamera& camera);
   void toggleFullScreen();
 
   void displayCallback (std::function<void()> displayCallback);
@@ -23,5 +23,5 @@ namespace GLviz {
   void guiCallback (std::function<void()> guiCallback);
   void keyboardCallback (std::function<void (SDL_Keycode)> keyboardCallback);
 
-  int mainUILoop (Camera& camera);
+  int mainUILoop (cCamera& camera);
   }

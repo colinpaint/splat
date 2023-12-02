@@ -1,11 +1,11 @@
 //{{{  includes
-#include "camera.h"
+#include "cCamera.h"
 #include "trackball.h"
 //}}}
 
 namespace GLviz {
   //{{{
-  Camera::Camera()
+  cCamera::cCamera()
       : m_position(Eigen::Vector3f::Zero()),
         m_orientation(Eigen::Quaternionf::Identity()),
         m_trackball(new Trackball()) {
@@ -14,14 +14,14 @@ namespace GLviz {
     set_modelview_matrix_from_orientation();
     }
   //}}}
-  Camera::~Camera() { }
+  cCamera::~cCamera() { }
 
-  Frustum const& Camera::get_frustum() const { return m_frustum; }
-  Eigen::Matrix4f const& Camera::get_modelview_matrix() const { return m_modelview_matrix; }
-  Eigen::Matrix4f const& Camera::get_projection_matrix() const { return m_projection_matrix; }
+  Frustum const& cCamera::get_frustum() const { return m_frustum; }
+  Eigen::Matrix4f const& cCamera::get_modelview_matrix() const { return m_modelview_matrix; }
+  Eigen::Matrix4f const& cCamera::get_projection_matrix() const { return m_projection_matrix; }
 
   //{{{
-  void Camera::set_projection_matrix_from_frustum() {
+  void cCamera::set_projection_matrix_from_frustum() {
 
     const float l = m_frustum.left();
     const float r = m_frustum.right();
@@ -40,7 +40,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::set_modelview_matrix_from_orientation() {
+  void cCamera::set_modelview_matrix_from_orientation() {
 
     Eigen::Matrix3f dir = Eigen::AngleAxisf (m_orientation).inverse().toRotationMatrix();
 
@@ -55,7 +55,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void Camera::set_frustum (Frustum const& frustum) {
+  void cCamera::set_frustum (Frustum const& frustum) {
 
     m_frustum = frustum;
 
@@ -66,7 +66,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::set_perspective (float fovy, float aspect, float near_, float far_) {
+  void cCamera::set_perspective (float fovy, float aspect, float near_, float far_) {
 
     float const pi = 3.14159265358979323846f;
 
@@ -84,7 +84,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::set_aspect (float aspect) {
+  void cCamera::set_aspect (float aspect) {
 
     m_aspect = aspect;
 
@@ -95,14 +95,14 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::set_position (Eigen::Vector3f const& position) {
+  void cCamera::set_position (Eigen::Vector3f const& position) {
 
     m_position = position;
     set_modelview_matrix_from_orientation();
     }
   //}}}
   //{{{
-  void Camera::set_orientation (Eigen::Matrix3f const& orientation) {
+  void cCamera::set_orientation (Eigen::Matrix3f const& orientation) {
 
     m_orientation = Eigen::Quaternionf(orientation);
     m_orientation.normalize();
@@ -111,7 +111,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::set_orientation (Eigen::Quaternionf const& orientation) {
+  void cCamera::set_orientation (Eigen::Quaternionf const& orientation) {
 
     m_orientation = orientation;
     m_orientation.normalize();
@@ -121,7 +121,7 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void Camera::rotate (Eigen::Quaternionf const& rotation) {
+  void cCamera::rotate (Eigen::Quaternionf const& rotation) {
 
     Eigen::Quaternionf ret = m_orientation * rotation;
     m_orientation = ret;
@@ -130,10 +130,10 @@ namespace GLviz {
     set_modelview_matrix_from_orientation();
     }
   //}}}
-  void Camera::rotate (Eigen::Matrix3f const& rotation) { rotate(Eigen::Quaternionf(rotation)); }
+  void cCamera::rotate (Eigen::Matrix3f const& rotation) { rotate(Eigen::Quaternionf(rotation)); }
 
   //{{{
-  void Camera::translate (Eigen::Vector3f const& translation) {
+  void cCamera::translate (Eigen::Vector3f const& translation) {
 
     m_position += translation;
     set_modelview_matrix_from_orientation();
@@ -141,13 +141,13 @@ namespace GLviz {
   //}}}
 
   //{{{
-  void Camera::trackball_begin_motion (float begin_x, float begin_y) {
+  void cCamera::trackball_begin_motion (float begin_x, float begin_y) {
     m_begin_x = begin_x;
     m_begin_y = begin_y;
     }
   //}}}
   //{{{
-  void Camera::trackball_end_motion_rotate (float end_x, float end_y) {
+  void cCamera::trackball_end_motion_rotate (float end_x, float end_y) {
 
     float u0_x = 2.0f * m_begin_x - 1.0f;
     float u0_y = 1.0f - 2.0f * m_begin_y;
@@ -162,7 +162,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::trackball_end_motion_zoom (float end_x, float end_y) {
+  void cCamera::trackball_end_motion_zoom (float end_x, float end_y) {
 
     float dy = end_y - m_begin_y;
     translate (Eigen::Vector3f(0.0f, 0.0f, 2.0f * dy));
@@ -170,7 +170,7 @@ namespace GLviz {
     }
   //}}}
   //{{{
-  void Camera::trackball_end_motion_translate (float end_x, float end_y) {
+  void cCamera::trackball_end_motion_translate (float end_x, float end_y) {
 
     float dx = end_x - m_begin_x;
     float dy = end_y - m_begin_y;
@@ -180,10 +180,10 @@ namespace GLviz {
     }
   //}}}
 
-  // UniformBufferCamera
-  UniformBufferCamera::UniformBufferCamera() : glUniformBuffer(48 * sizeof(GLfloat)) { }
+  // UniformCamera
+  cUniformCamera::cUniformCamera() : glUniformBuffer(48 * sizeof(GLfloat)) { }
   //{{{
-  void UniformBufferCamera::setBuffer (Camera const& camera) {
+  void cUniformCamera::setBuffer (cCamera const& camera) {
 
     Eigen::Matrix4f const& modelview_matrix = camera.get_modelview_matrix();
     Eigen::Matrix4f modelview_matrix_it = modelview_matrix.inverse().transpose();

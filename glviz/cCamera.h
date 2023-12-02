@@ -25,10 +25,10 @@ namespace GLviz {
     };
   //}}}
   //{{{
-  class Camera {
+  class cCamera {
   public:
-    Camera();
-    virtual ~Camera();
+    cCamera();
+    virtual ~cCamera();
 
     Eigen::Matrix4f const& get_modelview_matrix() const;
     Eigen::Matrix4f const& get_projection_matrix() const;
@@ -74,11 +74,10 @@ namespace GLviz {
     };
   //}}}
   //{{{
-  class UniformBufferCamera : public glUniformBuffer {
+  class cUniformCamera : public glUniformBuffer {
   public:
-    UniformBufferCamera();
-
-    void setBuffer (Camera const& camera);
+    cUniformCamera();
+    void setBuffer (cCamera const& camera);
     };
   //}}}
   }

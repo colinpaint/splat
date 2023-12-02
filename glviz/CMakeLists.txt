@@ -1,6 +1,6 @@
 project (glviz VERSION 1.0.0)
   add_library (${PROJECT_NAME} glviz.h glviz.cpp
-                               camera.h camera.cpp
+                               cCamera.h cCamera.cpp
                                shader.h shader.cpp
                                trackball.h trackball.cpp
                                buffer.h buffer.cpp

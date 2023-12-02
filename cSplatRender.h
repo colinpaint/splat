@@ -115,7 +115,7 @@ private:
 
 class cSplatRender : public cRender {
 public:
-  cSplatRender (GLviz::Camera const& camera);
+  cSplatRender (GLviz::cCamera const& camera);
   virtual ~cSplatRender();
 
   virtual void setBackFaceCull (bool enable = true) final;
@@ -131,20 +131,18 @@ public:
 private:
   bool getSmooth() const { return mSmooth; }
   void setSmooth (bool enable = true);
-  //{{{  softZ
+
   bool getSoftZbuffer() const { return mSoftZbuffer; }
   void setSoftZbuffer (bool enable);
 
   float getSoftZbufferEpsilon() const { return mEpsilon; }
   void setSoftZbufferEpsilon (float epsilon) { mEpsilon = epsilon; }
-  //}}}
-  //{{{  ewa
+
   bool getEwaFilter() const { return mEwaFilter; }
   void setEwaFilter (bool enable);
 
   float getEwaRadius() const { return mEwaRadius; }
   void setEwaRadius (float ewaRadius) { mEwaRadius = ewaRadius; }
-  //}}}
   unsigned int getPointSizeType() const { return mPointSizeType; }
   void setPointSizeType (unsigned int pointSizeType);
 

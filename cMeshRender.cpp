@@ -459,7 +459,7 @@ void cProgramSphere::initProgram() {
 //}}}
 
 //{{{
-cMeshRender::cMeshRender (GLviz::Camera const& camera) : cRender(camera) {
+cMeshRender::cMeshRender (GLviz::cCamera const& camera) : cRender(camera) {
 
   // setup vertex array v
   mVertexArrayV.bind();

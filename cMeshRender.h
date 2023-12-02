@@ -62,7 +62,7 @@ private:
 
 class cMeshRender : public cRender {
 public:
-  cMeshRender (GLviz::Camera const& camera);
+  cMeshRender (GLviz::cCamera const& camera);
   virtual ~cMeshRender();
 
   virtual void use (bool multiSample, bool backFaceCull) final;
@@ -78,8 +78,6 @@ public:
   GLviz::glArrayBuffer mVertexArrayBuffer;
   GLviz::glArrayBuffer mNormalArrayBuffer;
   GLviz::glElementArrayBuffer mIndexArrayBuffer;
-
-  GLviz::UniformBufferCamera mUniformCamera;
 
   cUniformMaterial mUniformMaterial;
   cUniformWireFrame mUniformWireFrame;
