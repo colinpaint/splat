@@ -1207,9 +1207,9 @@ cSplatRender::cSplatRender (GLviz::cCamera const& camera)
 
   use (mMultiSample, mBackFaceCull);
 
-  setupProgramObjects();
+  setupPrograms();
   setupFilterKernel();
-  setupVertexArrayBuffer();
+  setupVertexArray();
   setupScreenQuad();
   }
 //}}}
@@ -1409,9 +1409,9 @@ void cSplatRender::display (cModel* model) {
       }
 
     if (mSoftZbuffer)
-      renderPass (true);
+      displayDepth();
 
-    renderPass (false);
+    displayAttribute();
 
     if (getMultiSample()) {
       glDisable (GL_MULTISAMPLE);
@@ -1421,48 +1421,7 @@ void cSplatRender::display (cModel* model) {
 
   mFrameBuffer.unbind();
 
-  //{{{  finalise
-  if (getMultiSample()) {
-    glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getColorTexture());
-
-    if (mSmooth) {
-      glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getNormalTexture());
-      glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getDepthTexture());
-      }
-    }
-  else {
-    glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getColorTexture());
-
-    if (mSmooth) {
-      glActiveTexture (GL_TEXTURE1);
-      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getNormalTexture());
-      glActiveTexture (GL_TEXTURE2);
-      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getDepthTexture());
-      }
-    }
-
-  mFinal.use();
-
-  try {
-    setupUniforms (mFinal);
-    mFinal.setUniform1i ("color_texture", 0);
-    if (mSmooth) {
-      mFinal.setUniform1i ("normal_texture", 1);
-      mFinal.setUniform1i ("depth_texture", 2);
-      }
-    }
-  catch (uniform_not_found_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
-    }
-
-  glBindVertexArray (mQuadVao);
-  glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-  glBindVertexArray (0);
-  //}}}
+  displayFinal();
 
   #ifndef NDEBUG
     GLenum gl_error = glGetError();
@@ -1475,7 +1434,7 @@ void cSplatRender::resize (int width, int height) { mFrameBuffer.resize (width, 
 
 // private
 //{{{
-void cSplatRender::setupProgramObjects() {
+void cSplatRender::setupPrograms() {
 
   mVisibility.setVisibilityPass (true);
   mVisibility.setPointSizeType (mPointSizeType);
@@ -1513,7 +1472,7 @@ void cSplatRender::setupFilterKernel() {
   }
 //}}}
 //{{{
-void cSplatRender::setupVertexArrayBuffer() {
+void cSplatRender::setupVertexArray() {
 
   glGenBuffers (1, &mVbo);
 
@@ -1606,49 +1565,111 @@ void cSplatRender::setupUniforms (cProgram& program) {
 //}}}
 
 //{{{
-void cSplatRender::renderPass (bool depth_only) {
+void cSplatRender::displayDepth() {
 
   glEnable (GL_DEPTH_TEST);
   glEnable (GL_PROGRAM_POINT_SIZE);
 
-  if (!depth_only && mSoftZbuffer) {
+  mVisibility.use();
+
+  glDepthMask (GL_TRUE);
+  glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+  setupUniforms (mVisibility);
+
+  glBindVertexArray (mVao);
+  glDrawArrays (GL_POINTS, 0, (GLsizei)mNumSurfels);
+  glBindVertexArray (0);
+
+  mVisibility.unuse();
+
+  glDisable (GL_PROGRAM_POINT_SIZE);
+  glDisable (GL_BLEND);
+  glDisable (GL_DEPTH_TEST);
+  }
+//}}}
+//{{{
+void cSplatRender::displayAttribute() {
+
+  glEnable (GL_DEPTH_TEST);
+  glEnable (GL_PROGRAM_POINT_SIZE);
+
+  if (mSoftZbuffer) {
     glEnable (GL_BLEND);
     glBlendEquationSeparate (GL_FUNC_ADD, GL_FUNC_ADD);
     glBlendFuncSeparate (GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     }
 
-  cProgram& program = depth_only ? mVisibility : mAttribute;
-  program.use();
+  mAttribute.use();
 
-  if (depth_only) {
+  if (mSoftZbuffer)
+    glDepthMask (GL_FALSE);
+  else
     glDepthMask (GL_TRUE);
-    glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    }
-  else {
-    if (mSoftZbuffer)
-      glDepthMask (GL_FALSE);
-    else
-      glDepthMask (GL_TRUE);
 
-    glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
+  glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-  setupUniforms (program);
+  setupUniforms (mAttribute);
 
-  if (!depth_only && mSoftZbuffer && mEwaFilter) {
+  if (mSoftZbuffer && mEwaFilter) {
     glActiveTexture (GL_TEXTURE1);
     glBindTexture (GL_TEXTURE_1D, mFilterKernel);
-    program.setUniform1i ("filter_kernel", 1);
+    mAttribute.setUniform1i ("filter_kernel", 1);
     }
 
   glBindVertexArray (mVao);
   glDrawArrays (GL_POINTS, 0, (GLsizei)mNumSurfels);
   glBindVertexArray (0);
 
-  program.unuse();
+  mAttribute.unuse();
 
   glDisable (GL_PROGRAM_POINT_SIZE);
   glDisable (GL_BLEND);
   glDisable (GL_DEPTH_TEST);
+  }
+//}}}
+//{{{
+void cSplatRender::displayFinal() {
+
+  if (getMultiSample()) {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getColorTexture());
+
+    if (mSmooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getNormalTexture());
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D_MULTISAMPLE, mFrameBuffer.getDepthTexture());
+      }
+    }
+  else {
+    glActiveTexture (GL_TEXTURE0);
+    glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getColorTexture());
+
+    if (mSmooth) {
+      glActiveTexture (GL_TEXTURE1);
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getNormalTexture());
+      glActiveTexture (GL_TEXTURE2);
+      glBindTexture (GL_TEXTURE_2D, mFrameBuffer.getDepthTexture());
+      }
+    }
+
+  mFinal.use();
+
+  try {
+    setupUniforms (mFinal);
+    mFinal.setUniform1i ("color_texture", 0);
+    if (mSmooth) {
+      mFinal.setUniform1i ("normal_texture", 1);
+      mFinal.setUniform1i ("depth_texture", 2);
+      }
+    }
+  catch (uniform_not_found_error const& e) {
+    cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
+    }
+
+  glBindVertexArray (mQuadVao);
+  glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray (0);
   }
 //}}}

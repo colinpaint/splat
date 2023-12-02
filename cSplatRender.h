@@ -149,13 +149,15 @@ private:
   float getRadiusScale() const { return mRadiusScale; }
   void setRadiusScale (float radiusScale) { mRadiusScale = radiusScale; }
 
-  void setupProgramObjects();
+  void setupPrograms();
   void setupFilterKernel();
-  void setupVertexArrayBuffer();
+  void setupVertexArray();
   void setupScreenQuad();
   void setupUniforms (cProgram& program);
 
-  void renderPass (bool depth_only);
+  void displayDepth();
+  void displayAttribute();
+  void displayFinal();
 
   //{{{  vars
   bool mSmooth;
