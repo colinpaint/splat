@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.18)
 #
+set (BUILD_SDL_VERSION "SDL2" CACHE STRING "sdl version")
+
 add_subdirectory (fmt)
 add_subdirectory (common)
 add_subdirectory (imgui)
