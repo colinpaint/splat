@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.18)
 add_subdirectory (fmt)
 add_subdirectory (common)
 add_subdirectory (imgui)
-add_subdirectory (glviz)
+add_subdirectory (app)
 
 # splat dragon
 project (splat VERSION 1.0.0)
@@ -11,4 +11,4 @@ project (splat VERSION 1.0.0)
                                   cRender.h cRender.cpp
                                   cMeshRender.h cMeshRender.cpp
                                   cSplatRender.h cSplatRender.cpp)
-  target_link_libraries (${PROJECT_NAME} PRIVATE glviz)
+  target_link_libraries (${PROJECT_NAME} PRIVATE app)

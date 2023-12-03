@@ -3,8 +3,8 @@
 
 #include "../common/cLog.h"
 
-#include "glviz/glviz.h"
-#include "glviz/utility.h"
+#include "app/cApp.h"
+#include "../imgui/imgui.h"
 
 using namespace std;
 //}}}
@@ -609,7 +609,7 @@ namespace {
   }
 
 //{{{  cUniformRaycast
-cUniformRaycast::cUniformRaycast() : cUniformBuffer(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
+cUniformRaycast::cUniformRaycast() : cUniform(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 
 void cUniformRaycast::set (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport) {
   float viewportf[4] = { static_cast<float>(viewport[0]),
@@ -623,7 +623,7 @@ void cUniformRaycast::set (Eigen::Matrix4f const& projection_matrix_inv, GLint c
   }
 //}}}
 //{{{  cUniformFrustum
-cUniformFrustum::cUniformFrustum() : cUniformBuffer(6 * sizeof(Eigen::Vector4f)) { }
+cUniformFrustum::cUniformFrustum() : cUniform(6 * sizeof(Eigen::Vector4f)) { }
 
 void cUniformFrustum::set (Eigen::Vector4f const* frustum_plane) {
   bind();
@@ -633,7 +633,7 @@ void cUniformFrustum::set (Eigen::Vector4f const* frustum_plane) {
   }
 //}}}
 //{{{  cUniformParameter
-cUniformParameter::cUniformParameter() : cUniformBuffer(8 * sizeof(float)) { }
+cUniformParameter::cUniformParameter() : cUniform(8 * sizeof(float)) { }
 
 void cUniformParameter::set (Eigen::Vector3f const& color, float shine,
                              float radiusScale, float ewaRadius, float epsilon) {
@@ -842,7 +842,7 @@ void cProgramFinal::initProgram() {
   }
 //}}}
 //}}}
-//{{{  cFramebuffer
+//{{{  cFrameBuffer
 //{{{
 struct cFrameBuffer::sImpl {
   virtual void framebufferTexture2d (GLenum target, GLenum attachment, GLuint texture, GLint level) = 0;
@@ -1063,11 +1063,11 @@ void cFrameBuffer::setMultiSample (bool enable) {
     #ifndef NDEBUG
       GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+        cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
 
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error)
-        cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
+        cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
     #endif
 
     unbind();
@@ -1124,11 +1124,11 @@ void cFrameBuffer::resize (GLint width, GLint height) {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
 
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
+      cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
   #endif
 
   unbind();
@@ -1160,7 +1160,7 @@ void cFrameBuffer::initialize() {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlFramebufferStatusString (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
   #endif
   }
 //}}}
@@ -1200,11 +1200,11 @@ void cFrameBuffer::removeDeleteAttachments() {
 
 // cSplatRender
 //{{{
-cSplatRender::cSplatRender (GLviz::cCamera const& camera)
-    : cRender(camera),
-      mSmooth(false), mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
-      mEwaFilter(false), mEwaRadius(1.0f), mPointSizeType(0), mRadiusScale(1.0f) {
-
+cSplatRender::cSplatRender (cApp& app) : cRender(app),
+                                         mSmooth(false), 
+                                         mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
+                                         mEwaFilter(false), mEwaRadius(1.0f), 
+                                         mPointSizeType(0), mRadiusScale(1.0f) {
   use (mMultiSample, mBackFaceCull);
 
   setupPrograms();
@@ -1426,7 +1426,7 @@ void cSplatRender::display (cModel* model) {
   #ifndef NDEBUG
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", GLviz::getGlErrorString (gl_error)));
+      cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
   #endif
   }
 //}}}
@@ -1544,15 +1544,15 @@ void cSplatRender::setupScreenQuad() {
 //{{{
 void cSplatRender::setupUniforms (cProgram& program) {
 
-  mUniformCamera.set (mCamera);
+  mUniformCamera.set (mApp.getCamera());
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
-  GLviz::Frustum view_frustum = mCamera.get_frustum();
-  mUniformRaycast.set (mCamera.get_projection_matrix().inverse(), viewport);
+  Frustum view_frustum = mApp.getCamera().get_frustum();
+  mUniformRaycast.set (mApp.getCamera().get_projection_matrix().inverse(), viewport);
 
   Eigen::Vector4f frustum_plane[6];
-  Eigen::Matrix4f const& projection_matrix = mCamera.get_projection_matrix();
+  Eigen::Matrix4f const& projection_matrix = mApp.getCamera().get_projection_matrix();
   for (unsigned int i = 0; i < 6; ++i)
     frustum_plane[i] =
       projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);

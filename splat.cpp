@@ -13,104 +13,110 @@
 
 #include <Eigen/Core>
 
-#include "../common/date.h"
 #include "../common/cLog.h"
+
+#include "../imgui/imgui.h"
 
 #include "cMeshRender.h"
 #include "cSplatRender.h"
 
 using namespace std;
 //}}}
-namespace {
-  GLviz::cCamera gCamera;
 
-  cModel* gModel;
-  int gModelIndex = 0;
-  bool gRipple = false;
+//{{{
+class cSplatApp : public cApp {
+public:
+  cSplatApp() : cApp() {}
+  virtual ~cSplatApp() = default;
 
-  cSplatRender* gSplatRender;
-  cMeshRender* gMeshRender;
-  cRender* gRender;
-  bool gUseSplatRender = false;
-  bool gMultiSample = false;
-  bool gBackFaceCull = false;
+  void init (int width, int height) {
+    cApp::init (width, height);
 
-  //{{{
-  void display() {
-    gRender->display (gModel);
-    }
-  //}}}
-  //{{{
-  void gui() {
+    //resize (splatApp.getScreenWidth(), splatApp.getScreenHeight());
+    setDisplayCallback ([this] {
+      //{{{  display lambda
+      mRender->display (mModel);
+      });
+      //}}}
+    setGuiCallback ([this] {
+      //{{{  gui
+      ImGui::Begin ("splat", nullptr);
+      ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
-    ImGui::Begin ("splat", nullptr);
-    ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
-
-    if (ImGui::Checkbox ("splatRender", &gUseSplatRender)) {
-      if (gUseSplatRender)
-        gRender = gSplatRender;
-      else
-        gRender = gMeshRender;
-      gRender->use (gMultiSample, gBackFaceCull);
-      }
-
-    if (ImGui::Checkbox ("multiSample", &gMultiSample))
-      gRender->setMultiSample (gMultiSample);
-
-    if (ImGui::Checkbox ("backfaceCull", &gBackFaceCull))
-      gRender->setBackFaceCull (gBackFaceCull);
-
-    ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
-
-
-    ImGui::SetNextItemOpen (true, ImGuiCond_Once);
-    if (ImGui::CollapsingHeader ("scene"))
-      if (ImGui::Combo ("model", &gModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
-        gModel->load (gModelIndex);
-
-    gRender->gui();
-
-    ImGui::End();
-    }
-  //}}}
-  //{{{
-  void keyboard (SDL_Keycode key) {
-
-    if (!gRender->keyboard (key))
-      switch (key) {
-        case SDLK_f:      GLviz::toggleFullScreen(); break;
-
-        case SDLK_SPACE:  gRipple = !gRipple; break;
-
-        case SDLK_q:
-        case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
-
-        default: break;
+      if (ImGui::Checkbox ("splatRender", &mUseSplatRender)) {
+        if (mUseSplatRender)
+          mRender = mSplatRender;
+        else
+          mRender = mMeshRender;
+        mRender->use (mMultiSample, mBackFaceCull);
         }
-    }
-  //}}}
-  //{{{
-  void resize (int width, int height) {
 
-    const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    glViewport (0, 0, width, height);
-    gCamera.set_perspective (60.0f, aspect, 0.005f, 5.0f);
+      if (ImGui::Checkbox ("multiSample", &mMultiSample))
+        mRender->setMultiSample (mMultiSample);
+
+      if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
+        mRender->setBackFaceCull (mBackFaceCull);
+
+      ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
+
+      ImGui::SetNextItemOpen (true, ImGuiCond_Once);
+      if (ImGui::CollapsingHeader ("scene"))
+        if (ImGui::Combo ("model", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
+          mModel->load (mModelIndex);
+
+      mRender->gui();
+      ImGui::End();
+      });
+      //}}}
+    setCloseCallback ([this] {
+      //{{{  close lambda
+      delete mMeshRender;
+      delete mSplatRender;
+      delete mModel;
+      });
+      //}}}
+    setTimerCallback ([this] {
+      //{{{  timer lambda
+      if (!mUseSplatRender && mRipple)
+        mModel->ripple();
+      });
+      //}}}
+    setKeyboardCallback ([this](SDL_Keycode key) noexcept {
+      //{{{  keyboard lambda
+      if (!mRender->keyboard (key))
+        switch (key) {
+          case SDLK_f: toggleFullScreen(); break;
+          case SDLK_SPACE: mRipple = !mRipple; break;
+          case SDLK_q:
+          case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
+          default: break;
+          }
+        });
+      //}}}
+    setResizeCallback ([this](int width, int height) noexcept {
+      //{{{  resize lambda
+      const float aspect = static_cast<float>(width) / static_cast<float>(height);
+      glViewport (0, 0, width, height);
+      getCamera().set_perspective(60.0f, aspect, 0.005f, 5.0f);
+      });
+      //}}}
+
+    mResizeCallback (width, height);
     }
-  //}}}
-  //{{{
-  void timer (int delta_t_msec) {
-    if (!gUseSplatRender && gRipple)
-      gModel->ripple();
-    }
-  //}}}
-  //{{{
-  void close() {
-    delete gMeshRender;
-    delete gSplatRender;
-    delete gModel;
-    }
-  //}}}
-  }
+
+  cModel* mModel;
+  int mModelIndex = 0;
+  bool mRipple = false;
+
+  cSplatRender* mSplatRender;
+  cMeshRender* mMeshRender;
+  cRender* mRender;
+  bool mUseSplatRender = false;
+
+  bool mMultiSample = false;
+  bool mBackFaceCull = false;
+  };
+//}}}
 
 int main (int numArgs, char* args[]) {
   eLogLevel logLevel = LOGINFO;
@@ -129,23 +135,16 @@ int main (int numArgs, char* args[]) {
   cLog::init (logLevel);
   cLog::log (LOGNOTICE, "splat");
 
-  GLviz::init (960, 540);
+  cSplatApp splatApp;
+  splatApp.init (960, 540);
+  splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  gModel = new cSurfelModel();
-  gModel->load (gModelIndex);
+  splatApp.mModel = new cSurfelModel();
+  splatApp.mModel->load (splatApp.mModelIndex);
 
-  gCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+  splatApp.mSplatRender = new cSplatRender (splatApp);
+  splatApp.mMeshRender = new cMeshRender (splatApp);
+  splatApp.mRender = splatApp.mMeshRender;
 
-  gSplatRender = new cSplatRender (gCamera);
-  gMeshRender = new cMeshRender (gCamera);
-  gRender = gMeshRender;
-
-  GLviz::displayCallback (display);
-  GLviz::guiCallback (gui);
-  GLviz::keyboardCallback (keyboard);
-  GLviz::resizeCallback (resize);
-  GLviz::timerCallback (timer, 40);
-  GLviz::closeCallback (close);
-
-  return GLviz::mainUILoop (gCamera);
+  return splatApp.mainUILoop();
   }

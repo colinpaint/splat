@@ -1,24 +1,24 @@
 #pragma once
 #include "cRender.h"
-#include "glviz/buffer.h"
-#include "glviz/shader.h"
+#include "app/buffer.h"
+#include "app/shader.h"
 
 //{{{
-class cUniformMaterial : public GLviz::cUniformBuffer {
+class cUniformMaterial : public cUniform {
 public:
   cUniformMaterial();
   void set (const float* mbuf);
   };
 //}}}
 //{{{
-class cUniformWireFrame : public GLviz::cUniformBuffer {
+class cUniformWireFrame : public cUniform {
 public:
   cUniformWireFrame();
   void set(float const* color, int const* viewport);
   };
 //}}}
 //{{{
-class cUniformSphere : public GLviz::cUniformBuffer {
+class cUniformSphere : public cUniform {
 public:
   cUniformSphere();
   void set (float radius, float projection);
@@ -61,7 +61,7 @@ private:
 
 class cMeshRender : public cRender {
 public:
-  cMeshRender (GLviz::cCamera const& camera);
+  cMeshRender (cApp& app);
   virtual ~cMeshRender();
 
   virtual void use (bool multiSample, bool backFaceCull) final;
@@ -84,12 +84,12 @@ public:
   float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
 
-  GLviz::cVertexArray mVertexArrayV;
-  GLviz::cVertexArray mVertexArrayVf;
-  GLviz::cVertexArray mVertexArrayVnf;
-  GLviz::cArrayBuffer mVertexArrayBuffer;
-  GLviz::cArrayBuffer mNormalArrayBuffer;
-  GLviz::cElementArrayBuffer mIndexArrayBuffer;
+  cVertexArray mVertexArrayV;
+  cVertexArray mVertexArrayVf;
+  cVertexArray mVertexArrayVnf;
+  cArrayBuffer mVertexArrayBuffer;
+  cArrayBuffer mNormalArrayBuffer;
+  cElementArrayBuffer mIndexArrayBuffer;
 
   cUniformMaterial mUniformMaterial;
   cUniformWireFrame mUniformWireFrame;

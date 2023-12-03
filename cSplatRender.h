@@ -1,24 +1,24 @@
 #pragma once
 #include "cRender.h"
-#include "glviz/shader.h"
-#include "glviz/buffer.h"
+#include "app/shader.h"
+#include "app/buffer.h"
 
 //{{{
-class cUniformRaycast : public GLviz::cUniformBuffer {
+class cUniformRaycast : public cUniform {
 public:
   cUniformRaycast();
   void set (Eigen::Matrix4f const& projection_matrix_inv, GLint const* viewport);
   };
 //}}}
 //{{{
-class cUniformFrustum : public GLviz::cUniformBuffer {
+class cUniformFrustum : public cUniform {
 public:
   cUniformFrustum();
   void set (Eigen::Vector4f const* frustum_plane);
   };
 //}}}
 //{{{
-class cUniformParameter : public GLviz::cUniformBuffer {
+class cUniformParameter : public cUniform {
 public:
   cUniformParameter();
   void set (Eigen::Vector3f const& color, float shine,
@@ -115,7 +115,7 @@ private:
 
 class cSplatRender : public cRender {
 public:
-  cSplatRender (GLviz::cCamera const& camera);
+  cSplatRender (cApp& app);
   virtual ~cSplatRender();
 
   virtual void setBackFaceCull (bool enable = true) final;

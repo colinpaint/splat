@@ -8,8 +8,7 @@
 #include <thread>
 #include <exception>
 
-#include "glviz/cCamera.h"
-#include "glviz/utility.h"
+#include "app/cCamera.h"
 
 //{{{  include stb
 // invoke header only library implementation here

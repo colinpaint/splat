@@ -6,8 +6,8 @@
 #include <map>
 #include <Eigen/Core>
 
-#include "glviz/glviz.h"
-#include "glviz/cCamera.h"
+#include "app/cApp.h"
+#include "app/cCamera.h"
 
 //{{{
 class cModel {
@@ -86,7 +86,7 @@ private:
 
 class cRender {
 public:
-  cRender (GLviz::cCamera const& camera) : mCamera(camera) {}
+  cRender (cApp& app) : mApp(app) {}
   virtual ~cRender() {}
 
   bool getMultiSample() const { return mMultiSample; }
@@ -114,8 +114,8 @@ public:
   virtual void resize (int width, int height) {};
 
 protected:
-  GLviz::cCamera const& mCamera;
-  GLviz::cUniformCamera mUniformCamera;
+  cApp& mApp;
+  cUniformCamera mUniformCamera;
 
   bool mMultiSample = false;
   bool mBackFaceCull = false;

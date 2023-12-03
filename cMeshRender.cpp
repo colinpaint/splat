@@ -5,8 +5,8 @@
 
 #include "../common/cLog.h"
 
-#include "glviz/glviz.h"
-#include "glviz/utility.h"
+#include "app/cApp.h"
+#include "../imgui/imgui.h"
 
 using namespace std;
 //}}}
@@ -309,7 +309,7 @@ namespace {
   }
 
 //{{{  cUniformMaterial
-cUniformMaterial::cUniformMaterial() : cUniformBuffer (4 * sizeof(GLfloat)) {}
+cUniformMaterial::cUniformMaterial() : cUniform (4 * sizeof(GLfloat)) {}
 
 void cUniformMaterial::set (float const* mbuf) {
   bind();
@@ -319,7 +319,7 @@ void cUniformMaterial::set (float const* mbuf) {
 //}}}
 //{{{  cUniformWireFrame
 cUniformWireFrame::cUniformWireFrame()
-  : cUniformBuffer (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
+  : cUniform (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
 
 void cUniformWireFrame::set (float const* color, int const* viewport) {
   bind();
@@ -329,7 +329,7 @@ void cUniformWireFrame::set (float const* color, int const* viewport) {
   }
 //}}}
 //{{{  cUniformSphere
-cUniformSphere::cUniformSphere() : cUniformBuffer(2 * sizeof(GLfloat)) {}
+cUniformSphere::cUniformSphere() : cUniform(2 * sizeof(GLfloat)) {}
 
 void cUniformSphere::set (float radius, float projection) {
   bind();
@@ -459,7 +459,7 @@ void cProgramSphere::initProgram() {
 //}}}
 
 //{{{
-cMeshRender::cMeshRender (GLviz::cCamera const& camera) : cRender(camera) {
+cMeshRender::cMeshRender (cApp& app) : cRender(app) {
 
   // setup vertex array v
   mVertexArrayV.bind();
@@ -569,12 +569,12 @@ void cMeshRender::display (cModel* model) {
   mNormalArrayBuffer.set (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
   mIndexArrayBuffer.set (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
 
-  mUniformCamera.set (mCamera);
+  mUniformCamera.set (mApp.getCamera());
 
   if (mDisplayMesh) {
     mUniformMaterial.set (mMeshMaterial);
 
-    array <int,2> screen = { GLviz::getScreenWidth(), GLviz::getScreenHeight() };
+    array <int,2> screen = { mApp.getScreenWidth(), mApp.getScreenHeight() };
     mUniformWireFrame.set (mWireFrameMaterial, screen.data());
 
     //{{{  display mesh
@@ -605,9 +605,9 @@ void cMeshRender::display (cModel* model) {
   if (mDisplaySpheres) {
     mUniformMaterial.set (mPointsMaterial);
 
-    GLviz::Frustum view_frustum = mCamera.get_frustum();
+    Frustum view_frustum = mApp.getCamera().get_frustum();
     mProjectionRadius =
-      view_frustum.near_() * (GLviz::getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
+      view_frustum.near_() * (mApp.getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
     mUniformWireSphere.set (mPointRadius, mProjectionRadius);
 
     //{{{  display spheres
