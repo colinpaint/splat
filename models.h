@@ -63,7 +63,7 @@ public:
     };
   //}}}
   cSurfelModel() {}
-  cSurfelModel (const std::string& fileName);
+  cSurfelModel (const std::string& fileName) : mFileName (fileName) {}
   virtual ~cSurfelModel() = default;
 
   void* getArray() { return &mModel.front(); }
@@ -83,5 +83,6 @@ private:
   void createCube();
 
   std::vector <cSurfel> mModel;
+  std::string mFileName;
   };
 //}}}

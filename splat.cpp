@@ -188,16 +188,10 @@ int main (int numArgs, char* args[]) {
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  if (fileName.empty()) {
-    splatApp.mModel = new cSurfelModel();
-    splatApp.getModel()->load (splatApp.getModelIndex());
-    splatApp.setSplatRender (new cSplatRender (splatApp));
-    splatApp.setMeshRender (new cMeshRender (splatApp));
-    }
-  else {
-    splatApp.mModel = new cSurfelModel (fileName);
-    splatApp.setSplatRender (new cSplatRender (splatApp));
-    }
+  splatApp.mModel = new cSurfelModel (fileName);
+  splatApp.getModel()->load (splatApp.getModelIndex());
+  splatApp.setSplatRender (new cSplatRender (splatApp));
+  splatApp.setMeshRender (new cMeshRender (splatApp));
 
   return splatApp.mainUILoop();
   }

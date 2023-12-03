@@ -145,12 +145,6 @@ void cModel::setVertexNormals() {
 
 // cSurfelModel
 //{{{
-cSurfelModel::cSurfelModel (const string& fileName) {
-  createPiccy (fileName);
-  mSelectable = false;
-  }
-//}}}
-//{{{
 void cSurfelModel::load (int modelIndex) {
 
   switch (modelIndex) {
@@ -171,7 +165,7 @@ void cSurfelModel::load (int modelIndex) {
       break;
 
     case 4: {
-      createPiccy ("../piccies/test.png");
+      createPiccy (mFileName.empty() ? "../piccies/test.png" : mFileName);
       break;
       }
     }
