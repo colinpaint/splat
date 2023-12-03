@@ -384,7 +384,7 @@ void cProgramMesh::initProgram() {
     mMeshGeometryShader.compile (defines);
     mMeshFragmentShader.compile (defines);
     }
-  catch (shader_compilation_error const& e) {
+  catch (shaderCompilationError const& e) {
     //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed compile {}", e.what()));
     exit(EXIT_FAILURE);
@@ -394,7 +394,7 @@ void cProgramMesh::initProgram() {
   try {
     link();
     }
-  catch (shader_link_error const& e) {
+  catch (shaderLinkError const& e) {
     //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed link {}", e.what()));
     exit(EXIT_FAILURE);
@@ -407,7 +407,7 @@ void cProgramMesh::initProgram() {
     if (mWireFrame)
       setUniformBind ("Wireframe", 2);
     }
-  catch (uniform_not_found_error const& e) {
+  catch (uniformNotFoundError const& e) {
     //{{{  error
     cLog::log (LOGERROR, fmt::format ("ProgramMesh::initProgram - failed setUniformBind {}", e.what()));
     }
@@ -432,7 +432,7 @@ void cProgramSphere::initProgram() {
     mSphereVertexShader.compile();
     mSphereFragmentShader.compile();
     }
-  catch (shader_compilation_error const& e) {
+  catch (shaderCompilationError const& e) {
     //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed compile {}", e.what()));
     exit(EXIT_FAILURE);
@@ -442,7 +442,7 @@ void cProgramSphere::initProgram() {
   try {
     link();
     }
-  catch (shader_link_error const& e) {
+  catch (shaderLinkError const& e) {
     //{{{  error, return
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed link {}", e.what()));
     exit(EXIT_FAILURE);
@@ -454,7 +454,7 @@ void cProgramSphere::initProgram() {
     setUniformBind ("Material", 1);
     setUniformBind ("Sphere", 3);
     }
-  catch (uniform_not_found_error const& e) {
+  catch (uniformNotFoundError const& e) {
     //{{{  error
     cLog::log (LOGERROR, fmt::format ("ProgramSphere::initProgram - failed setUniformBind {}", e.what()));
     }

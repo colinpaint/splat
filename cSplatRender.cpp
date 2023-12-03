@@ -741,7 +741,7 @@ void cProgramAttribute::initProgram() {
     mLightVertexShader.compile (defines);
     mAttributeFragmentShader.compile (defines);
     }
-  catch (shader_compilation_error const& e) {
+  catch (shaderCompilationError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
@@ -749,7 +749,7 @@ void cProgramAttribute::initProgram() {
   try {
     link();
     }
-  catch (shader_link_error const& e) {
+  catch (shaderLinkError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
@@ -760,7 +760,7 @@ void cProgramAttribute::initProgram() {
     setUniformBind ("Frustum", 2);
     setUniformBind ("Parameter", 3);
     }
-  catch (uniform_not_found_error const& e) {
+  catch (uniformNotFoundError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed setUniformBind {}", e.what()));
     }
   }
@@ -819,7 +819,7 @@ void cProgramFinal::initProgram() {
     mLightVertexShader.compile (defines);
     mFinalFragmentShader.compile (defines);
     }
-  catch (shader_compilation_error const& e) {
+  catch (shaderCompilationError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
@@ -827,7 +827,7 @@ void cProgramFinal::initProgram() {
   try {
     link();
     }
-  catch (shader_link_error const& e) {
+  catch (shaderLinkError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
@@ -837,7 +837,7 @@ void cProgramFinal::initProgram() {
     setUniformBind ("Raycast", 1);
     setUniformBind ("Parameter", 3);
     }
-  catch (uniform_not_found_error const& e) {
+  catch (uniformNotFoundError const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed setUniformBindto {}", e.what()));
     }
   }
@@ -1665,7 +1665,7 @@ void cSplatRender::displayFinal() {
       mFinal.setUniform1i ("depth_texture", 2);
       }
     }
-  catch (uniform_not_found_error const& e) {
+  catch (uniformNotFoundError const& e) {
     cLog::log (LOGERROR, fmt::format ("failed to set a uniform variable {}", e.what()));
     }
 
