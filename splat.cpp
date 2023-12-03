@@ -43,12 +43,15 @@ public:
       ImGui::Begin ("splat", nullptr);
       ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
-      if (ImGui::Checkbox ("splatRender", &mUseSplatRender)) {
-        if (mUseSplatRender)
-          mRender = mSplatRender;
-        else
-          mRender = mMeshRender;
-        mRender->use (mMultiSample, mBackFaceCull);
+      if (mMeshRender && mSplatRender) {
+        // have choice of render
+        if (ImGui::Checkbox ("splatRender", &mUseSplatRender)) {
+          if (mUseSplatRender)
+            mRender = mSplatRender;
+          else
+            mRender = mMeshRender;
+          mRender->use (mMultiSample, mBackFaceCull);
+          }
         }
 
       if (mMultiSample)
@@ -130,7 +133,16 @@ public:
     }
   //}}}
   void setModelIndex (int modelIndex) { mModelIndex = modelIndex; }
-  void getUseSplatRender (bool useSplatRender) { mUseSplatRender = useSplatRender; }
+  //{{{
+  void setUseSplatRender (bool useSplatRender) { 
+    mUseSplatRender = useSplatRender; 
+    if (mUseSplatRender)
+      mRender = mSplatRender;
+    else
+      mRender = mMeshRender;
+    mRender->use (mMultiSample, mBackFaceCull);
+    }
+  //}}}
 
   // vars
   cModel* mModel;
@@ -192,9 +204,9 @@ int main (int numArgs, char* args[]) {
     }
   else {
     splatApp.mModel = new cSurfelModel (fileName);
-    splatApp.setModelIndex (4);
-    splatApp.setMeshRender (new cMeshRender (splatApp));
     splatApp.setSplatRender (new cSplatRender (splatApp));
+    splatApp.setModelIndex (4);
+    splatApp.setUseSplatRender (true);
     }
 
   return splatApp.mainUILoop();
