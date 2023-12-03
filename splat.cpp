@@ -77,13 +77,6 @@ public:
       ImGui::End();
       });
       //}}}
-    setCloseCallback ([this] {
-      //{{{  close lambda
-      delete mMeshRender;
-      delete mSplatRender;
-      delete mModel;
-      });
-      //}}}
     setTimerCallback ([this] {
       //{{{  timer lambda
       if (!mUseSplatRender && mRipple)
@@ -107,6 +100,13 @@ public:
       const float aspect = static_cast<float>(width) / static_cast<float>(height);
       glViewport (0, 0, width, height);
       getCamera().setPerspective(60.0f, aspect, 0.005f, 5.0f);
+      });
+      //}}}
+    setCloseCallback ([this] {
+      //{{{  close lambda
+      delete mMeshRender;
+      delete mSplatRender;
+      delete mModel;
       });
       //}}}
 
