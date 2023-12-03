@@ -609,7 +609,6 @@ namespace {
     };
   //}}}
   }
-
 //{{{  cUniformRaycast
 cUniformRaycast::cUniformRaycast() : cUniform(sizeof(Eigen::Matrix4f) + sizeof(Eigen::Vector4f)) { }
 

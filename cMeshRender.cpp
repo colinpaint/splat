@@ -313,7 +313,6 @@ namespace {
     };
   //}}}
   }
-
 //{{{  cUniformMaterial
 cUniformMaterial::cUniformMaterial() : cUniform (4 * sizeof(GLfloat)) {}
 
@@ -324,8 +323,7 @@ void cUniformMaterial::set (float const* mbuf) {
   }
 //}}}
 //{{{  cUniformWireFrame
-cUniformWireFrame::cUniformWireFrame()
-  : cUniform (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
+cUniformWireFrame::cUniformWireFrame() : cUniform (4 * sizeof(GLfloat) + 2 * sizeof(GLint)) {}
 
 void cUniformWireFrame::set (float const* color, int const* viewport) {
   bind();
