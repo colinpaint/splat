@@ -4,17 +4,6 @@
 #include "baseClasses.h"
 
 //{{{
-class Trackball {
-public:
-  Eigen::Quaternionf const& operator()(float u0_x, float u0_y, float u1_x, float u1_y);
-
-protected:
-  float projectToSphere (float r, float x, float y) const;
-
-  Eigen::Quaternionf rotation;
-  };
-//}}}
-//{{{
 class cFrustum {
 public:
   float& left() { return mLeft; }
@@ -33,6 +22,17 @@ private:
   float mTop;
   float mNear;
   float mFar;
+  };
+//}}}
+//{{{
+class cTrackball {
+public:
+  Eigen::Quaternionf const& operator()(float u0_x, float u0_y, float u1_x, float u1_y);
+
+private:
+  float projectToSphere (float r, float x, float y) const;
+
+  Eigen::Quaternionf rotation;
   };
 //}}}
 //{{{
@@ -82,7 +82,7 @@ private:
   float mBeginX;
   float mBeginY;
 
-  std::unique_ptr<Trackball> mTrackball;
+  cTrackball mTrackball;
   };
 //}}}
 //{{{

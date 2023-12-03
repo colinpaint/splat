@@ -568,7 +568,7 @@ void cMeshRender::display (cModel* model) {
   glDepthMask (GL_TRUE);
   glClearDepth (1.0f);
   glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+  glClearColor (0.5f, 0.5f, 0.5f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   mVertexArrayBuffer.set (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());

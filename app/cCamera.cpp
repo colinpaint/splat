@@ -10,9 +10,9 @@ using namespace std;
 // rotation to the point on the object underneath the mouse.  That
 // point would then track the mouse as closely as possible.  This is a
 // simple example, though, so that is left as an Exercise for the Programmer
-const float trackball_size = 1.0f;
+const float kTrackballSize = 1.0f;
 //{{{
-Eigen::Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y) {
+Eigen::Quaternionf const& cTrackball::operator()(float u0_x, float u0_y, float u1_x, float u1_y) {
 // Ok, simulate a track-ball.
 // Project the points onto the virtual trackball, then figure out the axis of rotation,
 // which is the cross product of P1 P2 and O P1 (O is the center of the ball, 0,0,0)
@@ -29,8 +29,8 @@ Eigen::Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1
 
   // First, figure out z-coordinates for projection of P1 and P2 to
   // deformed sphere.
-  Eigen::Vector3f u0(u0_x, u0_y, projectToSphere (trackball_size, u0_x, u0_y));
-  Eigen::Vector3f u1(u1_x, u1_y, projectToSphere (trackball_size, u1_x, u1_y));
+  Eigen::Vector3f u0(u0_x, u0_y, projectToSphere (kTrackballSize, u0_x, u0_y));
+  Eigen::Vector3f u1(u1_x, u1_y, projectToSphere (kTrackballSize, u1_x, u1_y));
 
   // Calculate rotation axis.
   Eigen::Vector3f axis = u1.cross (u0);
@@ -40,7 +40,7 @@ Eigen::Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1
   Eigen::Vector3f d = u0 - u1;
 
   // Clamp t to [-1.0, 1.0].
-  float t = d.norm() / (2.0f * trackball_size);
+  float t = d.norm() / (2.0f * kTrackballSize);
   if (t > 1.0f)
     t = 1.0f;
   else if (t < -1.0f)
@@ -51,7 +51,7 @@ Eigen::Quaternionf const& Trackball::operator()(float u0_x, float u0_y, float u1
   }
 //}}}
 //{{{
-inline float Trackball::projectToSphere (float r, float x, float y) const {
+inline float cTrackball::projectToSphere (float r, float x, float y) const {
 // Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
 // if we are away from the center of the sphere.
 
@@ -71,12 +71,10 @@ inline float Trackball::projectToSphere (float r, float x, float y) const {
 
 // cCamera
 //{{{
-cCamera::cCamera()
-    : mPosition(Eigen::Vector3f::Zero()),
-      mOrientation(Eigen::Quaternionf::Identity()),
-      mTrackball(new Trackball()) {
+cCamera::cCamera() : mPosition(Eigen::Vector3f::Zero()),
+                     mOrientation(Eigen::Quaternionf::Identity()) {
 
-  setPerspective(60.0f, 4.0f / 3.0f, 0.25f, 10.0f);
+  setPerspective (60.0f, 4.0f / 3.0f, 0.25f, 10.0f);
   setModelViewMatrixFromOrientation();
   }
 //}}}
@@ -221,10 +219,9 @@ void cCamera::trackballEndMotionRotate (float end_x, float end_y) {
   float u1_x = 2.0f * end_x - 1.0f;
   float u1_y = 1.0f - 2.0f * end_y;
 
-  auto& trackball = *mTrackball;
-  rotate (trackball(u0_x, u0_y, u1_x, u1_y));
+  rotate (mTrackball (u0_x, u0_y, u1_x, u1_y));
 
-  trackballBeginMotion(end_x, end_y);
+  trackballBeginMotion (end_x, end_y);
   }
 //}}}
 //{{{
@@ -241,9 +238,9 @@ void cCamera::trackballEndMotionTranslate (float end_x, float end_y) {
 
   float dx = end_x - mBeginX;
   float dy = end_y - mBeginY;
-  translate(Eigen::Vector3f(2.0f * dx, -2.0f * dy, 0.0f));
+  translate (Eigen::Vector3f(2.0f * dx, -2.0f * dy, 0.0f));
 
-  trackballBeginMotion(end_x, end_y);
+  trackballBeginMotion (end_x, end_y);
   }
 //}}}
 
