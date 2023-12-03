@@ -56,27 +56,6 @@ private:
 //}}}
 
 //{{{
-struct fileOpenError : public std::runtime_error {
-  fileOpenError (const std::string& errmsg) : runtime_error(errmsg) { }
-  };
-//}}}
-//{{{
-struct shaderCompilationError : public std::logic_error {
-  shaderCompilationError (const std::string& errmsg) : logic_error(errmsg) {}
-  };
-//}}}
-//{{{
-struct shaderLinkError : public std::logic_error {
-  shaderLinkError (std::string const& errmsg) : logic_error(errmsg) {}
-  };
-//}}}
-//{{{
-struct uniformNotFoundError : public std::logic_error {
-  uniformNotFoundError (std::string const& errmsg) : logic_error(errmsg) {}
-  };
-//}}}
-
-//{{{
 class cShader {
 public:
   virtual ~cShader();
@@ -141,5 +120,26 @@ public:
 
 protected:
     GLuint mProgram;
+  };
+//}}}
+
+//{{{
+struct fileOpenError : public std::runtime_error {
+  fileOpenError (const std::string& errmsg) : runtime_error(errmsg) { }
+  };
+//}}}
+//{{{
+struct shaderCompilationError : public std::logic_error {
+  shaderCompilationError (const std::string& errmsg) : logic_error(errmsg) {}
+  };
+//}}}
+//{{{
+struct shaderLinkError : public std::logic_error {
+  shaderLinkError (std::string const& errmsg) : logic_error(errmsg) {}
+  };
+//}}}
+//{{{
+struct uniformNotFoundError : public std::logic_error {
+  uniformNotFoundError (std::string const& errmsg) : logic_error(errmsg) {}
   };
 //}}}
