@@ -61,12 +61,15 @@ public:
       if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
         mRender->setBackFaceCull (mBackFaceCull);
 
-      ImGui::Text ("%.1f fps", ImGui::GetIO().Framerate);
+      ImGui::Text ("%.1f fps %d vertices %d faces", ImGui::GetIO().Framerate,
+                                 (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
 
-      ImGui::SetNextItemOpen (true, ImGuiCond_Once);
-      if (ImGui::CollapsingHeader ("scene"))
-        if (ImGui::Combo ("model", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
-          mModel->load (mModelIndex);
+      if (mModel->isSelectable()) {
+        ImGui::SetNextItemOpen (true, ImGuiCond_Once);
+        if (ImGui::CollapsingHeader ("scene"))
+          if (ImGui::Combo ("##", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
+            mModel->load (mModelIndex);
+        }
 
       mRender->gui();
       ImGui::End();
@@ -132,17 +135,6 @@ public:
     mRender = meshRender;
     }
   //}}}
-  void setModelIndex (int modelIndex) { mModelIndex = modelIndex; }
-  //{{{
-  void setUseSplatRender (bool useSplatRender) { 
-    mUseSplatRender = useSplatRender; 
-    if (mUseSplatRender)
-      mRender = mSplatRender;
-    else
-      mRender = mMeshRender;
-    mRender->use (mMultiSample, mBackFaceCull);
-    }
-  //}}}
 
   // vars
   cModel* mModel;
@@ -205,8 +197,6 @@ int main (int numArgs, char* args[]) {
   else {
     splatApp.mModel = new cSurfelModel (fileName);
     splatApp.setSplatRender (new cSplatRender (splatApp));
-    splatApp.setModelIndex (4);
-    splatApp.setUseSplatRender (true);
     }
 
   return splatApp.mainUILoop();

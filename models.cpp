@@ -147,6 +147,7 @@ void cModel::setVertexNormals() {
 //{{{
 cSurfelModel::cSurfelModel (const string& fileName) {
   createPiccy (fileName);
+  mSelectable = false;
   }
 //}}}
 //{{{
@@ -326,14 +327,18 @@ void cSurfelModel::createChecker (size_t width, size_t height) {
 
   cLog::log (LOGINFO, fmt::format ("createChecker {}x{}", width, height));
 
+  mVertices.clear();
+  mFaces.clear();
+  mNormals.clear();
+  mRefVertices.clear();
+  mRefNormals.clear();
+
   const float dw = 1.0f / static_cast<float>(2 * width);
   const float dh = 1.0f / static_cast<float>(2 * height);
   cSurfel surfel (Eigen::Vector3f::Zero(),
                   2.0f * dw * Eigen::Vector3f::UnitX(),
                   2.0f * dh * Eigen::Vector3f::UnitY(),
-                  Eigen::Vector3f::Zero(),
-                  0);
-
+                  Eigen::Vector3f::Zero(), 0);
   mModel.resize (4 * width * height);
 
   size_t m = 0;
@@ -386,6 +391,12 @@ void cSurfelModel::createChecker (size_t width, size_t height) {
 //}}}
 //{{{
 void cSurfelModel::createPiccy (const string& filename) {
+
+  mVertices.clear();
+  mFaces.clear();
+  mNormals.clear();
+  mRefVertices.clear();
+  mRefNormals.clear();
 
   FILE* file = fopen (filename.c_str(), "rb");
   if (!file) {
@@ -441,6 +452,12 @@ void cSurfelModel::createPiccy (const string& filename) {
 //}}}
 //{{{
 void cSurfelModel::createCube() {
+
+  mVertices.clear();
+  mFaces.clear();
+  mNormals.clear();
+  mRefVertices.clear();
+  mRefNormals.clear();
 
   cLog::log (LOGINFO, fmt::format ("createCube"));
 

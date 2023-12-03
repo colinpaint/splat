@@ -20,6 +20,8 @@ public:
   size_t getNumNormals() const { return mNormals.size(); }
   size_t getNumFaces() const { return mFaces.size(); }
 
+  size_t isSelectable() const { return mSelectable; }
+
   float* getVerticesData() { return (float*)mVertices.front().data(); }
   float* getNormalsData() { return (float*)mNormals.front().data(); }
   float* getFacesData() { return (float*)mFaces.front().data(); }
@@ -35,6 +37,7 @@ public:
   std::vector <std::array <unsigned int,3>> mFaces;
 
   float mTime = 0.f;
+  bool mSelectable = true;
 
 private:
   void setVertexNormals();
