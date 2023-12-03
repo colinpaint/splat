@@ -37,7 +37,7 @@ public:
   int mainUILoop();
 
   static std::string getGlErrorString (GLenum gl_error);
-  static std::string getGlFramebufferStatusString (GLenum framebuffer_status);
+  static std::string getGlFramebufferStatusString (GLenum framebufferStatus);
 
   // vars
   int mScreenWidth = 0;

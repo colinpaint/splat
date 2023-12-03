@@ -117,89 +117,66 @@ void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiS
 //}}}
 
 //{{{
-string cApp::getGlErrorString (GLenum gl_error) {
+string cApp::getGlErrorString (GLenum glError) {
 
-   string error_string;
-
-   switch (gl_error) {
+  switch (glError) {
     case GL_NO_ERROR:
-      error_string = "GL_NO_ERROR";
-      break;
+      return "GL_NO_ERROR";
 
     case GL_INVALID_ENUM:
-      error_string = "GL_INVALID_ENUM";
-      break;
+      return "GL_INVALID_ENUM";
 
     case GL_INVALID_VALUE:
-      error_string = "GL_INVALID_VALUE";
-      break;
+      return "GL_INVALID_VALUE";
 
     case GL_INVALID_OPERATION:
-      error_string = "GL_INVALID_OPERATION";
-      break;
+      return "GL_INVALID_OPERATION";
 
     case GL_INVALID_FRAMEBUFFER_OPERATION:
-      error_string = "GL_INVALID_FRAMEBUFFER_OPERATION";
-      break;
+      return "GL_INVALID_FRAMEBUFFER_OPERATION";
 
     case GL_OUT_OF_MEMORY:
-      error_string = "GL_OUT_OF_MEMORY";
-      break;
+      return "GL_OUT_OF_MEMORY";
 
     default:
-      error_string = "UNKNOWN";
+      return "UNKNOWN";
     }
-
-  return error_string;
   }
 //}}}
 //{{{
-string cApp::getGlFramebufferStatusString (GLenum framebuffer_status) {
+string cApp::getGlFramebufferStatusString (GLenum framebufferStatus) {
 
-  string status_string;
-
-  switch (framebuffer_status) {
+  switch (framebufferStatus) {
     case GL_FRAMEBUFFER_COMPLETE:
-      status_string = "GL_FRAMEBUFFER_COMPLETE";
-      break;
+      return "GL_FRAMEBUFFER_COMPLETE";
 
     case GL_FRAMEBUFFER_UNDEFINED:
-      status_string = "GL_FRAMEBUFFER_UNDEFINED";
-      break;
+      return "GL_FRAMEBUFFER_UNDEFINED";
 
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
 
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
 
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
 
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
 
     case GL_FRAMEBUFFER_UNSUPPORTED:
-      status_string = "GL_FRAMEBUFFER_UNSUPPORTED";
-      break;
+      return "GL_FRAMEBUFFER_UNSUPPORTED";
 
     case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
 
    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-      status_string = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-      break;
+      return "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
 
     default:
-      status_string = "UNKNOWN";
+      return "UNKNOWN";
     }
-
-  return status_string;
   }
 //}}}
 
@@ -217,8 +194,9 @@ void cApp::toggleFullScreen() {
 //{{{
 int cApp::mainUILoop() {
 
-  Uint32 last_time = 0;
+  SDL_GL_SetSwapInterval (1);
 
+  Uint32 last_time = 0;
   while (!processEvents()) {
     if (mTimerCallback) {
       const Uint32 time = SDL_GetTicks();
