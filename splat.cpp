@@ -126,15 +126,15 @@ public:
   cRender* getRender() { return mRender; }
 
   //{{{
-  void setSplatRender (cSplatRender* splatRender) {
-    mSplatRender = splatRender;
-    mRender = splatRender;
-    }
-  //}}}
-  //{{{
   void setMeshRender (cMeshRender* meshRender) {
     mMeshRender = meshRender;
     mRender = meshRender;
+    }
+  //}}}
+  //{{{
+  void setSplatRender (cSplatRender* splatRender) {
+    mSplatRender = splatRender;
+    mRender = splatRender;
     }
   //}}}
 
@@ -158,6 +158,7 @@ private:
 //}}}
 
 int main (int numArgs, char* args[]) {
+
   string fileName;
   bool fullScreen = false;
   bool multiSample = false;
