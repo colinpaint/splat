@@ -17,6 +17,8 @@
 
 #include "../imgui/imgui.h"
 
+#include "../app/cApp.h"
+
 #include "cMeshRender.h"
 #include "cSplatRender.h"
 #include "models.h"

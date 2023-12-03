@@ -137,15 +137,19 @@ namespace {
       "EmitVertex();",
 
       "gl_Position = gl_in[2].gl_Position;",
+
       "#if SMOOTH",
         "Out.normal = In[2].normal;",
       "#else",
         "Out.normal = normal;",
       "#endif",
+
       "Out.position = In[2].position;",
+
       "#if WIREFRAME",
         "Out.distance = vec3(0.0, 0.0, area / length(w1 - w0));",
       "#endif",
+
       "EmitVertex();",
       "}"
     };
