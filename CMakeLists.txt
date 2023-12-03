@@ -8,7 +8,7 @@ add_subdirectory (app)
 # splat dragon
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
-                                  cRender.h cRender.cpp
+                                  cRender.h models models.cpp
                                   cMeshRender.h cMeshRender.cpp
                                   cSplatRender.h cSplatRender.cpp)
   target_link_libraries (${PROJECT_NAME} PRIVATE app)

@@ -87,9 +87,9 @@ public:
   cVertexArray mVertexArrayV;
   cVertexArray mVertexArrayVf;
   cVertexArray mVertexArrayVnf;
-  cArrayBuffer mVertexArrayBuffer;
-  cArrayBuffer mNormalArrayBuffer;
-  cElementArrayBuffer mIndexArrayBuffer;
+  cArray mVertexArrayBuffer;
+  cArray mNormalArrayBuffer;
+  cElementArray mIndexArrayBuffer;
 
   cUniformMaterial mUniformMaterial;
   cUniformWireFrame mUniformWireFrame;

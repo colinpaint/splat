@@ -37,7 +37,7 @@ public:
   void compile (std::map<std::string, int> const& define_list = std::map<std::string, int>());
   bool isCompiled() const;
 
-  std::string infolog();
+  std::string infoLog();
 
 protected:
   cShader();
@@ -77,14 +77,14 @@ public:
     void unuse() const;
     void link();
 
-    void attach_shader(cShader& shader);
-    void detach_shader(cShader& shader);
+    void attachShader(cShader& shader);
+    void detachShader(cShader& shader);
 
-    void detach_all();
+    void detachAll();
 
-    bool is_linked();
-    bool is_attached(cShader const& shader);
-    std::string infolog();
+    bool isLinked();
+    bool isAttached(cShader const& shader);
+    std::string infoLog();
 
     void setUniform1i (GLchar const* name, GLint value);
     void setUniformBind (GLchar const* name, GLuint blockBind);

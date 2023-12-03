@@ -1,62 +1,51 @@
 #pragma once
 #include <GL/glew.h>
 
-//{{{
+// cVertexArray
 class cVertexArray {
 public:
   cVertexArray();
   ~cVertexArray();
-
   void bind();
   void unbind();
-
 private:
-  GLuint m_vertex_array_obj;
+  GLuint mVertexArray;
   };
-//}}}
-//{{{
-class cArrayBuffer {
+
+// cArray
+class cArray {
 public:
-  cArrayBuffer();
-  ~cArrayBuffer();
-
+  cArray();
+  ~cArray();
   void bind();
   void unbind();
-  void set(GLsizeiptr size, GLvoid const* ptr);
-
+  void set (GLsizeiptr size, GLvoid const* ptr);
 private:
-  GLuint m_array_buffer_obj;
+  GLuint mArray;
   };
-//}}}
-//{{{
-class cElementArrayBuffer {
+
+// cElementArray
+class cElementArray {
 public:
-  cElementArrayBuffer();
-  ~cElementArrayBuffer();
-
+  cElementArray();
+  ~cElementArray();
   void bind();
   void unbind();
-  void set(GLsizeiptr size, GLvoid const* ptr);
-
+  void set (GLsizeiptr size, GLvoid const* ptr);
 private:
-  GLuint m_element_array_buffer_obj;
+  GLuint mElementArray;
   };
-//}}}
-//{{{
+
+// cUniform
 class cUniform {
 public:
   cUniform();
-  cUniform(GLsizeiptr size);
-
+  cUniform (GLsizeiptr size);
   ~cUniform();
-
   void bindBufferBase (GLuint index);
-
 protected:
   void bind();
   void unbind();
-
 private:
-  GLuint m_uniform_buffer_obj;
+  GLuint mUniform;
   };
-//}}}

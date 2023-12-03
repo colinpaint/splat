@@ -17,17 +17,17 @@ public:
   cCamera& getCamera() { return mCamera; };
 
   // callbacks
-  void cApp::setGuiCallback (std::function<void()> guiCallback) { mGuiCallback = guiCallback; }
-  void cApp::setDisplayCallback (std::function<void()> displayCallback) { mDisplayCallback = displayCallback; }
-  void cApp::setCloseCallback (std::function<void()> closeCallback) { mCloseCallback = closeCallback; }
-  void cApp::setTimerCallback (std::function<void()> timerCallback) { mTimerCallback = timerCallback; }
+  void setGuiCallback (std::function<void()> guiCallback) { mGuiCallback = guiCallback; }
+  void setDisplayCallback (std::function<void()> displayCallback) { mDisplayCallback = displayCallback; }
+  void setCloseCallback (std::function<void()> closeCallback) { mCloseCallback = closeCallback; }
+  void setTimerCallback (std::function<void()> timerCallback) { mTimerCallback = timerCallback; }
   //{{{
-  void cApp::setKeyboardCallback (std::function<void (SDL_Keycode)> keyboardCallback) {
+  void setKeyboardCallback (std::function<void (SDL_Keycode)> keyboardCallback) {
     mKeyboardCallback = keyboardCallback;
     }
   //}}}
   //{{{
-  void cApp::setResizeCallback (std::function<void (int width, int height)> resizeCallback) {
+  void setResizeCallback (std::function<void (int width, int height)> resizeCallback) {
     mResizeCallback = resizeCallback;
     }
   //}}}

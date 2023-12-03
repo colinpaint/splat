@@ -63,7 +63,7 @@ void cShader::compile (map<string, int> const& define_list) {
   glCompileShader (mShader);
 
   if (!isCompiled())
-    throw shader_compilation_error (infolog());
+    throw shader_compilation_error (infoLog());
   }
 //}}}
 //{{{
@@ -77,7 +77,7 @@ bool cShader::isCompiled() const {
 //}}}
 
 //{{{
-string cShader::infolog() {
+string cShader::infoLog() {
 
   GLint infoLogLength = 0;
   glGetShaderiv (mShader, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -98,27 +98,27 @@ cProgram::cProgram() : mProgram(glCreateProgram()) { }
 //{{{
 cProgram::~cProgram() {
 
-  detach_all();
+  detachAll();
   glDeleteProgram (mProgram);
   }
 //}}}
 
-void cProgram::use() const { glUseProgram(mProgram); }
-void cProgram::unuse() const { glUseProgram(0); }
+void cProgram::use() const { glUseProgram (mProgram); }
+void cProgram::unuse() const { glUseProgram (0); }
 
 //{{{
 void cProgram::link() {
 
   glLinkProgram (mProgram);
-  if (!is_linked())
-    throw shader_link_error (infolog());
+  if (!isLinked())
+    throw shader_link_error (infoLog());
   }
 //}}}
 
-void cProgram::attach_shader (cShader& shader) { glAttachShader (mProgram, shader.mShader); }
-void cProgram::detach_shader (cShader& shader) { glDetachShader (mProgram, shader.mShader); }
+void cProgram::attachShader (cShader& shader) { glAttachShader (mProgram, shader.mShader); }
+void cProgram::detachShader (cShader& shader) { glDetachShader (mProgram, shader.mShader); }
 //{{{
-void cProgram::detach_all() {
+void cProgram::detachAll() {
 
   GLsizei count;
   GLuint shader[64];
@@ -130,16 +130,16 @@ void cProgram::detach_all() {
 //}}}
 
 //{{{
-bool cProgram::is_linked() {
+bool cProgram::isLinked() {
 
   GLint status;
-  glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
+  glGetProgramiv (mProgram, GL_LINK_STATUS, &status);
 
   return (status == GL_TRUE);
   }
 //}}}
 //{{{
-bool cProgram::is_attached (cShader const& shader) {
+bool cProgram::isAttached (cShader const& shader) {
 
   GLint number_shader_attached;
   glGetProgramiv (mProgram, GL_ATTACHED_SHADERS, &number_shader_attached);
@@ -157,7 +157,7 @@ bool cProgram::is_attached (cShader const& shader) {
 //}}}
 
 //{{{
-string cProgram::infolog() {
+string cProgram::infoLog() {
 
   GLint infoLogLength = 0;
   glGetProgramiv (mProgram, GL_INFO_LOG_LENGTH, &infoLogLength);

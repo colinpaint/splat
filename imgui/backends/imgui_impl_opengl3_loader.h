@@ -305,9 +305,9 @@ typedef void (APIENTRYP PFNGLDISABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef void (APIENTRYP PFNGLENABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef GLint (APIENTRYP PFNGLGETATTRIBLOCATIONPROC) (GLuint program, const GLchar *name);
 typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint *params);
-typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void (APIENTRYP PFNGLGETPROGRAMinfoLogPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 typedef void (APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint *params);
-typedef void (APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void (APIENTRYP PFNGLGETSHADERinfoLogPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 typedef GLint (APIENTRYP PFNGLGETUNIFORMLOCATIONPROC) (GLuint program, const GLchar *name);
 typedef void (APIENTRYP PFNGLGETVERTEXATTRIBIVPROC) (GLuint index, GLenum pname, GLint *params);
 typedef void (APIENTRYP PFNGLGETVERTEXATTRIBPOINTERVPROC) (GLuint index, GLenum pname, void **pointer);
@@ -331,9 +331,9 @@ GLAPI void APIENTRY glDisableVertexAttribArray (GLuint index);
 GLAPI void APIENTRY glEnableVertexAttribArray (GLuint index);
 GLAPI GLint APIENTRY glGetAttribLocation (GLuint program, const GLchar *name);
 GLAPI void APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint *params);
-GLAPI void APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+GLAPI void APIENTRY glGetPrograminfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 GLAPI void APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint *params);
-GLAPI void APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+GLAPI void APIENTRY glGetShaderinfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 GLAPI GLint APIENTRY glGetUniformLocation (GLuint program, const GLchar *name);
 GLAPI void APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint *params);
 GLAPI void APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, void **pointer);
@@ -505,9 +505,9 @@ union ImGL3WProcs {
         PFNGLGETATTRIBLOCATIONPROC        GetAttribLocation;
         PFNGLGETERRORPROC                 GetError;
         PFNGLGETINTEGERVPROC              GetIntegerv;
-        PFNGLGETPROGRAMINFOLOGPROC        GetProgramInfoLog;
+        PFNGLGETPROGRAMinfoLogPROC        GetPrograminfoLog;
         PFNGLGETPROGRAMIVPROC             GetProgramiv;
-        PFNGLGETSHADERINFOLOGPROC         GetShaderInfoLog;
+        PFNGLGETSHADERinfoLogPROC         GetShaderinfoLog;
         PFNGLGETSHADERIVPROC              GetShaderiv;
         PFNGLGETSTRINGPROC                GetString;
         PFNGLGETSTRINGIPROC               GetStringi;
@@ -570,9 +570,9 @@ GL3W_API extern union ImGL3WProcs imgl3wProcs;
 #define glGetAttribLocation               imgl3wProcs.gl.GetAttribLocation
 #define glGetError                        imgl3wProcs.gl.GetError
 #define glGetIntegerv                     imgl3wProcs.gl.GetIntegerv
-#define glGetProgramInfoLog               imgl3wProcs.gl.GetProgramInfoLog
+#define glGetPrograminfoLog               imgl3wProcs.gl.GetPrograminfoLog
 #define glGetProgramiv                    imgl3wProcs.gl.GetProgramiv
-#define glGetShaderInfoLog                imgl3wProcs.gl.GetShaderInfoLog
+#define glGetShaderinfoLog                imgl3wProcs.gl.GetShaderinfoLog
 #define glGetShaderiv                     imgl3wProcs.gl.GetShaderiv
 #define glGetString                       imgl3wProcs.gl.GetString
 #define glGetStringi                      imgl3wProcs.gl.GetStringi
@@ -769,9 +769,9 @@ static const char *proc_names[] = {
     "glGetAttribLocation",
     "glGetError",
     "glGetIntegerv",
-    "glGetProgramInfoLog",
+    "glGetPrograminfoLog",
     "glGetProgramiv",
-    "glGetShaderInfoLog",
+    "glGetShaderinfoLog",
     "glGetShaderiv",
     "glGetString",
     "glGetStringi",

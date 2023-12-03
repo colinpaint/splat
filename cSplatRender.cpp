@@ -6,6 +6,8 @@
 #include "app/cApp.h"
 #include "../imgui/imgui.h"
 
+#include "models.h"
+
 using namespace std;
 //}}}
 namespace {
@@ -721,11 +723,11 @@ void cProgramAttribute::initShader() {
 void cProgramAttribute::initProgram() {
 
   try {
-    detach_all();
+    detachAll();
 
-    attach_shader (mAttributeVs);
-    attach_shader (mAttributeFs);
-    attach_shader (mLightVs);
+    attachShader (mAttributeVs);
+    attachShader (mAttributeFs);
+    attachShader (mLightVs);
 
     // edit shader defines
     map <string, int> defines;
@@ -800,9 +802,9 @@ void cProgramFinal::initShader() {
   mFinalFs.load (kFinalFsGlsl);
   mLightFs.load (kLightGlsl);
 
-  attach_shader (mFinalVs);
-  attach_shader (mFinalFs);
-  attach_shader (mLightFs);
+  attachShader (mFinalVs);
+  attachShader (mFinalFs);
+  attachShader (mLightFs);
   }
 //}}}
 //{{{
@@ -1063,11 +1065,11 @@ void cFrameBuffer::setMultiSample (bool enable) {
     #ifndef NDEBUG
       GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
       if (status != GL_FRAMEBUFFER_COMPLETE)
-        cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
+        cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlFramebufferStatusString (status)));
 
       GLenum gl_error = glGetError();
       if (GL_NO_ERROR != gl_error)
-        cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
+        cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlErrorString (gl_error)));
     #endif
 
     unbind();
@@ -1124,11 +1126,11 @@ void cFrameBuffer::resize (GLint width, GLint height) {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlFramebufferStatusString (status)));
 
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
+      cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlErrorString (gl_error)));
   #endif
 
   unbind();
@@ -1160,7 +1162,7 @@ void cFrameBuffer::initialize() {
   #ifndef NDEBUG
     GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      cLog::log (LOGERROR, fmt::format ("{}", getGlFramebufferStatusString (status)));
+      cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlFramebufferStatusString (status)));
   #endif
   }
 //}}}
@@ -1201,9 +1203,9 @@ void cFrameBuffer::removeDeleteAttachments() {
 // cSplatRender
 //{{{
 cSplatRender::cSplatRender (cApp& app) : cRender(app),
-                                         mSmooth(false), 
+                                         mSmooth(false),
                                          mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
-                                         mEwaFilter(false), mEwaRadius(1.0f), 
+                                         mEwaFilter(false), mEwaRadius(1.0f),
                                          mPointSizeType(0), mRadiusScale(1.0f) {
   use (mMultiSample, mBackFaceCull);
 
@@ -1426,7 +1428,7 @@ void cSplatRender::display (cModel* model) {
   #ifndef NDEBUG
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error)
-      cLog::log (LOGERROR, fmt::format ("{}", getGlErrorString (gl_error)));
+      cLog::log (LOGERROR, fmt::format ("{}", cApp::getGlErrorString (gl_error)));
   #endif
   }
 //}}}

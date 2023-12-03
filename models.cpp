@@ -8,7 +8,8 @@
 #include <thread>
 #include <exception>
 
-#include "app/cCamera.h"
+#include <Eigen/Core>
+#include <Eigen/Dense>
 
 //{{{  include stb
 // invoke header only library implementation here
@@ -25,10 +26,9 @@
 #endif
 //}}}
 
-#include "../common/date.h"
 #include "../common/cLog.h"
 
-#include "cRender.h"
+#include "models.h"
 
 using namespace std;
 //}}}
@@ -144,6 +144,11 @@ void cModel::setVertexNormals() {
 //}}}
 
 // cSurfelModel
+//{{{
+cSurfelModel::cSurfelModel (const string& fileName) {
+  createPiccy (fileName);
+  }
+//}}}
 //{{{
 void cSurfelModel::load (int modelIndex) {
 

@@ -8,6 +8,8 @@
 #include "app/cApp.h"
 #include "../imgui/imgui.h"
 
+#include "models.h"
+
 using namespace std;
 //}}}
 namespace {
@@ -366,9 +368,9 @@ void cProgramMesh::initShader() {
   mMeshVs.load (kMeshVsGlsl);
   mMeshGs.load (kMeshGsGlsl);
   mMeshFs.load (kMeshFsGlsl);
-  attach_shader (mMeshVs);
-  attach_shader (mMeshGs);
-  attach_shader (mMeshFs);
+  attachShader (mMeshVs);
+  attachShader (mMeshGs);
+  attachShader (mMeshFs);
   }
 
 void cProgramMesh::initProgram() {
@@ -419,8 +421,8 @@ cProgramSphere::cProgramSphere() {
 void cProgramSphere::initShader() {
   mSphereVs.load (kSphereVsGlsl);
   mSphereFs.load (kSphereFsGlsl);
-  attach_shader (mSphereVs);
-  attach_shader (mSphereFs);
+  attachShader (mSphereVs);
+  attachShader (mSphereFs);
   }
 
 void cProgramSphere::initProgram() {

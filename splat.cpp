@@ -19,6 +19,7 @@
 
 #include "cMeshRender.h"
 #include "cSplatRender.h"
+#include "models.h"
 
 using namespace std;
 //}}}
@@ -50,8 +51,9 @@ public:
         mRender->use (mMultiSample, mBackFaceCull);
         }
 
-      if (ImGui::Checkbox ("multiSample", &mMultiSample))
-        mRender->setMultiSample (mMultiSample);
+      if (mMultiSample)
+        if (ImGui::Checkbox ("multiSample", &mMultiSample))
+          mRender->setMultiSample (mMultiSample);
 
       if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
         mRender->setBackFaceCull (mBackFaceCull);
@@ -127,11 +129,14 @@ public:
     mRender = meshRender;
     }
   //}}}
+  void setModelIndex (int modelIndex) { mModelIndex = modelIndex; }
+  void getUseSplatRender (bool useSplatRender) { mUseSplatRender = useSplatRender; }
 
   // vars
   cModel* mModel;
 
 private:
+  //{{{  vars
   bool mMultiSample = false;
   bool mBackFaceCull = false;
 
@@ -142,13 +147,15 @@ private:
   cMeshRender* mMeshRender;
   cRender* mRender;
   bool mUseSplatRender = false;
+  //}}}
   };
 //}}}
 
 int main (int numArgs, char* args[]) {
-  eLogLevel logLevel = LOGINFO;
+  string fileName;
   bool fullScreen = false;
   bool multiSample = false;
+  eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
   for (int i = 1; i < numArgs; i++) {
@@ -163,8 +170,12 @@ int main (int numArgs, char* args[]) {
       fullScreen = true;
     else if (param == "multi")
       multiSample = true;
+    else
+      // assume filename
+      fileName = param;
     }
   //}}}
+
   cLog::init (logLevel);
   cLog::log (LOGNOTICE, "splat");
 
@@ -173,11 +184,18 @@ int main (int numArgs, char* args[]) {
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  splatApp.mModel = new cSurfelModel();
-  splatApp.mModel->load (splatApp.getModelIndex());
-
-  splatApp.setSplatRender (new cSplatRender (splatApp));
-  splatApp.setMeshRender (new cMeshRender (splatApp));
+  if (fileName.empty()) {
+    splatApp.mModel = new cSurfelModel();
+    splatApp.getModel()->load (splatApp.getModelIndex());
+    splatApp.setSplatRender (new cSplatRender (splatApp));
+    splatApp.setMeshRender (new cMeshRender (splatApp));
+    }
+  else {
+    splatApp.mModel = new cSurfelModel (fileName);
+    splatApp.setModelIndex (4);
+    splatApp.setMeshRender (new cMeshRender (splatApp));
+    splatApp.setSplatRender (new cSplatRender (splatApp));
+    }
 
   return splatApp.mainUILoop();
   }
