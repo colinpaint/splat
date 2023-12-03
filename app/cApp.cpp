@@ -24,10 +24,11 @@ namespace {
   }
 
 //{{{
-void cApp::init (int screenWidth, int screenHeight) {
+void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiSample) {
 
   mScreenWidth = screenWidth;
   mScreenHeight = screenHeight;
+  mFullScreen = fullScreen;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     //{{{  error,return
@@ -48,11 +49,12 @@ void cApp::init (int screenWidth, int screenHeight) {
   //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-  // no WSL
-  cLog::log (LOGINFO, "multiSample disabled");
-  //SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 1);
-  //SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
-
+  if (multiSample) {
+    //{{{  multiSample
+    SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+    }
+    //}}}
   mSdlWindow = SDL_CreateWindow ("app", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                  mScreenWidth, mScreenHeight,
                                  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);

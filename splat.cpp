@@ -29,17 +29,16 @@ public:
   cSplatApp() : cApp() {}
   virtual ~cSplatApp() = default;
 
-  void init (int width, int height) {
-    cApp::init (width, height);
+  void init (int width, int height, bool fullScreen, bool multiSample) {
+    cApp::init (width, height, fullScreen, multiSample);
 
-    //resize (splatApp.getScreenWidth(), splatApp.getScreenHeight());
     setDisplayCallback ([this] {
       //{{{  display lambda
       mRender->display (mModel);
       });
       //}}}
     setGuiCallback ([this] {
-      //{{{  gui
+      //{{{  gui lambda
       ImGui::Begin ("splat", nullptr);
       ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
 
@@ -81,7 +80,7 @@ public:
         mModel->ripple();
       });
       //}}}
-    setKeyboardCallback ([this](SDL_Keycode key) noexcept {
+    setKeyboardCallback ([this](SDL_Keycode key) {
       //{{{  keyboard lambda
       if (!mRender->keyboard (key))
         switch (key) {
@@ -93,7 +92,7 @@ public:
           }
         });
       //}}}
-    setResizeCallback ([this](int width, int height) noexcept {
+    setResizeCallback ([this](int width, int height) {
       //{{{  resize lambda
       const float aspect = static_cast<float>(width) / static_cast<float>(height);
       glViewport (0, 0, width, height);
@@ -104,7 +103,38 @@ public:
     mResizeCallback (width, height);
     }
 
+  cModel* getModel() { return mModel; }
+  int getModelIndex() { return mModelIndex; }
+  bool getRipple() const { return mRipple; }
+
+  bool getUseSplatRender() const { return mUseSplatRender; }
+  bool getMultiSample() const { return mMultiSample; }
+  bool getBackFaceCull() const { return mBackFaceCull; }
+
+  cSplatRender* getSplatRender() { return mSplatRender; }
+  cMeshRender* getMeshRender() { return mMeshRender; }
+  cRender* getRender() { return mRender; }
+
+  //{{{
+  void setSplatRender (cSplatRender* splatRender) {
+    mSplatRender = splatRender;
+    mRender = splatRender;
+    }
+  //}}}
+  //{{{
+  void setMeshRender (cMeshRender* meshRender) {
+    mMeshRender = meshRender;
+    mRender = meshRender;
+    }
+  //}}}
+
+  // vars
   cModel* mModel;
+
+private:
+  bool mMultiSample = false;
+  bool mBackFaceCull = false;
+
   int mModelIndex = 0;
   bool mRipple = false;
 
@@ -112,14 +142,13 @@ public:
   cMeshRender* mMeshRender;
   cRender* mRender;
   bool mUseSplatRender = false;
-
-  bool mMultiSample = false;
-  bool mBackFaceCull = false;
   };
 //}}}
 
 int main (int numArgs, char* args[]) {
   eLogLevel logLevel = LOGINFO;
+  bool fullScreen = false;
+  bool multiSample = false;
   //{{{  parse commandLine to params
   // parse params
   for (int i = 1; i < numArgs; i++) {
@@ -130,21 +159,25 @@ int main (int numArgs, char* args[]) {
       logLevel = LOGINFO2;
     else if (param == "log3")
       logLevel = LOGINFO3;
+    else if (param == "full")
+      fullScreen = true;
+    else if (param == "multi")
+      multiSample = true;
     }
   //}}}
   cLog::init (logLevel);
   cLog::log (LOGNOTICE, "splat");
 
   cSplatApp splatApp;
-  splatApp.init (960, 540);
+  splatApp.init (960, 540, fullScreen, multiSample);
+
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
   splatApp.mModel = new cSurfelModel();
-  splatApp.mModel->load (splatApp.mModelIndex);
+  splatApp.mModel->load (splatApp.getModelIndex());
 
-  splatApp.mSplatRender = new cSplatRender (splatApp);
-  splatApp.mMeshRender = new cMeshRender (splatApp);
-  splatApp.mRender = splatApp.mMeshRender;
+  splatApp.setSplatRender (new cSplatRender (splatApp));
+  splatApp.setMeshRender (new cMeshRender (splatApp));
 
   return splatApp.mainUILoop();
   }

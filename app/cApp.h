@@ -10,7 +10,7 @@ public:
   cApp() {}
   virtual ~cApp() = default;
 
-  void init (int screenWidth, int screen_height);
+  void init (int screenWidth, int screen_height, bool fullScreen, bool multiSample);
 
   int getScreenWidth() const { return mScreenWidth; };
   int getScreenHeight() const { return mScreenHeight; };
@@ -42,10 +42,10 @@ public:
   // vars
   int mScreenWidth = 0;
   int mScreenHeight = 0;
+  bool mFullScreen = false;
 
   cCamera mCamera;
 
-  bool mFullScreen = false;
   unsigned int mTimerMs = 40;
 
   std::function<void()> mGuiCallback;
