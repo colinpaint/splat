@@ -1,9 +1,8 @@
 project (app VERSION 1.0.0)
   add_library (${PROJECT_NAME} cApp.h cApp.cpp
                                cCamera.h cCamera.cpp
-                               shader.h shader.cpp
-                               trackball.h trackball.cpp
-                               buffer.h buffer.cpp)
+                               shaders.h shaders.cpp
+                               baseClasses.h baseClasses.cpp)
 
   target_include_directories (${PROJECT_NAME} PUBLIC ../ ../glew/include ../imgui)
 

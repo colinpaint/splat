@@ -249,7 +249,7 @@ void cApp::mouse (int button, int state, int x, int y) {
 
   const float xf = static_cast<float>(x) / static_cast<float>(mScreenWidth);
   const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
-  mCamera.trackball_begin_motion (xf, yf);
+  mCamera.trackballBeginMotion (xf, yf);
   }
 //}}}
 //{{{
@@ -258,11 +258,11 @@ void cApp::motion (int state, int x, int y) {
   const float xf = static_cast<float>(x) / static_cast<float>(mScreenWidth);
   const float yf = static_cast<float>(y) / static_cast<float>(mScreenHeight);
   if (state & SDL_BUTTON_LMASK)
-    mCamera.trackball_end_motion_rotate (xf, yf);
+    mCamera.trackballEndMotionRotate (xf, yf);
   else if (state & SDL_BUTTON_RMASK)
-    mCamera.trackball_end_motion_zoom (xf, yf);
+    mCamera.trackballEndMotionZoom (xf, yf);
   else if (state & SDL_BUTTON_MMASK)
-    mCamera.trackball_end_motion_translate (xf, yf);
+    mCamera.trackballEndMotionTranslate (xf, yf);
   }
 //}}}
 //{{{

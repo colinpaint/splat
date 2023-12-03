@@ -104,7 +104,7 @@ public:
       //{{{  resize lambda
       const float aspect = static_cast<float>(width) / static_cast<float>(height);
       glViewport (0, 0, width, height);
-      getCamera().set_perspective(60.0f, aspect, 0.005f, 5.0f);
+      getCamera().setPerspective(60.0f, aspect, 0.005f, 5.0f);
       });
       //}}}
 

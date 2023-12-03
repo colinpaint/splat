@@ -607,7 +607,7 @@ void cMeshRender::display (cModel* model) {
   if (mDisplaySpheres) {
     mUniformMaterial.set (mPointsMaterial);
 
-    Frustum view_frustum = mApp.getCamera().get_frustum();
+    cFrustum view_frustum = mApp.getCamera().getFrustum();
     mProjectionRadius =
       view_frustum.near_() * (mApp.getScreenHeight() / (view_frustum.top() - view_frustum.bottom()));
     mUniformWireSphere.set (mPointRadius, mProjectionRadius);

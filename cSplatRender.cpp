@@ -1550,11 +1550,11 @@ void cSplatRender::setupUniforms (cProgram& program) {
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
-  Frustum view_frustum = mApp.getCamera().get_frustum();
-  mUniformRaycast.set (mApp.getCamera().get_projection_matrix().inverse(), viewport);
+  cFrustum view_frustum = mApp.getCamera().getFrustum();
+  mUniformRaycast.set (mApp.getCamera().getProjectionMatrix().inverse(), viewport);
 
   Eigen::Vector4f frustum_plane[6];
-  Eigen::Matrix4f const& projection_matrix = mApp.getCamera().get_projection_matrix();
+  Eigen::Matrix4f const& projection_matrix = mApp.getCamera().getProjectionMatrix();
   for (unsigned int i = 0; i < 6; ++i)
     frustum_plane[i] =
       projection_matrix.row(3) + (-1.0f + 2.0f * static_cast<float>(i % 2)) * projection_matrix.row(i / 2);

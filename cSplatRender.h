@@ -1,7 +1,7 @@
 #pragma once
 #include "cRender.h"
-#include "app/shader.h"
-#include "app/buffer.h"
+#include "app/shaders.h"
+#include "app/baseClasses.h"
 
 //{{{
 class cUniformRaycast : public cUniform {

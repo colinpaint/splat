@@ -1,7 +1,7 @@
 #pragma once
 #include "cRender.h"
-#include "app/buffer.h"
-#include "app/shader.h"
+#include "app/baseClasses.h"
+#include "app/shaders.h"
 
 //{{{
 class cUniformMaterial : public cUniform {
