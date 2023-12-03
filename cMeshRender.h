@@ -37,9 +37,9 @@ private:
   void initShader();
   void initProgram();
 
-  cVertexShader mMeshVs;
-  cGeometryShader mMeshGs;
-  cFragmentShader mMeshFs;
+  cVertexShader mMeshVertexShader;
+  cGeometryShader mMeshGeometryShader;
+  cFragmentShader mMeshFragmentShader;
 
   bool mWireFrame;
   bool mSmooth;
@@ -54,8 +54,8 @@ private:
   void initShader();
   void initProgram();
 
-  cVertexShader mSphereVs;
-  cFragmentShader mSphereFs;
+  cVertexShader mSphereVertexShader;
+  cFragmentShader mSphereFragmentShader;
   };
 //}}}
 

@@ -12,7 +12,7 @@ using namespace std;
 //}}}
 namespace {
   //{{{
-  const vector<string> kAttributeVsGlsl = {
+  const vector<string> kAttributeVertexShader = {
     "#version 330",
     "#define VISIBILITY_PASS 0",
     "#define BACKFACE_CULLING 0",
@@ -346,7 +346,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kAttributeFsGlsl = {
+  const vector<string> kAttributeFragmentShader = {
     "#version 330",
     "#define VISIBILITY_PASS 0",
     "#define SMOOTH 0",
@@ -461,7 +461,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kFinalVsGlsl = {
+  const vector<string> kFinalVertexShader = {
     "#version 330",
 
     "#define ATTR_POSITION 0",
@@ -482,7 +482,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kFinalFsGlsl = {
+  const vector<string> kFinalFragmentShader = {
     "#version 330",
     "#define MULTISAMPLING 0",
     "#define SMOOTH 0",
@@ -588,7 +588,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kLightGlsl = {
+  const vector<string> kLightVertexShader = {
     "#version 330",
 
     "vec3 light (vec3 normal_eye, vec3 v_eye, vec3 color, float shine) {"
@@ -714,9 +714,9 @@ void cProgramAttribute::setPointSizeType (unsigned int pointSizeType) {
 
 //{{{
 void cProgramAttribute::initShader() {
-  mAttributeVs.load (kAttributeVsGlsl);
-  mAttributeFs.load (kAttributeFsGlsl);
-  mLightVs.load (kLightGlsl);
+  mAttributeVertexShader.load (kAttributeVertexShader);
+  mLightVertexShader.load (kLightVertexShader);
+  mAttributeFragmentShader.load (kAttributeFragmentShader);
   }
 //}}}
 //{{{
@@ -725,9 +725,9 @@ void cProgramAttribute::initProgram() {
   try {
     detachAll();
 
-    attachShader (mAttributeVs);
-    attachShader (mAttributeFs);
-    attachShader (mLightVs);
+    attachShader (mAttributeVertexShader);
+    attachShader (mLightVertexShader);
+    attachShader (mAttributeFragmentShader);
 
     // edit shader defines
     map <string, int> defines;
@@ -738,9 +738,9 @@ void cProgramAttribute::initProgram() {
     defines.insert (make_pair ("COLOR_MATERIAL", mColorMaterial ? 1 : 0));
     defines.insert (make_pair ("POINTSIZE_METHOD", static_cast<int>(mPointSizeType)));
 
-    mAttributeVs.compile (defines);
-    mAttributeFs.compile (defines);
-    mLightVs.compile (defines);
+    mAttributeVertexShader.compile (defines);
+    mLightVertexShader.compile (defines);
+    mAttributeFragmentShader.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
@@ -798,13 +798,13 @@ void cProgramFinal::setSmooth (bool enable) {
 //{{{
 void cProgramFinal::initShader() {
 
-  mFinalVs.load (kFinalVsGlsl);
-  mFinalFs.load (kFinalFsGlsl);
-  mLightFs.load (kLightGlsl);
+  mFinalVertexShader.load (kFinalVertexShader);
+  mLightVertexShader.load (kLightVertexShader);
+  mFinalFragmentShader.load (kFinalFragmentShader);
 
-  attachShader (mFinalVs);
-  attachShader (mFinalFs);
-  attachShader (mLightFs);
+  attachShader (mFinalVertexShader);
+  attachShader (mLightVertexShader);
+  attachShader (mFinalFragmentShader);
   }
 //}}}
 //{{{
@@ -816,9 +816,9 @@ void cProgramFinal::initProgram() {
     defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
     defines.insert (make_pair ("MULTISAMPLING", mMulitSample ? 1 : 0));
 
-    mFinalVs.compile (defines);
-    mFinalFs.compile (defines);
-    mLightFs.compile (defines);
+    mFinalVertexShader.compile (defines);
+    mLightVertexShader.compile (defines);
+    mFinalFragmentShader.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed compile {}", e.what()));

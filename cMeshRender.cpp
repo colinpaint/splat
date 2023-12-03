@@ -14,7 +14,7 @@ using namespace std;
 //}}}
 namespace {
   //{{{
-  const vector<string> kMeshVsGlsl = {
+  const vector<string> kMeshVertexShader = {
     "#version 330",
     "#define SMOOTH 0",
 
@@ -53,7 +53,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kMeshGsGlsl = {
+  const vector<string> kMeshGeometryShader = {
     "#version 330",
     "#define SMOOTH 0",
     "#define WIREFRAME 0",
@@ -151,7 +151,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kMeshFsGlsl = {
+  const vector<string> kMeshFragmentShader = {
     "#version 330",
     "#define SMOOTH 0",
     "#define WIREFRAME 0",
@@ -221,7 +221,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kSphereVsGlsl = {
+  const vector<string> kSphereVertexShader = {
     "#version 330",
 
     "layout(std140, column_major) uniform Camera {"
@@ -252,7 +252,7 @@ namespace {
     };
   //}}}
   //{{{
-  const vector<string> kSphereFsGlsl = {
+  const vector<string> kSphereFragmentShader = {
     "#version 330",
 
     "layout(std140, column_major) uniform Camera {"
@@ -365,12 +365,12 @@ void cProgramMesh::setSmooth (bool enable) {
   }
 
 void cProgramMesh::initShader() {
-  mMeshVs.load (kMeshVsGlsl);
-  mMeshGs.load (kMeshGsGlsl);
-  mMeshFs.load (kMeshFsGlsl);
-  attachShader (mMeshVs);
-  attachShader (mMeshGs);
-  attachShader (mMeshFs);
+  mMeshVertexShader.load (kMeshVertexShader);
+  mMeshGeometryShader.load (kMeshGeometryShader);
+  mMeshFragmentShader.load (kMeshFragmentShader);
+  attachShader (mMeshVertexShader);
+  attachShader (mMeshGeometryShader);
+  attachShader (mMeshFragmentShader);
   }
 
 void cProgramMesh::initProgram() {
@@ -378,9 +378,9 @@ void cProgramMesh::initProgram() {
     map <string, int> defines;
     defines.insert (make_pair ("WIREFRAME", mWireFrame ? 1 : 0));
     defines.insert (make_pair ("SMOOTH", mSmooth ? 1 : 0));
-    mMeshVs.compile (defines);
-    mMeshGs.compile (defines);
-    mMeshFs.compile (defines);
+    mMeshVertexShader.compile (defines);
+    mMeshGeometryShader.compile (defines);
+    mMeshFragmentShader.compile (defines);
     }
   catch (shader_compilation_error const& e) {
     //{{{  error, return
@@ -419,16 +419,16 @@ cProgramSphere::cProgramSphere() {
   }
 
 void cProgramSphere::initShader() {
-  mSphereVs.load (kSphereVsGlsl);
-  mSphereFs.load (kSphereFsGlsl);
-  attachShader (mSphereVs);
-  attachShader (mSphereFs);
+  mSphereVertexShader.load (kSphereVertexShader);
+  mSphereFragmentShader.load (kSphereFragmentShader);
+  attachShader (mSphereVertexShader);
+  attachShader (mSphereFragmentShader);
   }
 
 void cProgramSphere::initProgram() {
   try {
-    mSphereVs.compile();
-    mSphereFs.compile();
+    mSphereVertexShader.compile();
+    mSphereFragmentShader.compile();
     }
   catch (shader_compilation_error const& e) {
     //{{{  error, return

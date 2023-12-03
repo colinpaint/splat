@@ -42,9 +42,9 @@ private:
   void initShader();
   void initProgram();
 
-  cVertexShader mAttributeVs;
-  cVertexShader mLightVs;
-  cFragmentShader mAttributeFs;
+  cVertexShader mAttributeVertexShader;
+  cVertexShader mLightVertexShader;
+  cFragmentShader mAttributeFragmentShader;
 
   bool mBackFaceCull = false;
   bool mSmooth = false;
@@ -66,9 +66,9 @@ private:
   void initShader();
   void initProgram();
 
-  cVertexShader mFinalVs;
-  cFragmentShader mFinalFs;
-  cFragmentShader mLightFs;
+  cVertexShader mFinalVertexShader;
+  cFragmentShader mLightVertexShader;
+  cFragmentShader mFinalFragmentShader;
 
   bool mMulitSample = false;
   bool mSmooth = false;;
