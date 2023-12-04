@@ -60,7 +60,7 @@ private:
 
 class cMeshRender : public cRender {
 public:
-  cMeshRender (cApp& app);
+  cMeshRender (cApp& app, bool multiSample, bool backFaceCull);
   virtual ~cMeshRender();
 
   virtual void use (bool multiSample, bool backFaceCull) final;

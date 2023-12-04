@@ -114,7 +114,7 @@ private:
 
 class cSplatRender : public cRender {
 public:
-  cSplatRender (cApp& app);
+  cSplatRender (cApp& app, bool multiSample, bool backFaceCull);
   virtual ~cSplatRender();
 
   virtual void setBackFaceCull (bool enable = true) final;

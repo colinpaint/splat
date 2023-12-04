@@ -1201,12 +1201,14 @@ void cFrameBuffer::removeDeleteAttachments() {
 
 // cSplatRender
 //{{{
-cSplatRender::cSplatRender (cApp& app) : cRender(app),
-                                         mSmooth(false),
-                                         mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
-                                         mEwaFilter(false), mEwaRadius(1.0f),
-                                         mPointSizeType(0), mRadiusScale(1.0f) {
-  use (mMultiSample, mBackFaceCull);
+cSplatRender::cSplatRender (cApp& app, bool multiSample, bool backFaceCull)
+    : cRender(app, multiSample, backFaceCull),
+      mSmooth(false),
+      mSoftZbuffer(true), mEpsilon(1.0f * 1e-3f),
+      mEwaFilter(false), mEwaRadius(1.0f),
+      mPointSizeType(0), mRadiusScale(1.0f) {
+
+  use (multiSample, backFaceCull);
 
   setupPrograms();
   setupFilterKernel();

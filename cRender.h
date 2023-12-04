@@ -12,7 +12,7 @@ class cModel;
 
 class cRender {
 public:
-  cRender (cApp& app) : mApp(app) {}
+  cRender (cApp& app, bool multiSample, bool backFaceCull) : mApp(app) {}
   virtual ~cRender() {}
 
   bool getMultiSample() const { return mMultiSample; }

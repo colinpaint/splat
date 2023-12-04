@@ -463,7 +463,8 @@ void cProgramSphere::initProgram() {
 //}}}
 
 //{{{
-cMeshRender::cMeshRender (cApp& app) : cRender(app) {
+cMeshRender::cMeshRender (cApp& app, bool multiSample, bool backFaceCull) 
+    : cRender(app, multiSample, backFaceCull) {
 
   // setup vertex array v
   mVertexArrayV.bind();
