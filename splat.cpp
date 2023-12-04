@@ -32,16 +32,51 @@ public:
   cSplatApp() : cApp() {}
   virtual ~cSplatApp() = default;
 
-  void init (int width, int height, bool fullScreen, bool multiSample) {
-    mHasMultiSample = multiSample;
-    cApp::init (width, height, fullScreen, multiSample);
-    cLog::log (LOGINFO, fmt::format ("splatApp init {}:{}", multiSample ? "multi" : "", mMultiSample ? "multi" : ""));
+  //{{{
+  void init (int width, int height, bool fullScreen, bool hasMultiSample) {
+
+    mHasMultiSample = hasMultiSample;
+
+    cApp::init (width, height, fullScreen, hasMultiSample);
+
+    setResizeCallback ([this](int width, int height) {
+      // resize lambda
+      const float aspect = static_cast<float>(width) / static_cast<float>(height);
+      glViewport (0, 0, width, height);
+      getCamera().setPerspective (60.0f, aspect, 0.005f, 5.0f);
+      });
+    mResizeCallback (width, height);
 
     setDisplayCallback ([this] {
-      //{{{  display lambda
+      // display lambda
       mRender->display (mModel);
       });
-      //}}}
+
+    setTimerCallback ([this] {
+      // timer lambda
+      if (!mUseSplatRender && mRipple)
+        mModel->ripple();
+      });
+
+    setCloseCallback ([this] {
+      // close lambda
+      delete mMeshRender;
+      delete mSplatRender;
+      delete mModel;
+      });
+
+    setKeyboardCallback ([this](SDL_Keycode key) {
+      // keyboard lambda
+      if (!mRender->keyboard (key))
+        switch (key) {
+          case SDLK_f: toggleFullScreen(); break;
+          case SDLK_SPACE: mRipple = !mRipple; break;
+          case SDLK_q:
+          case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
+          default: break;
+          }
+        });
+
     setGuiCallback ([this] {
       //{{{  gui lambda
       ImGui::Begin ("splat", nullptr);
@@ -79,41 +114,8 @@ public:
       ImGui::End();
       });
       //}}}
-    setTimerCallback ([this] {
-      //{{{  timer lambda
-      if (!mUseSplatRender && mRipple)
-        mModel->ripple();
-      });
-      //}}}
-    setKeyboardCallback ([this](SDL_Keycode key) {
-      //{{{  keyboard lambda
-      if (!mRender->keyboard (key))
-        switch (key) {
-          case SDLK_f: toggleFullScreen(); break;
-          case SDLK_SPACE: mRipple = !mRipple; break;
-          case SDLK_q:
-          case SDLK_ESCAPE: exit (EXIT_SUCCESS); break;
-          default: break;
-          }
-        });
-      //}}}
-    setResizeCallback ([this](int width, int height) {
-      //{{{  resize lambda
-      const float aspect = static_cast<float>(width) / static_cast<float>(height);
-      glViewport (0, 0, width, height);
-      getCamera().setPerspective (60.0f, aspect, 0.005f, 5.0f);
-      });
-      //}}}
-    setCloseCallback ([this] {
-      //{{{  close lambda
-      delete mMeshRender;
-      delete mSplatRender;
-      delete mModel;
-      });
-      //}}}
-
-    mResizeCallback (width, height);
     }
+  //}}}
 
   cModel* getModel() { return mModel; }
   int getModelIndex() { return mModelIndex; }

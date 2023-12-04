@@ -833,17 +833,15 @@ namespace objl {
     void VertexTriangluation (std::vector<unsigned int>& oIndices,
                               const std::vector<Vertex>& iVerts) {
 
-      // If there are 2 or less verts,
-      // no triangle can be created,
-      // so exit
+      // If there are 2 or less verts, no triangle can be created, so exit
       if (iVerts.size() < 3)
         return;
 
       // If it is a triangle no need to calculate it
       if (iVerts.size() == 3) {
-        oIndices.push_back(0);
-        oIndices.push_back(1);
-        oIndices.push_back(2);
+        oIndices.push_back (0);
+        oIndices.push_back (1);
+        oIndices.push_back (2);
         return;
         }
 
