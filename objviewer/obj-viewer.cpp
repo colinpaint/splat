@@ -158,7 +158,6 @@ void reshape (int w, int h) {
     glLoadIdentity();
 }
 //}}}
-
 //{{{
 void arrow_keys (int key, int x, int y) {
     switch (key) {
@@ -198,7 +197,6 @@ void keyboard (unsigned char key, int x, int y) {
     }
 }
 //}}}
-
 //{{{
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

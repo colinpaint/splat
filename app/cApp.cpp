@@ -29,6 +29,7 @@ void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiS
   mScreenWidth = screenWidth;
   mScreenHeight = screenHeight;
   mFullScreen = fullScreen;
+  mMultiSample = multiSample;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     //{{{  error,return
@@ -42,19 +43,14 @@ void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiS
   SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  //SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   8);
-  //SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-  //SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  8);
-  //SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-  if (multiSample) {
+  if (mMultiSample) {
     //{{{  multiSample
     SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
     }
     //}}}
+
   mSdlWindow = SDL_CreateWindow ("app", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                  mScreenWidth, mScreenHeight,
                                  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);

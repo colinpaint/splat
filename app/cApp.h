@@ -43,6 +43,7 @@ public:
   int mScreenWidth = 0;
   int mScreenHeight = 0;
   bool mFullScreen = false;
+  bool mMultiSample = false;
 
   cCamera mCamera;
 

@@ -33,7 +33,9 @@ public:
   virtual ~cSplatApp() = default;
 
   void init (int width, int height, bool fullScreen, bool multiSample) {
+    mHasMultiSample = multiSample;
     cApp::init (width, height, fullScreen, multiSample);
+    cLog::log (LOGINFO, fmt::format ("splatApp init {}:{}", multiSample ? "multi" : "", mMultiSample ? "multi" : ""));
 
     setDisplayCallback ([this] {
       //{{{  display lambda
@@ -56,7 +58,7 @@ public:
           }
         }
 
-      if (mMultiSample)
+      if (mHasMultiSample)
         if (ImGui::Checkbox ("multiSample", &mMultiSample))
           mRender->setMultiSample (mMultiSample);
 
@@ -99,7 +101,7 @@ public:
       //{{{  resize lambda
       const float aspect = static_cast<float>(width) / static_cast<float>(height);
       glViewport (0, 0, width, height);
-      getCamera().setPerspective(60.0f, aspect, 0.005f, 5.0f);
+      getCamera().setPerspective (60.0f, aspect, 0.005f, 5.0f);
       });
       //}}}
     setCloseCallback ([this] {
@@ -129,12 +131,14 @@ public:
   void setMeshRender (cMeshRender* meshRender) {
     mMeshRender = meshRender;
     mRender = meshRender;
+    mRender->use (mMultiSample, mBackFaceCull);
     }
   //}}}
   //{{{
   void setSplatRender (cSplatRender* splatRender) {
     mSplatRender = splatRender;
     mRender = splatRender;
+    mRender->use (mMultiSample, mBackFaceCull);
     }
   //}}}
 
@@ -143,7 +147,7 @@ public:
 
 private:
   //{{{  vars
-  bool mMultiSample = false;
+  bool mHasMultiSample = false;
   bool mBackFaceCull = false;
 
   int mModelIndex = 0;
