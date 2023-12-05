@@ -7,15 +7,15 @@ add_subdirectory (common)
 add_subdirectory (imgui)
 add_subdirectory (app)
 
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-else()
-  add_subdirectory (objviewer)
-endif()
+#if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+#else()
+#  add_subdirectory (objviewer)
+#endif()
 
 # splat dragon
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
-                                  models.h models.cpp
+                                  objLoader.h models.h models.cpp
                                   cRender.h
                                   cMeshRender.h cMeshRender.cpp
                                   cSplatRender.h cSplatRender.cpp)

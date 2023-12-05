@@ -169,6 +169,7 @@ int main (int numArgs, char* args[]) {
   bool fullScreen = false;
   bool hasMultiSample = false;
   bool backFaceCull = false;
+  bool raw = false;
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -184,6 +185,8 @@ int main (int numArgs, char* args[]) {
       fullScreen = true;
     else if (param == "multi")
       hasMultiSample = true;
+    else if (param == "raw")
+      raw = true;
     else
       // assume filename
       fileName = param;
@@ -198,8 +201,13 @@ int main (int numArgs, char* args[]) {
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  splatApp.mModel = new cSurfelModel (fileName);
-  splatApp.getModel()->load (splatApp.getModelIndex());
+  if (raw)
+    splatApp.mModel = new cModel (fileName);
+  else {
+    splatApp.mModel = new cSurfelModel (fileName);
+    splatApp.getModel()->load (splatApp.getModelIndex());
+    }
+
   splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
   splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
 

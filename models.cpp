@@ -26,6 +26,7 @@
 #endif
 //}}}
 
+#include "objLoader.h"
 #include "../common/cLog.h"
 
 #include "models.h"
@@ -38,60 +39,79 @@ using namespace std;
 void cModel::load (int modelIndex) {
 
   if (modelIndex == 0)
-    loadFile ("../models/stanford_dragon_v40k_f80k.raw");
+    loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
   else
-    loadFile ("../models/stanford_dragon_v344k_f688k.raw");
+    loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
   }
 //}}}
 //{{{
-void cModel::loadFile (string const& filename) {
+void cModel::loadRawFile (string const& filename) {
 
-  ifstream inputFind (filename);
-  if (!inputFind.good()) {
-    //{{{  error, return
-     cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot find {}", filename));
-    throw runtime_error ("cannot find");
-    return;
-    }
-    //}}}
-  inputFind.close();
 
-  ifstream input (filename, ios::in | ios::binary);
-  if (input.fail()) {
-    ostringstream error_message;
-    cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot open {}", filename));
-    throw runtime_error (error_message.str().c_str());
-    }
-
-  unsigned int nv;
-  input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
-  mVertices.resize (nv);
-
-  for (size_t i = 0; i < nv; ++i)
-    input.read (reinterpret_cast<char*>(mVertices[i].data()), 3 * sizeof(float));
-
-  unsigned int nf;
-  input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
-  mFaces.resize (nf);
-
-  for (size_t i = 0; i < nf; ++i)
-    input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
-
-  input.close();
-
-  setVertexNormals();
-
-  // save refs for ripple
-  mRefVertices.resize (mVertices.size());
-  for (size_t i = 0; i < mVertices.size(); ++i)
-    mRefVertices[i] = mVertices[i];
-
-  mRefNormals.resize (mNormals.size());
-  for (size_t i = 0; i < mNormals.size(); ++i)
-    mRefNormals[i] = mNormals[i];
-
-  cLog::log (LOGINFO, fmt::format ("cModel::loadFile {} vertices:{} faces:{}",
+  cLog::log (LOGINFO, fmt::format ("cModel::loadRawFile {} vertices:{} faces:{}",
                                    filename, mVertices.size(), mFaces.size()));
+  }
+//}}}
+//{{{
+void cModel::loadObjFile (string const& fileName) {
+
+    // Go through each loaded mesh and out its contents
+    objl::Loader Loader;
+    bool loadout = Loader.LoadFile (fileName);
+
+    for (int i = 0; i < Loader.LoadedMeshes.size(); i++) {
+      // Copy one of the loaded meshes to be our current mesh
+      objl::Mesh curMesh = Loader.LoadedMeshes[i];
+
+      // Print Mesh Name
+      cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
+
+      // Print Vertices
+      cout << "Vertices:\n";
+
+      // Go through each vertex and print its number,
+      //  position, normal, and texture coordinate
+      //for (int j = 0; j < curMesh.Vertices.size(); j++) {
+      //  cout << "V" << j << ": " <<
+      //    "P(" << curMesh.Vertices[j].Position.X << ", " << curMesh.Vertices[j].Position.Y << ", " << curMesh.Vertices[j].Position.Z << ") " <<
+      //    "N(" << curMesh.Vertices[j].Normal.X << ", " << curMesh.Vertices[j].Normal.Y << ", " << curMesh.Vertices[j].Normal.Z << ") " <<
+      //    "TC(" << curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
+      //  }
+
+      // Print Indices
+      cout << "Indices:\n";
+
+      // Go through every 3rd index and print the
+      //  triangle that these indices represent
+      //for (int j = 0; j < curMesh.Indices.size(); j += 3)
+      //  cout << "T" << j / 3 << ": " << curMesh.Indices[j] << ", " << curMesh.Indices[j + 1] << ", " << curMesh.Indices[j + 2] << "\n";
+
+      // Print Material
+      cout << "Material: " << curMesh.MeshMaterial.name << "\n";
+      cout << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";
+      cout << "Diffuse Color: " << curMesh.MeshMaterial.Kd.X << ", " << curMesh.MeshMaterial.Kd.Y << ", " << curMesh.MeshMaterial.Kd.Z << "\n";
+      cout << "Specular Color: " << curMesh.MeshMaterial.Ks.X << ", " << curMesh.MeshMaterial.Ks.Y << ", " << curMesh.MeshMaterial.Ks.Z << "\n";
+      cout << "Specular Exponent: " << curMesh.MeshMaterial.Ns << "\n";
+      cout << "Optical Density: " << curMesh.MeshMaterial.Ni << "\n";
+      cout << "Dissolve: " << curMesh.MeshMaterial.d << "\n";
+      cout << "Illumination: " << curMesh.MeshMaterial.illum << "\n";
+      cout << "Ambient Texture Map: " << curMesh.MeshMaterial.map_Ka << "\n";
+      cout << "Diffuse Texture Map: " << curMesh.MeshMaterial.map_Kd << "\n";
+      cout << "Specular Texture Map: " << curMesh.MeshMaterial.map_Ks << "\n";
+      cout << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
+      cout << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";
+
+      // Leave a space to separate from the next mesh
+      cout << "\n";
+      }
+
+
+  //std::vector<Material> LoadedMaterials;
+
+  cLog::log (LOGINFO, fmt::format ("cModel::LoadedMeshes {} LoadedMeshes {} LoadedVertices:{} LoadedIndices:{} LoadedMaterials:{}",
+                                   fileName,
+                                   Loader.LoadedMeshes.size(), Loader.LoadedVertices.size(),
+                                   Loader.LoadedIndices.size(), Loader.LoadedMaterials.size()));
   }
 //}}}
 //{{{
@@ -305,7 +325,7 @@ void cSurfelModel::meshToSurfel() {
 void cSurfelModel::createModel (const string& filename) {
 
   try {
-    loadFile (filename);
+    loadRawFile (filename);
     meshToSurfel();
     }
 
