@@ -6,9 +6,9 @@
 #include <vector>
 #include <string>
 
-constexpr bool kLoaderDebug = false;
 
 namespace objl {
+  constexpr bool kLoaderDebug = false;
   //{{{
   struct Vector2 {
     //{{{
@@ -588,8 +588,8 @@ namespace objl {
             tempMesh = Mesh(Vertices, Indices);
             tempMesh.MeshName = meshname;
             int i = 2;
-            while(1) {
-              tempMesh.MeshName = meshname + "_" + std::to_string(i);
+            while (true) {
+              tempMesh.MeshName = meshname + "_" + std::to_string (i);
 
               for (auto &m : LoadedMeshes)
                 if (m.MeshName == tempMesh.MeshName)
