@@ -425,18 +425,11 @@ namespace objl {
     ~Loader() { LoadedMeshes.clear(); }
 
     //{{{
-    // Load a file into the loader
-    //
-    // If file is loaded return true
-    //
-    // If the file is unable to be found
-    // or unable to be loaded return false
-    bool LoadFile (std::string Path)
-    {
+    bool LoadFile (std::string Path) {
+
       // If the file is not an .obj file return false
       if (Path.substr(Path.size() - 4, 4) != ".obj")
         return false;
-
 
       std::ifstream file(Path);
 
@@ -450,15 +443,12 @@ namespace objl {
       std::vector<Vector3> Positions;
       std::vector<Vector2> TCoords;
       std::vector<Vector3> Normals;
-
       std::vector<Vertex> Vertices;
       std::vector<unsigned int> Indices;
-
       std::vector<std::string> MeshMatNames;
 
       bool listening = false;
       std::string meshname;
-
       Mesh tempMesh;
 
       #ifdef OBJL_CONSOLE_OUTPUT
@@ -482,17 +472,16 @@ namespace objl {
         }
         #endif
 
-        // Generate a Mesh Object or Prepare for an object to be created
-        if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g" || curline[0] == 'g')
-        {
+        //{{{  Generate a Mesh Object or Prepare for an object to be created
+        if (algorithm::firstToken(curline) == "o" || 
+            algorithm::firstToken(curline) == "g" || curline[0] == 'g') {
           if (!listening) {
             listening = true;
-
             if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g")
               meshname = algorithm::tail(curline);
             else
               meshname = "unnamed";
-          }
+            }
           else {
             // Generate the mesh to put into the array
 
@@ -510,20 +499,21 @@ namespace objl {
               meshname.clear();
 
               meshname = algorithm::tail(curline);
-            }
+              }
             else {
               if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g")
                 meshname = algorithm::tail(curline);
               else
                 meshname = "unnamed";
+              }
             }
-          }
           #ifdef OBJL_CONSOLE_OUTPUT
             std::cout << std::endl;
             outputIndicator = 0;
           #endif
-        }
-        // Generate a Vertex Position
+          }
+        //}}}
+        //{{{  Generate a Vertex Position
         if (algorithm::firstToken(curline) == "v") {
           std::vector<std::string> spos;
           Vector3 vpos;
@@ -534,8 +524,9 @@ namespace objl {
           vpos.Z = std::stof(spos[2]);
 
           Positions.push_back(vpos);
-        }
-        // Generate a Vertex Texture Coordinate
+          }
+        //}}}
+        //{{{  Generate a Vertex Texture Coordinate
         if (algorithm::firstToken(curline) == "vt") {
           std::vector<std::string> stex;
           Vector2 vtex;
@@ -545,8 +536,9 @@ namespace objl {
           vtex.Y = std::stof(stex[1]);
 
           TCoords.push_back(vtex);
-        }
-        // Generate a Vertex Normal;
+          }
+        //}}}
+        //{{{  Generate a Vertex Normal;
         if (algorithm::firstToken(curline) == "vn") {
           std::vector<std::string> snor;
           Vector3 vnor;
@@ -557,20 +549,19 @@ namespace objl {
           vnor.Z = std::stof(snor[2]);
 
           Normals.push_back(vnor);
-        }
-        // Generate a Face (vertices & indices)
+          }
+        //}}}
+        //{{{  Generate a Face (vertices & indices)
         if (algorithm::firstToken(curline) == "f") {
           // Generate the vertices
           std::vector<Vertex> vVerts;
           GenVerticesFromRawOBJ(vVerts, Positions, TCoords, Normals, curline);
 
           // Add Vertices
-          for (int i = 0; i < int(vVerts.size()); i++)
-          {
+          for (int i = 0; i < int(vVerts.size()); i++) {
             Vertices.push_back(vVerts[i]);
-
             LoadedVertices.push_back(vVerts[i]);
-          }
+            }
 
           std::vector<unsigned int> iIndices;
 
@@ -584,9 +575,10 @@ namespace objl {
             indnum = (unsigned int)((LoadedVertices.size()) - vVerts.size()) + iIndices[i];
             LoadedIndices.push_back(indnum);
 
+            }
           }
-        }
-        // Get Mesh Material Name
+        //}}}
+        //{{{  Get Mesh Material Name
         if (algorithm::firstToken(curline) == "usemtl") {
           MeshMatNames.push_back(algorithm::tail(curline));
 
@@ -603,7 +595,7 @@ namespace objl {
                 if (m.MeshName == tempMesh.MeshName)
                   continue;
               break;
-            }
+              }
 
             // Insert Mesh
             LoadedMeshes.push_back(tempMesh);
@@ -611,13 +603,14 @@ namespace objl {
             // Cleanup
             Vertices.clear();
             Indices.clear();
-          }
+            }
 
           #ifdef OBJL_CONSOLE_OUTPUT
           outputIndicator = 0;
           #endif
-        }
-        // Load Materials
+          }
+        //}}}
+        //{{{  Load Materials
         if (algorithm::firstToken(curline) == "mtllib") {
           // Generate LoadedMaterial
 
@@ -630,7 +623,7 @@ namespace objl {
           if (temp.size() != 1) {
             for (int i = 0; i < temp.size() - 1; i++)
               pathtomat += temp[i] + "/";
-          }
+            }
 
 
           pathtomat += algorithm::tail(curline);
@@ -641,15 +634,13 @@ namespace objl {
 
           // Load Materials
           LoadMaterials(pathtomat);
+          }
         }
-      }
-
+        //}}}
       #ifdef OBJL_CONSOLE_OUTPUT
         std::cout << std::endl;
       #endif
-
-      // Deal with last mesh
-
+      //{{{  Deal with last mesh
       if (!Indices.empty() && !Vertices.empty()) {
         // Create Mesh
         tempMesh = Mesh(Vertices, Indices);
@@ -658,10 +649,11 @@ namespace objl {
         // Insert Mesh
         LoadedMeshes.push_back(tempMesh);
         }
+      //}}}
 
       file.close();
 
-      // Set Materials for each Mesh
+      //{{{  Set Materials for each Mesh
       for (int i = 0; i < MeshMatNames.size(); i++) {
         std::string matname = MeshMatNames[i];
 
@@ -671,27 +663,21 @@ namespace objl {
           if (LoadedMaterials[j].name == matname) {
             LoadedMeshes[i].MeshMaterial = LoadedMaterials[j];
             break;
+            }
           }
         }
-      }
-
+      //}}}
       if (LoadedMeshes.empty() && LoadedVertices.empty() && LoadedIndices.empty())
         return false;
       else
         return true;
-    }
+      }
     //}}}
 
-    // Loaded Mesh Objects
+    // vars
     std::vector<Mesh> LoadedMeshes;
-
-    // Loaded Vertex Objects
     std::vector<Vertex> LoadedVertices;
-
-    // Loaded Index Positions
     std::vector<unsigned int> LoadedIndices;
-
-    // Loaded Material Objects
     std::vector<Material> LoadedMaterials;
 
   private:
