@@ -10,6 +10,7 @@ class cVertexArray {
 public:
   cVertexArray();
   ~cVertexArray();
+
   void bind();
   void unbind();
 
@@ -22,8 +23,10 @@ class cArray {
 public:
   cArray();
   ~cArray();
+
   void bind();
   void unbind();
+
   void set (GLsizeiptr size, GLvoid const* ptr);
 
 private:
@@ -35,8 +38,10 @@ class cElementArray {
 public:
   cElementArray();
   ~cElementArray();
+
   void bind();
   void unbind();
+
   void set (GLsizeiptr size, GLvoid const* ptr);
 
 private:
@@ -49,6 +54,7 @@ public:
   cUniform();
   cUniform (GLsizeiptr size);
   ~cUniform();
+
   void bindBufferBase (GLuint index);
 
 protected:

@@ -11,11 +11,6 @@
 class cModel {
 public:
   cModel () {}
-  //{{{
-  cModel (std::string& fileName, bool objFormat) : mObjFormat(objFormat) {
-    loadObjFile (fileName);
-    }
-  //}}}
   virtual ~cModel() = default;
 
   void loadObjFile (std::string const& fileName);
@@ -34,21 +29,20 @@ public:
 
   void ripple();
 
+  // vertices, normal, faces
   std::vector <Eigen::Vector3f> mVertices;
   std::vector <Eigen::Vector3f> mNormals;
-
-  std::vector <Eigen::Vector3f> mRefVertices;
-  std::vector <Eigen::Vector3f> mRefNormals;
-
   std::vector <std::array <unsigned int,3>> mFaces;
 
+  // reference vertices, normals for ripple
+  std::vector <Eigen::Vector3f> mRefVertices;
+  std::vector <Eigen::Vector3f> mRefNormals;
   float mTime = 0.f;
+
   bool mSelectable = true;
 
 private:
   void setVertexNormals();
-
-  bool mObjFormat = false;
   };
 //}}}
 //{{{

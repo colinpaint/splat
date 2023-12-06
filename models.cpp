@@ -88,65 +88,56 @@ void cModel::loadRawFile (string const& fileName) {
 //{{{
 void cModel::loadObjFile (string const& fileName) {
 
-    // Go through each loaded mesh and out its contents
-    objLoader::cLoader loader;
-    bool loadout = loader.loadFile (fileName);
+  // Go through each loaded mesh and out its contents
+  objLoader::cLoader loader;
+  bool loadout = loader.loadFile (fileName);
 
-    for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
-      // Copy one of the loaded meshes to be our current mesh
-      objLoader::Mesh curMesh = loader.LoadedMeshes[i];
+  for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
+    objLoader::Mesh curMesh = loader.LoadedMeshes[i];
 
-      // Print Mesh Name
-      cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
+    cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
+    //{{{  print vertice info
+    //  position, normal, and texture coordinate
+    //for (int j = 0; j < curMesh.Vertices.size(); j++) {
+    //  cout << "V" << j << ": " <<
+    //    "P(" << curMesh.Vertices[j].Position.X << ", " << curMesh.Vertices[j].Position.Y << ", " << curMesh.Vertices[j].Position.Z << ") " <<
+    //    "N(" << curMesh.Vertices[j].Normal.X << ", " << curMesh.Vertices[j].Normal.Y << ", " << curMesh.Vertices[j].Normal.Z << ") " <<
+    //    "TC(" << curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
+    //  }
+    //}}}
+    //{{{  print material info
+    //cout << "Material: " << curMesh.MeshMaterial.name << "\n";
+    //cout << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";
+    //cout << "Diffuse Color: " << curMesh.MeshMaterial.Kd.X << ", " << curMesh.MeshMaterial.Kd.Y << ", " << curMesh.MeshMaterial.Kd.Z << "\n";
+    //cout << "Specular Color: " << curMesh.MeshMaterial.Ks.X << ", " << curMesh.MeshMaterial.Ks.Y << ", " << curMesh.MeshMaterial.Ks.Z << "\n";
+    //cout << "Specular Exponent: " << curMesh.MeshMaterial.Ns << "\n";
+    //cout << "Optical Density: " << curMesh.MeshMaterial.Ni << "\n";
+    //cout << "Dissolve: " << curMesh.MeshMaterial.d << "\n";
+    //cout << "Illumination: " << curMesh.MeshMaterial.illum << "\n";
+    //cout << "Ambient Texture Map: " << curMesh.MeshMaterial.map_Ka << "\n";
+    //cout << "Diffuse Texture Map: " << curMesh.MeshMaterial.map_Kd << "\n";
+    //cout << "Specular Texture Map: " << curMesh.MeshMaterial.map_Ks << "\n";
+    //cout << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
+    //cout << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";
+    //cout << "\n";
+    //}}}
 
-      // Print Vertices
-      cout << "Vertices:\n";
+    //mVertices.resize (mVertices.size() + loader.LoadedVertices.size());
+    for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
+      mVertices.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Position.X,
+                                            loader.LoadedVertices[i].Position.Y,
+                                            loader.LoadedVertices[i].Position.Z));
 
-      // Go through each vertex and print its number,
-      //  position, normal, and texture coordinate
-      //for (int j = 0; j < curMesh.Vertices.size(); j++) {
-      //  cout << "V" << j << ": " <<
-      //    "P(" << curMesh.Vertices[j].Position.X << ", " << curMesh.Vertices[j].Position.Y << ", " << curMesh.Vertices[j].Position.Z << ") " <<
-      //    "N(" << curMesh.Vertices[j].Normal.X << ", " << curMesh.Vertices[j].Normal.Y << ", " << curMesh.Vertices[j].Normal.Z << ") " <<
-      //    "TC(" << curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
-      //  }
+    //mVertices.resize (mNormals.size() + loader.LoadedVertices.size());
+    for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
+      mNormals.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Normal.X,
+                                           loader.LoadedVertices[i].Normal.Y,
+                                           loader.LoadedVertices[i].Normal.Z));
 
-      // Print Indices
-      cout << "Indices:\n";
-
-      // Go through every 3rd index and print the
-      //  triangle that these indices represent
-      //for (int j = 0; j < curMesh.Indices.size(); j += 3)
-      //  cout << "T" << j / 3 << ": " << curMesh.Indices[j] << ", " << curMesh.Indices[j + 1] << ", " << curMesh.Indices[j + 2] << "\n";
-
-      // Print Material
-      cout << "Material: " << curMesh.MeshMaterial.name << "\n";
-      cout << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";
-      cout << "Diffuse Color: " << curMesh.MeshMaterial.Kd.X << ", " << curMesh.MeshMaterial.Kd.Y << ", " << curMesh.MeshMaterial.Kd.Z << "\n";
-      cout << "Specular Color: " << curMesh.MeshMaterial.Ks.X << ", " << curMesh.MeshMaterial.Ks.Y << ", " << curMesh.MeshMaterial.Ks.Z << "\n";
-      cout << "Specular Exponent: " << curMesh.MeshMaterial.Ns << "\n";
-      cout << "Optical Density: " << curMesh.MeshMaterial.Ni << "\n";
-      cout << "Dissolve: " << curMesh.MeshMaterial.d << "\n";
-      cout << "Illumination: " << curMesh.MeshMaterial.illum << "\n";
-      cout << "Ambient Texture Map: " << curMesh.MeshMaterial.map_Ka << "\n";
-      cout << "Diffuse Texture Map: " << curMesh.MeshMaterial.map_Kd << "\n";
-      cout << "Specular Texture Map: " << curMesh.MeshMaterial.map_Ks << "\n";
-      cout << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
-      cout << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";
-
-      // Leave a space to separate from the next mesh
-      cout << "\n";
-      }
-
-  mVertices.resize (loader.LoadedVertices.size());
-  for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
-    mVertices.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Position.X,
-                                          loader.LoadedVertices[i].Position.Y,
-                                          loader.LoadedVertices[i].Position.Z));
-
-  //mFaces.resize (loader.LoadedMeshes.size());
-  //for (size_t i = 0; i < loader.LoadedMeshes.size(); ++i)
-  //  mFaces.push_back (loader.LoadedMeshes[i]);
+    //mVertices.resize (mFaces.size() + (curMesh.Indices.size() / 3));
+    for (int j = 0; j < curMesh.Indices.size(); j += 3)
+      mFaces.push_back ({ curMesh.Indices[j], curMesh.Indices[j+1], curMesh.Indices[j+2] });
+    }
 
   //setVertexNormals();
 

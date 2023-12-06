@@ -52,6 +52,11 @@ public:
       mRender->display (mModel);
       });
 
+    setGuiCallback ([this] {
+      // gui lambda
+      gui();
+      });
+
     setTimerCallback ([this] {
       // timer lambda
       if (!mUseSplatRender && mRipple)
@@ -76,44 +81,6 @@ public:
           default: break;
           }
         });
-
-    setGuiCallback ([this] {
-      //{{{  gui lambda
-      ImGui::Begin ("splat", nullptr);
-      ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
-
-      if (mMeshRender && mSplatRender) {
-        // have choice of render
-        if (ImGui::Checkbox ("splatRender", &mUseSplatRender)) {
-          if (mUseSplatRender)
-            mRender = mSplatRender;
-          else
-            mRender = mMeshRender;
-          mRender->use (mMultiSample, mBackFaceCull);
-          }
-        }
-
-      if (mHasMultiSample)
-        if (ImGui::Checkbox ("multiSample", &mMultiSample))
-          mRender->setMultiSample (mMultiSample);
-
-      if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
-        mRender->setBackFaceCull (mBackFaceCull);
-
-      ImGui::Text ("%.1f fps %d vertices %d faces",
-                   ImGui::GetIO().Framerate, (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
-
-      if (mModel->isSelectable()) {
-        ImGui::SetNextItemOpen (true, ImGuiCond_Once);
-        if (ImGui::CollapsingHeader ("scene"))
-          if (ImGui::Combo ("##", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
-            mModel->load (mModelIndex);
-        }
-
-      mRender->gui();
-      ImGui::End();
-      });
-      //}}}
     }
   //}}}
 
@@ -148,6 +115,46 @@ public:
   cModel* mModel;
 
 private:
+  //{{{
+  void gui() {
+
+    ImGui::Begin ("splat", nullptr);
+    ImGui::PushItemWidth (0.7f * ImGui::GetContentRegionAvail().x);
+
+    if (mMeshRender && mSplatRender) {
+      // have choice of render
+      if (ImGui::Checkbox ("splatRender", &mUseSplatRender)) {
+        if (mUseSplatRender)
+          mRender = mSplatRender;
+        else
+          mRender = mMeshRender;
+        mRender->use (mMultiSample, mBackFaceCull);
+        }
+      }
+
+    if (mHasMultiSample)
+      if (ImGui::Checkbox ("multiSample", &mMultiSample))
+        mRender->setMultiSample (mMultiSample);
+
+    if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
+      mRender->setBackFaceCull (mBackFaceCull);
+
+    ImGui::Text ("%.1f fps %d vertices %d faces",
+                 ImGui::GetIO().Framerate, (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
+
+    if (mModel->isSelectable()) {
+      ImGui::SetNextItemOpen (true, ImGuiCond_Once);
+      if (ImGui::CollapsingHeader ("scene"))
+        if (ImGui::Combo ("##", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
+          mModel->load (mModelIndex);
+      }
+
+
+    mRender->gui();
+    ImGui::End();
+    }
+  //}}}
+
   //{{{  vars
   bool mHasMultiSample = false;
   bool mBackFaceCull = false;
@@ -170,6 +177,7 @@ int main (int numArgs, char* args[]) {
   bool hasMultiSample = false;
   bool backFaceCull = false;
   bool objFormat = false;
+  bool rawFormat = false;
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -189,6 +197,7 @@ int main (int numArgs, char* args[]) {
       // assume filename
       fileName = param;
       objFormat = fileName.substr (fileName.size() - 4, 4) == ".obj";
+      rawFormat = fileName.substr (fileName.size() - 4, 4) == ".raw";
       }
     }
   //}}}
@@ -202,15 +211,19 @@ int main (int numArgs, char* args[]) {
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
   if (objFormat) {
-    splatApp.mModel = new cModel (fileName, objFormat);
-    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
+    splatApp.mModel = new cModel();
+    splatApp.mModel->loadObjFile (fileName);
+    }
+  else if (rawFormat) {
+    splatApp.mModel = new cModel();
+    splatApp.mModel->loadRawFile (fileName);
     }
   else {
     splatApp.mModel = new cSurfelModel (fileName);
     splatApp.getModel()->load (splatApp.getModelIndex());
-    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
-    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
+  splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
+  splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
 
   return splatApp.mainUILoop();
   }

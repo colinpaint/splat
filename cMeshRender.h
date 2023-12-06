@@ -6,6 +6,7 @@
 class cUniformMaterial : public cUniform {
 public:
   cUniformMaterial();
+
   void set (const float* mbuf);
   };
 //}}}
@@ -13,6 +14,7 @@ public:
 class cUniformWireFrame : public cUniform {
 public:
   cUniformWireFrame();
+
   void set(float const* color, int const* viewport);
   };
 //}}}
@@ -20,6 +22,7 @@ public:
 class cUniformSphere : public cUniform {
 public:
   cUniformSphere();
+
   void set (float radius, float projection);
   };
 //}}}
@@ -83,12 +86,12 @@ public:
   float mPointRadius = 0.0014f;
   float mPointsMaterial[4] = { 1.0f, 1.0f, 1.0f, 8.0f };
 
+  cArray mVertexArray;
+  cArray mNormalArray;
+  cElementArray mIndexElementArray;
   cVertexArray mVertexArrayV;
   cVertexArray mVertexArrayVf;
   cVertexArray mVertexArrayVnf;
-  cArray mVertexArrayBuffer;
-  cArray mNormalArrayBuffer;
-  cElementArray mIndexArrayBuffer;
 
   cUniformMaterial mUniformMaterial;
   cUniformWireFrame mUniformWireFrame;

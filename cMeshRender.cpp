@@ -463,42 +463,35 @@ void cProgramSphere::initProgram() {
 //}}}
 
 //{{{
-cMeshRender::cMeshRender (cApp& app, bool multiSample, bool backFaceCull) 
+cMeshRender::cMeshRender (cApp& app, bool multiSample, bool backFaceCull)
     : cRender(app, multiSample, backFaceCull) {
 
-  // setup vertex array v
+  // setup mVertexArrayV
   mVertexArrayV.bind();
-
-  mVertexArrayBuffer.bind();
+  mVertexArray.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-
   mVertexArrayV.unbind();
 
-  // setup vertex array vf
+  // setup mVertexArrayVf
   mVertexArrayVf.bind();
-  mVertexArrayBuffer.bind();
-
+  mVertexArray.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-  mIndexArrayBuffer.bind();
-
-  mVertexArrayBuffer.unbind();
+  mIndexElementArray.bind();
+  mVertexArray.unbind();
   mVertexArrayVf.unbind();
 
-  // setup vertex array vnf
+  // setup mVertexArrayVnf
   mVertexArrayVnf.bind();
-  mVertexArrayBuffer.bind();
-
+  mVertexArray.bind();
   glEnableVertexAttribArray (0);
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-  mNormalArrayBuffer.bind();
-
+  mNormalArray.bind();
   glEnableVertexAttribArray (1);
   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const GLvoid*>(0));
-  mIndexArrayBuffer.bind();
-
-  mVertexArrayBuffer.unbind();
+  mIndexElementArray.bind();
+  mVertexArray.unbind();
   mVertexArrayVnf.unbind();
 
   use (mMultiSample, mBackFaceCull);
@@ -570,9 +563,9 @@ void cMeshRender::display (cModel* model) {
   glClearColor (0.5f, 0.5f, 0.5f, 1.0f);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  mVertexArrayBuffer.set (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());
-  mNormalArrayBuffer.set (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
-  mIndexArrayBuffer.set (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
+  mVertexArray.set (3 * model->getNumVertices() * sizeof(GLfloat), model->getVerticesData());
+  mNormalArray.set (3 * model->getNumNormals() * sizeof(GLfloat), model->getNormalsData());
+  mIndexElementArray.set (3 * model->getNumFaces() * sizeof(GLfloat), model->getFacesData());
 
   mUniformCamera.set (mApp.getCamera());
 
