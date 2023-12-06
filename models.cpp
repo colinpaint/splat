@@ -89,12 +89,12 @@ void cModel::loadRawFile (string const& fileName) {
 void cModel::loadObjFile (string const& fileName) {
 
     // Go through each loaded mesh and out its contents
-    objl::Loader Loader;
-    bool loadout = Loader.LoadFile (fileName);
+    objl::cLoader loader;
+    bool loadout = loader.loadFile (fileName);
 
-    for (int i = 0; i < Loader.LoadedMeshes.size(); i++) {
+    for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
       // Copy one of the loaded meshes to be our current mesh
-      objl::Mesh curMesh = Loader.LoadedMeshes[i];
+      objl::Mesh curMesh = loader.LoadedMeshes[i];
 
       // Print Mesh Name
       cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
@@ -143,8 +143,8 @@ void cModel::loadObjFile (string const& fileName) {
 
   cLog::log (LOGINFO, fmt::format ("cModel::LoadedMeshes {} LoadedMeshes {} LoadedVertices:{} LoadedIndices:{} LoadedMaterials:{}",
                                    fileName,
-                                   Loader.LoadedMeshes.size(), Loader.LoadedVertices.size(),
-                                   Loader.LoadedIndices.size(), Loader.LoadedMaterials.size()));
+                                   loader.LoadedMeshes.size(), loader.LoadedVertices.size(),
+                                   loader.LoadedIndices.size(), loader.LoadedMaterials.size()));
   }
 //}}}
 //{{{

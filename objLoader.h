@@ -1,13 +1,12 @@
 // OBJ_Loader.h - A Single Header OBJ Model Loader
 #pragma once
 #include <iostream>
-#include <vector>
-#include <string>
 #include <fstream>
 #include <math.h>
+#include <vector>
+#include <string>
 
-// Print progress to console while loading (large models)
-//#define OBJL_CONSOLE_OUTPUT
+constexpr bool kLoaderDebug = false;
 
 namespace objl {
   //{{{
@@ -240,15 +239,16 @@ namespace objl {
     // Vector3 Cross Product
     Vector3 CrossV3 (const Vector3 a, const Vector3 b) {
 
-      return Vector3(a.Y * b.Z - a.Z * b.Y,
-        a.Z * b.X - a.X * b.Z,
-        a.X * b.Y - a.Y * b.X);
+      return Vector3 (a.Y * b.Z - a.Z * b.Y,
+                      a.Z * b.X - a.X * b.Z,
+                      a.X * b.Y - a.Y * b.X);
       }
     //}}}
     //{{{
     // Vector3 Magnitude Calculation
     float MagnitudeV3 (const Vector3 in) {
-      return (sqrtf(powf(in.X, 2) + powf(in.Y, 2) + powf(in.Z, 2)));
+
+      return (sqrtf (powf (in.X, 2) + powf (in.Y, 2) + powf (in.Z, 2)));
       }
     //}}}
     //{{{
@@ -260,16 +260,18 @@ namespace objl {
     //{{{
     // Angle between 2 Vector3 Objects
     float AngleBetweenV3 (const Vector3 a, const Vector3 b) {
-      float angle = DotV3(a, b);
-      angle /= (MagnitudeV3(a) * MagnitudeV3(b));
-      return angle = acosf(angle);
+
+      float angle = DotV3 (a, b);
+      angle /= (MagnitudeV3 (a) * MagnitudeV3 (b));
+      return angle = acosf (angle);
       }
     //}}}
     //{{{
     // Projection Calculation of a onto b
     Vector3 ProjV3 (const Vector3 a, const Vector3 b) {
-      Vector3 bn = b / MagnitudeV3(b);
-      return bn * DotV3(a, bn);
+
+      Vector3 bn = b / MagnitudeV3 (b);
+      return bn * DotV3 (a, bn);
       }
     //}}}
     }
@@ -279,6 +281,7 @@ namespace objl {
     //{{{
     // Vector3 Multiplication Opertor Overload
     Vector3 operator * (const float& left, const Vector3& right) {
+
       return Vector3(right.X * left, right.Y * left, right.Z * left);
       }
     //}}}
@@ -287,8 +290,8 @@ namespace objl {
     // A test to see if P1 is on the same side as P2 of a line segment ab
     bool SameSide (Vector3 p1, Vector3 p2, Vector3 a, Vector3 b) {
 
-      Vector3 cp1 = math::CrossV3(b - a, p1 - a);
-      Vector3 cp2 = math::CrossV3(b - a, p2 - a);
+      Vector3 cp1 = math::CrossV3 (b - a, p1 - a);
+      Vector3 cp2 = math::CrossV3 (b - a, p2 - a);
 
       if (math::DotV3(cp1, cp2) >= 0)
         return true;
@@ -303,7 +306,7 @@ namespace objl {
       Vector3 u = t2 - t1;
       Vector3 v = t3 - t1;
 
-      Vector3 normal = math::CrossV3(u,v);
+      Vector3 normal = math::CrossV3 (u,v);
 
       return normal;
       }
@@ -313,22 +316,23 @@ namespace objl {
     bool inTriangle (Vector3 point, Vector3 tri1, Vector3 tri2, Vector3 tri3) {
 
       // Test to see if it is within an infinite prism that the triangle outlines.
-      bool within_tri_prisim = SameSide(point, tri1, tri2, tri3) && SameSide(point, tri2, tri1, tri3)
-        && SameSide(point, tri3, tri1, tri2);
+      bool within_tri_prisim = SameSide (point, tri1, tri2, tri3) &&
+                               SameSide (point, tri2, tri1, tri3) &&
+                               SameSide (point, tri3, tri1, tri2);
 
       // If it isn't it will never be on the triangle
       if (!within_tri_prisim)
         return false;
 
       // Calulate Triangle's Normal
-      Vector3 n = GenTriNormal(tri1, tri2, tri3);
+      Vector3 n = GenTriNormal (tri1, tri2, tri3);
 
       // Project the point onto this normal
-      Vector3 proj = math::ProjV3(point, n);
+      Vector3 proj = math::ProjV3 (point, n);
 
       // If the distance from the triangle to the point is 0
       //  it lies on the triangle
-      if (math::MagnitudeV3(proj) == 0)
+      if (math::MagnitudeV3 (proj) == 0)
         return true;
       else
         return false;
@@ -346,11 +350,11 @@ namespace objl {
       std::string temp;
 
       for (int i = 0; i < int(in.size()); i++) {
-        std::string test = in.substr(i, token.size());
+        std::string test = in.substr (i, token.size());
 
         if (test == token) {
           if (!temp.empty()) {
-            out.push_back(temp);
+            out.push_back (temp);
             temp.clear();
             i += (int)token.size() - 1;
             }
@@ -358,8 +362,8 @@ namespace objl {
             out.push_back("");
           }
         else if (i + token.size() >= in.size()) {
-          temp += in.substr(i, token.size());
-          out.push_back(temp);
+          temp += in.substr (i, token.size());
+          out.push_back (temp);
           break;
           }
         else
@@ -371,16 +375,16 @@ namespace objl {
     // Get tail of string after first token and possibly following spaces
     inline std::string tail (const std::string &in) {
 
-      size_t token_start = in.find_first_not_of(" \t");
-      size_t space_start = in.find_first_of(" \t", token_start);
+      size_t token_start = in.find_first_not_of (" \t");
+      size_t space_start = in.find_first_of (" \t", token_start);
 
-      size_t tail_start = in.find_first_not_of(" \t", space_start);
-      size_t tail_end = in.find_last_not_of(" \t");
+      size_t tail_start = in.find_first_not_of (" \t", space_start);
+      size_t tail_end = in.find_last_not_of (" \t");
 
       if (tail_start != std::string::npos && tail_end != std::string::npos)
-        return in.substr(tail_start, tail_end - tail_start + 1);
+        return in.substr (tail_start, tail_end - tail_start + 1);
       else if (tail_start != std::string::npos)
-        return in.substr(tail_start);
+        return in.substr (tail_start);
 
       return "";
       }
@@ -390,13 +394,13 @@ namespace objl {
     inline std::string firstToken (const std::string &in) {
 
       if (!in.empty()) {
-        size_t token_start = in.find_first_not_of(" \t");
-        size_t token_end = in.find_first_of(" \t", token_start);
+        size_t token_start = in.find_first_not_of (" \t");
+        size_t token_end = in.find_first_of (" \t", token_start);
 
         if (token_start != std::string::npos && token_end != std::string::npos)
-          return in.substr(token_start, token_end - token_start);
+          return in.substr (token_start, token_end - token_start);
         else if (token_start != std::string::npos)
-          return in.substr(token_start);
+          return in.substr (token_start);
         }
 
       return "";
@@ -407,7 +411,7 @@ namespace objl {
     // Get element at given index position
     template <class T> inline const T & getElement (const std::vector<T> &elements, std::string &index) {
 
-      int idx = std::stoi(index);
+      int idx = std::stoi (index);
       if (idx < 0)
         idx = int(elements.size()) + idx;
       else
@@ -418,24 +422,24 @@ namespace objl {
     //}}}
     }
   //}}}
+
   //{{{
-  class Loader {
+  class cLoader {
   public:
-    Loader() {}
-    ~Loader() { LoadedMeshes.clear(); }
+    cLoader() {}
+    ~cLoader() { LoadedMeshes.clear(); }
 
     //{{{
-    bool LoadFile (std::string Path) {
+    bool loadFile (std::string fileName) {
 
       // If the file is not an .obj file return false
-      if (Path.substr(Path.size() - 4, 4) != ".obj")
+      if (fileName.substr (fileName.size() - 4, 4) != ".obj")
         return false;
-
-      std::ifstream file(Path);
-
+      std::ifstream file (fileName);
       if (!file.is_open())
         return false;
 
+      //{{{  vars
       LoadedMeshes.clear();
       LoadedVertices.clear();
       LoadedIndices.clear();
@@ -450,35 +454,30 @@ namespace objl {
       bool listening = false;
       std::string meshname;
       Mesh tempMesh;
+      //}}}
 
-      #ifdef OBJL_CONSOLE_OUTPUT
-        const unsigned int outputEveryNth = 1000;
-        unsigned int outputIndicator = outputEveryNth;
-      #endif
+      const unsigned int outputEveryNth = 1000;
+      unsigned int outputIndicator = outputEveryNth;
 
       std::string curline;
-      while (std::getline(file, curline)) {
-        #ifdef OBJL_CONSOLE_OUTPUT
-        if ((outputIndicator = ((outputIndicator + 1) % outputEveryNth)) == 1) {
-          if (!meshname.empty()) {
-            std::cout
-              << "\r- " << meshname
-              << "\t| vertices > " << Positions.size()
-              << "\t| texcoords > " << TCoords.size()
-              << "\t| normals > " << Normals.size()
-              << "\t| triangles > " << (Vertices.size() / 3)
-              << (!MeshMatNames.empty() ? "\t| material: " + MeshMatNames.back() : "");
-          }
-        }
-        #endif
+      while (std::getline (file, curline)) {
+        if (kLoaderDebug)
+          if ((outputIndicator = ((outputIndicator + 1) % outputEveryNth)) == 1)
+            if (!meshname.empty())
+               std::cout << "\r- " << meshname
+                         << "\t| vertices > " << Positions.size()
+                         << "\t| texcoords > " << TCoords.size()
+                         << "\t| normals > " << Normals.size()
+                         << "\t| triangles > " << (Vertices.size() / 3)
+                         << (!MeshMatNames.empty() ? "\t| material: " + MeshMatNames.back() : "");
 
         //{{{  Generate a Mesh Object or Prepare for an object to be created
-        if (algorithm::firstToken(curline) == "o" || 
-            algorithm::firstToken(curline) == "g" || curline[0] == 'g') {
+        if (algorithm::firstToken (curline) == "o" ||
+            algorithm::firstToken (curline) == "g" || curline[0] == 'g') {
           if (!listening) {
             listening = true;
-            if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g")
-              meshname = algorithm::tail(curline);
+            if (algorithm::firstToken (curline) == "o" || algorithm::firstToken (curline) == "g")
+              meshname = algorithm::tail (curline);
             else
               meshname = "unnamed";
             }
@@ -487,93 +486,94 @@ namespace objl {
 
             if (!Indices.empty() && !Vertices.empty()) {
               // Create Mesh
-              tempMesh = Mesh(Vertices, Indices);
+              tempMesh = Mesh (Vertices, Indices);
               tempMesh.MeshName = meshname;
 
               // Insert Mesh
-              LoadedMeshes.push_back(tempMesh);
+              LoadedMeshes.push_back (tempMesh);
 
               // Cleanup
               Vertices.clear();
               Indices.clear();
               meshname.clear();
 
-              meshname = algorithm::tail(curline);
+              meshname = algorithm::tail (curline);
               }
             else {
-              if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g")
-                meshname = algorithm::tail(curline);
+              if (algorithm::firstToken (curline) == "o" || algorithm::firstToken (curline) == "g")
+                meshname = algorithm::tail (curline);
               else
                 meshname = "unnamed";
               }
             }
-          #ifdef OBJL_CONSOLE_OUTPUT
+
+          if (kLoaderDebug) {
             std::cout << std::endl;
             outputIndicator = 0;
-          #endif
+            }
           }
         //}}}
         //{{{  Generate a Vertex Position
-        if (algorithm::firstToken(curline) == "v") {
+        if (algorithm::firstToken (curline) == "v") {
           std::vector<std::string> spos;
           Vector3 vpos;
-          algorithm::split(algorithm::tail(curline), spos, " ");
+          algorithm::split (algorithm::tail(curline), spos, " ");
 
-          vpos.X = std::stof(spos[0]);
-          vpos.Y = std::stof(spos[1]);
-          vpos.Z = std::stof(spos[2]);
+          vpos.X = std::stof (spos[0]);
+          vpos.Y = std::stof (spos[1]);
+          vpos.Z = std::stof (spos[2]);
 
-          Positions.push_back(vpos);
+          Positions.push_back (vpos);
           }
         //}}}
         //{{{  Generate a Vertex Texture Coordinate
-        if (algorithm::firstToken(curline) == "vt") {
+        if (algorithm::firstToken (curline) == "vt") {
           std::vector<std::string> stex;
           Vector2 vtex;
-          algorithm::split(algorithm::tail(curline), stex, " ");
+          algorithm::split (algorithm::tail (curline), stex, " ");
 
-          vtex.X = std::stof(stex[0]);
-          vtex.Y = std::stof(stex[1]);
+          vtex.X = std::stof (stex[0]);
+          vtex.Y = std::stof (stex[1]);
 
-          TCoords.push_back(vtex);
+          TCoords.push_back (vtex);
           }
         //}}}
         //{{{  Generate a Vertex Normal;
-        if (algorithm::firstToken(curline) == "vn") {
+        if (algorithm::firstToken (curline) == "vn") {
           std::vector<std::string> snor;
           Vector3 vnor;
-          algorithm::split(algorithm::tail(curline), snor, " ");
+          algorithm::split (algorithm::tail(curline), snor, " ");
 
-          vnor.X = std::stof(snor[0]);
-          vnor.Y = std::stof(snor[1]);
-          vnor.Z = std::stof(snor[2]);
+          vnor.X = std::stof (snor[0]);
+          vnor.Y = std::stof (snor[1]);
+          vnor.Z = std::stof (snor[2]);
 
-          Normals.push_back(vnor);
+          Normals.push_back (vnor);
           }
         //}}}
         //{{{  Generate a Face (vertices & indices)
-        if (algorithm::firstToken(curline) == "f") {
+        if (algorithm::firstToken (curline) == "f") {
           // Generate the vertices
           std::vector<Vertex> vVerts;
-          GenVerticesFromRawOBJ(vVerts, Positions, TCoords, Normals, curline);
+          GenVerticesFromRawOBJ (vVerts, Positions, TCoords, Normals, curline);
 
           // Add Vertices
           for (int i = 0; i < int(vVerts.size()); i++) {
-            Vertices.push_back(vVerts[i]);
-            LoadedVertices.push_back(vVerts[i]);
+            Vertices.push_back (vVerts[i]);
+            LoadedVertices.push_back (vVerts[i]);
             }
 
           std::vector<unsigned int> iIndices;
 
-          VertexTriangluation(iIndices, vVerts);
+          VertexTriangluation (iIndices, vVerts);
 
           // Add Indices
           for (int i = 0; i < int(iIndices.size()); i++) {
             unsigned int indnum = (unsigned int)((Vertices.size()) - vVerts.size()) + iIndices[i];
-            Indices.push_back(indnum);
+            Indices.push_back (indnum);
 
             indnum = (unsigned int)((LoadedVertices.size()) - vVerts.size()) + iIndices[i];
-            LoadedIndices.push_back(indnum);
+            LoadedIndices.push_back (indnum);
 
             }
           }
@@ -598,25 +598,24 @@ namespace objl {
               }
 
             // Insert Mesh
-            LoadedMeshes.push_back(tempMesh);
+            LoadedMeshes.push_back (tempMesh);
 
             // Cleanup
             Vertices.clear();
             Indices.clear();
             }
 
-          #ifdef OBJL_CONSOLE_OUTPUT
-          outputIndicator = 0;
-          #endif
+          if (kLoaderDebug)
+            outputIndicator = 0;
           }
         //}}}
         //{{{  Load Materials
-        if (algorithm::firstToken(curline) == "mtllib") {
+        if (algorithm::firstToken (curline) == "mtllib") {
           // Generate LoadedMaterial
 
           // Generate a path to the material file
           std::vector<std::string> temp;
-          algorithm::split(Path, temp, "/");
+          algorithm::split (fileName, temp, "/");
 
           std::string pathtomat = "";
 
@@ -626,30 +625,25 @@ namespace objl {
             }
 
 
-          pathtomat += algorithm::tail(curline);
+          pathtomat += algorithm::tail (curline);
 
-          #ifdef OBJL_CONSOLE_OUTPUT
-          std::cout << std::endl << "- find materials in: " << pathtomat << std::endl;
-          #endif
+          if (kLoaderDebug)
+            std::cout << std::endl << "- find materials in: " << pathtomat << std::endl;
 
           // Load Materials
-          LoadMaterials(pathtomat);
+          LoadMaterials (pathtomat);
           }
-        }
         //}}}
-      #ifdef OBJL_CONSOLE_OUTPUT
-        std::cout << std::endl;
-      #endif
-      //{{{  Deal with last mesh
+        if (kLoaderDebug)
+          std::cout << std::endl;
+        }
+
+      // last mesh
       if (!Indices.empty() && !Vertices.empty()) {
-        // Create Mesh
         tempMesh = Mesh(Vertices, Indices);
         tempMesh.MeshName = meshname;
-
-        // Insert Mesh
-        LoadedMeshes.push_back(tempMesh);
+        LoadedMeshes.push_back (tempMesh);
         }
-      //}}}
 
       file.close();
 
@@ -692,7 +686,7 @@ namespace objl {
 
       std::vector<std::string> sface, svert;
       Vertex vVert;
-      algorithm::split(algorithm::tail(icurline), sface, " ");
+      algorithm::split (algorithm::tail(icurline), sface, " ");
 
       bool noNormal = false;
 
@@ -700,7 +694,7 @@ namespace objl {
       for (int i = 0; i < int(sface.size()); i++) {
         // See What type the vertex is.
         int vtype;
-        algorithm::split(sface[i], svert, "/");
+        algorithm::split (sface[i], svert, "/");
 
         // Check for just position - v1
         if (svert.size() == 1) // Only position
@@ -874,14 +868,14 @@ namespace objl {
             }
 
           // If Vertex is not an interior vertex
-          float angle = math::AngleBetweenV3(pPrev.Position - pCur.Position, pNext.Position - pCur.Position) * (180.f / 3.14159265359f);
+          float angle = math::AngleBetweenV3 (pPrev.Position - pCur.Position, pNext.Position - pCur.Position) * (180.f / 3.14159265359f);
           if (angle <= 0 && angle >= 180)
             continue;
 
           // If any vertices are within this triangle
           bool inTri = false;
           for (int j = 0; j < int(iVerts.size()); j++) {
-            if (algorithm::inTriangle(iVerts[j].Position, pPrev.Position, pCur.Position, pNext.Position)
+            if (algorithm::inTriangle (iVerts[j].Position, pPrev.Position, pCur.Position, pNext.Position)
               && iVerts[j].Position != pPrev.Position
               && iVerts[j].Position != pCur.Position
               && iVerts[j].Position != pNext.Position) {
@@ -905,7 +899,7 @@ namespace objl {
           // Delete pCur from the list
           for (int j = 0; j < int(tVerts.size()); j++) {
             if (tVerts[j].Position == pCur.Position) {
-              tVerts.erase(tVerts.begin() + j);
+              tVerts.erase (tVerts.begin() + j);
               break;
               }
             }
