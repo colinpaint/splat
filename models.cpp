@@ -45,11 +45,44 @@ void cModel::load (int modelIndex) {
   }
 //}}}
 //{{{
-void cModel::loadRawFile (string const& filename) {
+void cModel::loadRawFile (string const& fileName) {
 
+  ifstream inputFind (fileName);
+    if (!inputFind.good()) {
+      //{{{  error, return
+       cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot find {}", fileName));
+      throw runtime_error ("cannot find");
+      return;
+      }
+      //}}}
+
+  inputFind.close();
+
+  ifstream input (fileName, ios::in | ios::binary);
+  if (input.fail()) {
+    ostringstream error_message;
+    cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot open {}", fileName));
+    throw runtime_error (error_message.str().c_str());
+    }
+
+  unsigned int nv;
+  input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
+  mVertices.resize (nv);
+  for (size_t i = 0; i < nv; ++i)
+    input.read (reinterpret_cast<char*>(mVertices[i].data()), 3 * sizeof(float));
+
+  unsigned int nf;
+  input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+  mFaces.resize (nf);
+
+  for (size_t i = 0; i < nf; ++i)
+    input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
+  input.close();
+
+  setVertexNormals();
 
   cLog::log (LOGINFO, fmt::format ("cModel::loadRawFile {} vertices:{} faces:{}",
-                                   filename, mVertices.size(), mFaces.size()));
+                                   fileName, mVertices.size(), mFaces.size()));
   }
 //}}}
 //{{{
