@@ -6,8 +6,7 @@
 #include <vector>
 #include <string>
 
-
-namespace objl {
+namespace objLoader {
   constexpr bool kLoaderDebug = false;
   //{{{
   struct Vector2 {
@@ -432,9 +431,6 @@ namespace objl {
     //{{{
     bool loadFile (std::string fileName) {
 
-      // If the file is not an .obj file return false
-      if (fileName.substr (fileName.size() - 4, 4) != ".obj")
-        return false;
       std::ifstream file (fileName);
       if (!file.is_open())
         return false;
@@ -669,8 +665,8 @@ namespace objl {
     //}}}
 
     // vars
-    std::vector<Mesh> LoadedMeshes;
     std::vector<Vertex> LoadedVertices;
+    std::vector<Mesh> LoadedMeshes;
     std::vector<unsigned int> LoadedIndices;
     std::vector<Material> LoadedMaterials;
 

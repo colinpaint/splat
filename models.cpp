@@ -74,9 +74,9 @@ void cModel::loadRawFile (string const& fileName) {
   unsigned int nf;
   input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
   mFaces.resize (nf);
-
   for (size_t i = 0; i < nf; ++i)
     input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
+
   input.close();
 
   setVertexNormals();
@@ -89,12 +89,12 @@ void cModel::loadRawFile (string const& fileName) {
 void cModel::loadObjFile (string const& fileName) {
 
     // Go through each loaded mesh and out its contents
-    objl::cLoader loader;
+    objLoader::cLoader loader;
     bool loadout = loader.loadFile (fileName);
 
     for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
       // Copy one of the loaded meshes to be our current mesh
-      objl::Mesh curMesh = loader.LoadedMeshes[i];
+      objLoader::Mesh curMesh = loader.LoadedMeshes[i];
 
       // Print Mesh Name
       cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
@@ -138,8 +138,17 @@ void cModel::loadObjFile (string const& fileName) {
       cout << "\n";
       }
 
+  mVertices.resize (loader.LoadedVertices.size());
+  for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
+    mVertices.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Position.X,
+                                          loader.LoadedVertices[i].Position.Y,
+                                          loader.LoadedVertices[i].Position.Z));
 
-  //std::vector<Material> LoadedMaterials;
+  //mFaces.resize (loader.LoadedMeshes.size());
+  //for (size_t i = 0; i < loader.LoadedMeshes.size(); ++i)
+  //  mFaces.push_back (loader.LoadedMeshes[i]);
+
+  //setVertexNormals();
 
   cLog::log (LOGINFO, fmt::format ("cModel::LoadedMeshes {} LoadedMeshes {} LoadedVertices:{} LoadedIndices:{} LoadedMaterials:{}",
                                    fileName,

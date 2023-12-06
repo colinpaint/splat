@@ -100,8 +100,8 @@ public:
       if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
         mRender->setBackFaceCull (mBackFaceCull);
 
-      ImGui::Text ("%.1f fps %d vertices %d faces", ImGui::GetIO().Framerate,
-                                 (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
+      ImGui::Text ("%.1f fps %d vertices %d faces",
+                   ImGui::GetIO().Framerate, (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
 
       if (mModel->isSelectable()) {
         ImGui::SetNextItemOpen (true, ImGuiCond_Once);
@@ -169,7 +169,7 @@ int main (int numArgs, char* args[]) {
   bool fullScreen = false;
   bool hasMultiSample = false;
   bool backFaceCull = false;
-  bool raw = false;
+  bool objFormat = false;
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -185,11 +185,11 @@ int main (int numArgs, char* args[]) {
       fullScreen = true;
     else if (param == "multi")
       hasMultiSample = true;
-    else if (param == "raw")
-      raw = true;
-    else
+    else {
       // assume filename
       fileName = param;
+      objFormat = fileName.substr (fileName.size() - 4, 4) == ".obj";
+      }
     }
   //}}}
 
@@ -201,15 +201,16 @@ int main (int numArgs, char* args[]) {
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  if (raw)
-    splatApp.mModel = new cModel (fileName);
+  if (objFormat) {
+    splatApp.mModel = new cModel (fileName, objFormat);
+    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
+    }
   else {
     splatApp.mModel = new cSurfelModel (fileName);
     splatApp.getModel()->load (splatApp.getModelIndex());
+    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
+    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
-
-  splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
-  splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
 
   return splatApp.mainUILoop();
   }

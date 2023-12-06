@@ -10,9 +10,9 @@
 //{{{
 class cModel {
 public:
-  cModel() {}
+  cModel () {}
   //{{{
-  cModel (std::string& fileName) {
+  cModel (std::string& fileName, bool objFormat) : mObjFormat(objFormat) {
     loadObjFile (fileName);
     }
   //}}}
@@ -47,6 +47,8 @@ public:
 
 private:
   void setVertexNormals();
+
+  bool mObjFormat = false;
   };
 //}}}
 //{{{

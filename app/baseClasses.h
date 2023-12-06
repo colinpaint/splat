@@ -12,6 +12,7 @@ public:
   ~cVertexArray();
   void bind();
   void unbind();
+
 private:
   GLuint mVertexArray;
   };
@@ -24,6 +25,7 @@ public:
   void bind();
   void unbind();
   void set (GLsizeiptr size, GLvoid const* ptr);
+
 private:
   GLuint mArray;
   };
@@ -36,6 +38,7 @@ public:
   void bind();
   void unbind();
   void set (GLsizeiptr size, GLvoid const* ptr);
+
 private:
   GLuint mElementArray;
   };
@@ -47,9 +50,11 @@ public:
   cUniform (GLsizeiptr size);
   ~cUniform();
   void bindBufferBase (GLuint index);
+
 protected:
   void bind();
   void unbind();
+
 private:
   GLuint mUniform;
   };
@@ -81,18 +86,21 @@ protected:
 class cVertexShader : public cShader {
 public:
   cVertexShader();
+  virtual ~cVertexShader() = default;
   };
 //}}}
 //{{{
 class cGeometryShader : public cShader {
 public:
   cGeometryShader();
+  virtual ~cGeometryShader() = default;
   };
 //}}}
 //{{{
 class cFragmentShader : public cShader {
 public:
   cFragmentShader();
+  virtual ~cFragmentShader() = default;
   };
 //}}}
 
