@@ -83,7 +83,7 @@ protected:
   cShader();
 
   GLuint mShader;
-  std::string m_source;
+  std::string mSource;
 
   friend class cProgram;
   };

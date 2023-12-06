@@ -68,9 +68,9 @@ cShader::~cShader() { glDeleteShader(mShader); }
 //{{{
 void cShader::load (const vector <string>& source) {
 
-  m_source = "";
+  mSource = "";
   for (auto& line : source)
-    m_source += line + '\n';
+    mSource += line + '\n';
   }
 //}}}
 //{{{
@@ -85,19 +85,18 @@ void cShader::loadFile (string const& filename) {
 
   input.close();
 
-  m_source = output.str();
+  mSource = output.str();
   }
 //}}}
 
 //{{{
-void cShader::compile (map<string, int> const& define_list) {
+void cShader::compile (map<string, int> const& defineList) {
 
-  // Configure source.
-  string source = m_source;
-  for (map<string, int>::const_iterator it = define_list.begin(); it != define_list.end(); ++it) {
+  // configure source, edit defineList into source defines
+  string source = mSource;
+  for (map<string, int>::const_iterator it = defineList.begin(); it != defineList.end(); ++it) {
     ostringstream define;
     define << "#define " << it->first;
-
     size_t pos = source.find (define.str(), 0);
     if (pos != string::npos) {
       size_t len = source.find ("\n", pos) - pos + 1;
@@ -106,7 +105,7 @@ void cShader::compile (map<string, int> const& define_list) {
       }
     }
 
-  // Compile configured source.
+  // compile configured source.
   const char* source_cstr = source.c_str();
   glShaderSource (mShader, 1, &source_cstr, NULL);
   glCompileShader (mShader);
