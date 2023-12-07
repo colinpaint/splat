@@ -10,7 +10,7 @@ public:
   cApp() {}
   virtual ~cApp() = default;
 
-  void init (int screenWidth, int screen_height, bool fullScreen, bool multiSample);
+  void init (const std::string& name, int screenWidth, int screen_height, bool fullScreen, bool multiSample);
 
   int getScreenWidth() const { return mScreenWidth; };
   int getScreenHeight() const { return mScreenHeight; };

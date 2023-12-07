@@ -24,7 +24,7 @@ namespace {
   }
 
 //{{{
-void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiSample) {
+void cApp::init (const string& name, int screenWidth, int screenHeight, bool fullScreen, bool multiSample) {
 
   mScreenWidth = screenWidth;
   mScreenHeight = screenHeight;
@@ -51,7 +51,7 @@ void cApp::init (int screenWidth, int screenHeight, bool fullScreen, bool multiS
     }
     //}}}
 
-  mSdlWindow = SDL_CreateWindow ("app", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+  mSdlWindow = SDL_CreateWindow (name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                  mScreenWidth, mScreenHeight,
                                  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
   if (!mSdlWindow) {

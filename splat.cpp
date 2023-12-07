@@ -33,11 +33,11 @@ public:
   virtual ~cSplatApp() = default;
 
   //{{{
-  void init (int width, int height, bool fullScreen, bool hasMultiSample) {
+  void init (const string& name, int width, int height, bool fullScreen, bool hasMultiSample) {
 
     mHasMultiSample = hasMultiSample;
 
-    cApp::init (width, height, fullScreen, hasMultiSample);
+    cApp::init (name, width, height, fullScreen, hasMultiSample);
 
     setResizeCallback ([this](int width, int height) {
       // resize lambda
@@ -206,7 +206,7 @@ int main (int numArgs, char* args[]) {
   cLog::log (LOGNOTICE, "splat");
 
   cSplatApp splatApp;
-  splatApp.init (960, 540, fullScreen, hasMultiSample);
+  splatApp.init ("splatApp", 960, 540, fullScreen, hasMultiSample);
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
