@@ -88,14 +88,15 @@ public:
   int getModelIndex() { return mModelIndex; }
   bool getRipple() const { return mRipple; }
 
-  bool getUseSplatRender() const { return mUseSplatRender; }
   bool getMultiSample() const { return mMultiSample; }
   bool getBackFaceCull() const { return mBackFaceCull; }
 
+  bool getUseSplatRender() const { return mUseSplatRender; }
   cSplatRender* getSplatRender() { return mSplatRender; }
   cMeshRender* getMeshRender() { return mMeshRender; }
   cRender* getRender() { return mRender; }
 
+  void setModel (cModel* model) { mModel = model; }
   //{{{
   void setMeshRender (cMeshRender* meshRender) {
     mMeshRender = meshRender;
@@ -110,9 +111,6 @@ public:
     mRender->use (mMultiSample, mBackFaceCull);
     }
   //}}}
-
-  // vars
-  cModel* mModel;
 
 private:
   //{{{
@@ -155,18 +153,19 @@ private:
     }
   //}}}
 
-  //{{{  vars
+  // vars
+  cModel* mModel;
+
   bool mHasMultiSample = false;
   bool mBackFaceCull = false;
 
   int mModelIndex = 0;
   bool mRipple = false;
 
+  bool mUseSplatRender = false;
   cSplatRender* mSplatRender;
   cMeshRender* mMeshRender;
   cRender* mRender;
-  bool mUseSplatRender = false;
-  //}}}
   };
 //}}}
 
@@ -202,11 +201,10 @@ int main (int numArgs, char* args[]) {
 
   cSplatApp splatApp;
   splatApp.init ("splatApp", 960, 540, fullScreen, hasMultiSample);
-
-  splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
+  splatApp.getCamera().translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
   if (fileName.empty()) {
-    splatApp.mModel = new cSurfelModel();
+    splatApp.setModel (new cSurfelModel());
     splatApp.getModel()->loadIndex (splatApp.getModelIndex());
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
@@ -215,7 +213,7 @@ int main (int numArgs, char* args[]) {
     // .obj
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadObjFile (fileName);
-    splatApp.mModel = surfelModel;
+    splatApp.setModel (surfelModel);
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
@@ -223,7 +221,7 @@ int main (int numArgs, char* args[]) {
     // .raw
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadRawFile (fileName);
-    splatApp.mModel = surfelModel;
+    splatApp.setModel (surfelModel);
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
@@ -232,7 +230,7 @@ int main (int numArgs, char* args[]) {
     //.png, .jpg
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadPiccyFile (fileName);
-    splatApp.mModel = surfelModel;
+    splatApp.setModel (surfelModel);
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     }
 
