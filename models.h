@@ -15,7 +15,7 @@ public:
 
   void loadObjFile (std::string const& fileName);
   void loadRawFile (std::string const& fileName);
-  virtual void load (int modelIndex);
+  virtual void loadIndex (int index);
 
   size_t getNumVertices() const { return mVertices.size(); }
   size_t getNumNormals() const { return mNormals.size(); }
@@ -66,13 +66,13 @@ public:
     };
   //}}}
   cSurfelModel() {}
-  cSurfelModel (const std::string& fileName) : mFileName(fileName) {}
   virtual ~cSurfelModel() = default;
 
   void* getArray() { return &mModel.front(); }
   size_t getSize() const { return mModel.size(); }
 
-  virtual void load (int modelIndex);
+  virtual void loadIndex (int modelIndex) final;
+  void loadPiccyFile (const std::string& fileName);
 
 private:
   void hsv2rgb (float h, float s, float v, float& r, float& g, float& b);
@@ -86,6 +86,5 @@ private:
   void createCube();
 
   std::vector <cSurfel> mModel;
-  std::string mFileName;
   };
 //}}}

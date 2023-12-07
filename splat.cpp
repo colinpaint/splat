@@ -145,8 +145,8 @@ private:
     if (mModel->isSelectable()) {
       ImGui::SetNextItemOpen (true, ImGuiCond_Once);
       if (ImGui::CollapsingHeader ("scene"))
-        if (ImGui::Combo ("##", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0piccy\0\0"))
-          mModel->load (mModelIndex);
+        if (ImGui::Combo ("##", &mModelIndex, "dragonLo\0dragonHi\0checker\0cube\0\0"))
+          mModel->loadIndex (mModelIndex);
       }
 
 
@@ -176,8 +176,6 @@ int main (int numArgs, char* args[]) {
   bool fullScreen = false;
   bool hasMultiSample = false;
   bool backFaceCull = false;
-  bool objFormat = false;
-  bool rawFormat = false;
   eLogLevel logLevel = LOGINFO;
   //{{{  parse commandLine to params
   // parse params
@@ -193,12 +191,9 @@ int main (int numArgs, char* args[]) {
       fullScreen = true;
     else if (param == "multi")
       hasMultiSample = true;
-    else {
+    else
       // assume filename
       fileName = param;
-      objFormat = fileName.substr (fileName.size() - 4, 4) == ".obj";
-      rawFormat = fileName.substr (fileName.size() - 4, 4) == ".raw";
-      }
     }
   //}}}
 
@@ -210,20 +205,34 @@ int main (int numArgs, char* args[]) {
 
   splatApp.mCamera.translate (Eigen::Vector3f(0.0f, 0.0f, -2.0f));
 
-  if (objFormat) {
+  if (fileName.empty()) {
+    splatApp.mModel = new cSurfelModel();
+    splatApp.getModel()->loadIndex (splatApp.getModelIndex());
+    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
+    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
+    }
+  else if (fileName.substr (fileName.size() - 4, 4) == ".obj") {
+    // .obj
     splatApp.mModel = new cModel();
     splatApp.mModel->loadObjFile (fileName);
+    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
+    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
-  else if (rawFormat) {
+  else if (fileName.substr (fileName.size() - 4, 4) == ".raw") {
+    // .raw
     splatApp.mModel = new cModel();
     splatApp.mModel->loadRawFile (fileName);
+    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
+    splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
-  else {
-    splatApp.mModel = new cSurfelModel (fileName);
-    splatApp.getModel()->load (splatApp.getModelIndex());
+  else if ((fileName.substr (fileName.size() - 4, 4) == ".png") ||
+           (fileName.substr (fileName.size() - 4, 4) == ".jpg")) {
+    //.png, .jpg
+    cSurfelModel* surfelModel = new cSurfelModel();
+    surfelModel->loadPiccyFile (fileName);
+    splatApp.mModel = surfelModel;
+    splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     }
-  splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
-  splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
 
   return splatApp.mainUILoop();
   }

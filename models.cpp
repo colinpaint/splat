@@ -135,7 +135,7 @@ void cModel::loadRawFile (string const& fileName) {
   }
 //}}}
 //{{{
-void cModel::load (int modelIndex) {
+void cModel::loadIndex (int modelIndex) {
 
   if (modelIndex == 0)
     loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
@@ -143,7 +143,6 @@ void cModel::load (int modelIndex) {
     loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
   }
 //}}}
-
 //{{{
 void cModel::normalise() {
 
@@ -205,6 +204,7 @@ void cModel::normalise() {
     }
   }
 //}}}
+
 //{{{
 void cModel::ripple() {
 
@@ -256,7 +256,7 @@ void cModel::setVertexNormals() {
 
 // cSurfelModel
 //{{{
-void cSurfelModel::load (int modelIndex) {
+void cSurfelModel::loadIndex (int modelIndex) {
 
   switch (modelIndex) {
     case 0:
@@ -275,11 +275,15 @@ void cSurfelModel::load (int modelIndex) {
       createCube();
       break;
 
-    case 4: {
-      createPiccy (mFileName.empty() ? "../piccies/test.png" : mFileName);
+    default:
+      cLog::log (LOGERROR, "cSurfelModel unrecognised model index");
       break;
-      }
     }
+  }
+//}}}
+//{{{
+void cSurfelModel::loadPiccyFile (const string& fileName) {
+  createPiccy (fileName);
   }
 //}}}
 
