@@ -36,55 +36,58 @@ using namespace std;
 
 // cModel
 //{{{
-void cModel::loadObjFile (string const& fileName) {
+void cModel::loadIndex (int modelIndex) {
 
-  // Go through each loaded mesh and out its contents
+  if (modelIndex == 0)
+    loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
+  else
+    loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
+  }
+//}}}
+//{{{
+void cModel::loadObjFile (const string& fileName) {
+
   objLoader::cLoader loader;
-  bool loadout = loader.loadFile (fileName);
-
-  for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
-    objLoader::Mesh curMesh = loader.LoadedMeshes[i];
-
-    cout << "Mesh " << i << ": " << curMesh.MeshName << "\n";
-    //{{{  print vertice info
-    //  position, normal, and texture coordinate
-    //for (int j = 0; j < curMesh.Vertices.size(); j++) {
-    //  cout << "V" << j << ": " <<
-    //    "P(" << curMesh.Vertices[j].Position.X << ", " << curMesh.Vertices[j].Position.Y << ", " << curMesh.Vertices[j].Position.Z << ") " <<
-    //    "N(" << curMesh.Vertices[j].Normal.X << ", " << curMesh.Vertices[j].Normal.Y << ", " << curMesh.Vertices[j].Normal.Z << ") " <<
-    //    "TC(" << curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
-    //  }
+  if (!loader.loadFile (fileName)) {
+    //{{{  error, return
+    cLog::log (LOGERROR, fmt::format ("cModel::loadObjFile {} not found", fileName));
+    return;
+    }
     //}}}
+
+  for (auto& mesh : loader.LoadedMeshes) {
+    cLog::log (LOGINFO, fmt::format ("cModel::loadObjFile mesh {}", mesh.MeshName));
     //{{{  print material info
-    //cout << "Material: " << curMesh.MeshMaterial.name << "\n";
-    //cout << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";
-    //cout << "Diffuse Color: " << curMesh.MeshMaterial.Kd.X << ", " << curMesh.MeshMaterial.Kd.Y << ", " << curMesh.MeshMaterial.Kd.Z << "\n";
-    //cout << "Specular Color: " << curMesh.MeshMaterial.Ks.X << ", " << curMesh.MeshMaterial.Ks.Y << ", " << curMesh.MeshMaterial.Ks.Z << "\n";
-    //cout << "Specular Exponent: " << curMesh.MeshMaterial.Ns << "\n";
-    //cout << "Optical Density: " << curMesh.MeshMaterial.Ni << "\n";
-    //cout << "Dissolve: " << curMesh.MeshMaterial.d << "\n";
-    //cout << "Illumination: " << curMesh.MeshMaterial.illum << "\n";
-    //cout << "Ambient Texture Map: " << curMesh.MeshMaterial.map_Ka << "\n";
-    //cout << "Diffuse Texture Map: " << curMesh.MeshMaterial.map_Kd << "\n";
-    //cout << "Specular Texture Map: " << curMesh.MeshMaterial.map_Ks << "\n";
-    //cout << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
-    //cout << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";
+    //cout << "Material: " << mesh.MeshMaterial.name << "\n";
+    //cout << "Ambient Color: " << mesh.MeshMaterial.Ka.X << ", " << mesh.MeshMaterial.Ka.Y << ", " << mesh.MeshMaterial.Ka.Z << "\n";
+    //cout << "Diffuse Color: " << mesh.MeshMaterial.Kd.X << ", " << mesh.MeshMaterial.Kd.Y << ", " << mesh.MeshMaterial.Kd.Z << "\n";
+    //cout << "Specular Color: " << mesh.MeshMaterial.Ks.X << ", " << mesh.MeshMaterial.Ks.Y << ", " << mesh.MeshMaterial.Ks.Z << "\n";
+    //cout << "Specular Exponent: " << mesh.MeshMaterial.Ns << "\n";
+    //cout << "Optical Density: " << mesh.MeshMaterial.Ni << "\n";
+    //cout << "Dissolve: " << mesh.MeshMaterial.d << "\n";
+    //cout << "Illumination: " << mesh.MeshMaterial.illum << "\n";
+    //cout << "Ambient Texture Map: " << mesh.MeshMaterial.map_Ka << "\n";
+    //cout << "Diffuse Texture Map: " << mesh.MeshMaterial.map_Kd << "\n";
+    //cout << "Specular Texture Map: " << mesh.MeshMaterial.map_Ks << "\n";
+    //cout << "Alpha Texture Map: " << mesh.MeshMaterial.map_d << "\n";
+    //cout << "Bump Map: " << mesh.MeshMaterial.map_bump << "\n";
     //cout << "\n";
     //}}}
 
-    //mVertices.resize (mVertices.size() + loader.LoadedVertices.size());
     for (size_t i = 0; i < loader.LoadedVertices.size(); ++i) {
+      // load vertices from .obj
       mVertices.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Position.X,
                                             loader.LoadedVertices[i].Position.Y,
                                             loader.LoadedVertices[i].Position.Z));
+      // load normals from .obj
       mNormals.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Normal.X,
                                            loader.LoadedVertices[i].Normal.Y,
                                            loader.LoadedVertices[i].Normal.Z));
       }
 
-    //mVertices.resize (mFaces.size() + (curMesh.Indices.size() / 3));
-    for (int j = 0; j < curMesh.Indices.size(); j += 3)
-     mFaces.push_back ({ curMesh.Indices[j], curMesh.Indices[j+1], curMesh.Indices[j+2] });
+    // load faces from .obj indices
+    for (int j = 0; j < mesh.Indices.size(); j += 3)
+      mFaces.push_back ({ mesh.Indices[j], mesh.Indices[j+1], mesh.Indices[j+2] });
     }
 
   cLog::log (LOGINFO, fmt::format ("cModel::loadObjFile {} vertices:{} faces:{}",
@@ -94,7 +97,7 @@ void cModel::loadObjFile (string const& fileName) {
   }
 //}}}
 //{{{
-void cModel::loadRawFile (string const& fileName) {
+void cModel::loadRawFile (const string& fileName) {
 
   ifstream inputFind (fileName);
     if (!inputFind.good()) {
@@ -135,15 +138,6 @@ void cModel::loadRawFile (string const& fileName) {
   }
 //}}}
 //{{{
-void cModel::loadIndex (int modelIndex) {
-
-  if (modelIndex == 0)
-    loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
-  else
-    loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
-  }
-//}}}
-//{{{
 void cModel::normalise() {
 
   // min max range
@@ -154,6 +148,7 @@ void cModel::normalise() {
   float minZ = 99999.f;
   float maxZ = -99999.f;
   for (auto& vertice : mVertices) {
+    //{{{  min max x,y,z
     minX = min (vertice.data()[0], minX);
     maxX = max (vertice.data()[0], maxX);
     minY = min (vertice.data()[1], minY);
@@ -161,13 +156,14 @@ void cModel::normalise() {
     minZ = min (vertice.data()[2], minZ);
     maxZ = max (vertice.data()[2], maxZ);
     }
+    //}}}
   cLog::log (LOGINFO, fmt::format ("range {:6.4f}:{:6.4f} {:6.4f}:{:6.4f} {:6.4f}:{:6.4f}",
                                    minX, maxX, minY, maxY, minZ, maxZ));
 
   // centre
-  float centreX = (maxX - minX) / 2.f;
-  float centreY = (maxY - minY) / 2.f;
-  float centreZ = (maxZ - minZ) / 2.f;
+  float centreX = (maxX + minX) / 2.f;
+  float centreY = (maxY + minY) / 2.f;
+  float centreZ = (maxZ + minZ) / 2.f;
 
   minX = 99999.f;
   maxX = -99999.f;
@@ -176,6 +172,7 @@ void cModel::normalise() {
   minZ = 99999.f;
   maxZ = -99999.f;
   for (auto& vertice : mVertices) {
+    //{{{  centre xyz
     vertice.data()[0] -= centreX;
     vertice.data()[1] -= centreY;
     vertice.data()[2] -= centreZ;
@@ -186,21 +183,40 @@ void cModel::normalise() {
     minZ = min (vertice.data()[2], minZ);
     maxZ = max (vertice.data()[2], maxZ);
     }
+    //}}}
+  cLog::log (LOGINFO, fmt::format ("centred {:6.4f}:{:6.4f} {:6.4f}:{:6.4f} {:6.4f}:{:6.4f}",
+                                   minX, maxX, minY, maxY, minZ, maxZ));
 
-  // scale
+  //  scale
   float rangeX = maxX - minX;
   float rangeY = maxY - minY;
   float rangeZ = maxZ - minZ;
+
   float maxRange = max (max (rangeX, rangeY), rangeZ);
   if ((maxRange > 2.f) || (maxRange < 1.f)) {
     float scale = 1.f / maxRange;
-    cLog::log (LOGINFO, fmt::format ("scaled scale:{:4.2f} maxRange:{:6.4f} x:{:6.4f}:{:6.4f} y:{:6.4f}:{:6.4f} z:{:6.4f}:{:6.4f}",
-                                     scale, maxRange, minX, maxX, minY, maxY, minZ, maxZ));
+
+    minX = 99999.f;
+    maxX = -99999.f;
+    minY = 99999.f;
+    maxY = -99999.f;
+    minZ = 99999.f;
+    maxZ = -99999.f;
     for (auto& vertice : mVertices) {
+      //{{{  scale x.y,z
       vertice.data()[0] *= scale;
       vertice.data()[1] *= scale;
       vertice.data()[2] *= scale;
+      minX = min (vertice.data()[0], minX);
+      maxX = max (vertice.data()[0], maxX);
+      minY = min (vertice.data()[1], minY);
+      maxY = max (vertice.data()[1], maxY);
+      minZ = min (vertice.data()[2], minZ);
+      maxZ = max (vertice.data()[2], maxZ);
       }
+      //}}}
+    cLog::log (LOGINFO, fmt::format ("scaled:{:4.2f} x:{:6.4f}:{:6.4f} y:{:6.4f}:{:6.4f} z:{:6.4f}:{:6.4f}",
+                                     scale, minX, maxX, minY, maxY, minZ, maxZ));
     }
   }
 //}}}
@@ -260,11 +276,13 @@ void cSurfelModel::loadIndex (int modelIndex) {
 
   switch (modelIndex) {
     case 0:
-      createModel ("../models/stanford_dragon_v40k_f80k.raw");
+      loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
+      meshToSurfel();
       break;
 
     case 1:
-      createModel ("../models/stanford_dragon_v344k_f688k.raw");
+      loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
+      meshToSurfel();
       break;
 
     case 2:
@@ -282,8 +300,74 @@ void cSurfelModel::loadIndex (int modelIndex) {
   }
 //}}}
 //{{{
+void cSurfelModel::loadObjFile (const string& fileName) {
+  cModel::loadObjFile (fileName);
+  meshToSurfel();
+  }
+//}}}
+//{{{
+void cSurfelModel::loadRawFile (const string& fileName) {
+  cModel::loadRawFile (fileName);
+  meshToSurfel();
+  }
+//}}}
+//{{{
 void cSurfelModel::loadPiccyFile (const string& fileName) {
-  createPiccy (fileName);
+
+  mVertices.clear();
+  mFaces.clear();
+  mNormals.clear();
+  mRefVertices.clear();
+  mRefNormals.clear();
+
+  FILE* file = fopen (fileName.c_str(), "rb");
+  if (!file) {
+    //{{{  error, return
+    cLog::log (LOGERROR, fmt::format ("failed to load file {}", fileName));
+    return;
+    }
+    //}}}
+
+  constexpr uint32_t kMaxFileSize = 20000000;
+  uint8_t* fileBuf = new uint8_t [kMaxFileSize];
+  uint32_t fileBufLen = 0;
+  fileBufLen = (uint32_t)fread (fileBuf, 1, kMaxFileSize, file);
+  fclose (file);
+
+  int32_t width;
+  int32_t height;
+  int32_t channels;
+  uint8_t* pixels = (uint8_t*)stbi_load_from_memory (fileBuf, fileBufLen, &width, &height, &channels, 4);
+  cLog::log (LOGINFO, fmt::format ("createPiccy {} {}x{}:{}", fileName, width, height, channels));
+
+  mModel.resize (width * height);
+
+  const float dw = 2.0f / width;
+  const float dh = 2.0f / height;
+  size_t surfelIndex = 0;
+  uint32_t* rgbaPixels = (uint32_t*)pixels;
+  for (size_t j = 0; j < height; ++j) {
+    for (size_t i = 0; i < width; ++i) {
+      mModel[surfelIndex].centre = Eigen::Vector3f (-1.0f + (dh * i), -1.0f + (dw * j), 0.0f);
+      mModel[surfelIndex].major = dw * Eigen::Vector3f::UnitX(); // ellipse major axis
+      mModel[surfelIndex].minor = dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
+      mModel[surfelIndex].clipPlane= Eigen::Vector3f::Zero(),
+      mModel[surfelIndex].rgba = *(rgbaPixels++);
+
+      // clipping planes
+      if (j == 0)
+        mModel[surfelIndex].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+      else if (i == 0)
+        mModel[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+      else if (j == height-1)
+        mModel[surfelIndex].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+      else if (i == width-1)
+        mModel[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+      else
+        mModel[surfelIndex].clipPlane= Eigen::Vector3f::Zero();
+      surfelIndex++;
+      }
+    }
   }
 //}}}
 
@@ -400,14 +484,14 @@ void cSurfelModel::meshToSurfel() {
         mModel[j].centre = p0;
         mModel[j].major = t1;
         mModel[j].minor = t2;
-        mModel[j].clipPlane= Eigen::Vector3f::Zero();
+        mModel[j].clipPlane = Eigen::Vector3f::Zero();
 
-        float h = min((abs(p0.x()) / 0.45f) * 360.0f, 360.0f);
+        float h = min (abs (p0.x()) * 360.f, 360.f);
         float r, g, b;
         hsv2rgb (h, 1.0f, 1.0f, r, g, b);
-        mModel[j].rgba = static_cast<uint32_t>(r * 255.0f)
-                      | (static_cast<uint32_t>(g * 255.0f) << 8)
-                      | (static_cast<uint32_t>(b * 255.0f) << 16);
+        mModel[j].rgba = static_cast<uint32_t>(r * 255.f) |
+                         (static_cast<uint32_t>(g * 255.f) << 8) |
+                         (static_cast<uint32_t>(b * 255.f) << 16);
         }
       });
     }
@@ -417,10 +501,10 @@ void cSurfelModel::meshToSurfel() {
   }
 //}}}
 //{{{
-void cSurfelModel::createModel (const string& filename) {
+void cSurfelModel::createModel (const string& fileName) {
 
   try {
-    loadRawFile (filename);
+    loadRawFile (fileName);
     meshToSurfel();
     }
 
@@ -494,67 +578,6 @@ void cSurfelModel::createChecker (size_t width, size_t height) {
           }
         ++m;
         }
-      }
-    }
-  }
-//}}}
-//{{{
-void cSurfelModel::createPiccy (const string& filename) {
-
-  mVertices.clear();
-  mFaces.clear();
-  mNormals.clear();
-  mRefVertices.clear();
-  mRefNormals.clear();
-
-  FILE* file = fopen (filename.c_str(), "rb");
-  if (!file) {
-    //{{{  error, return
-    cLog::log (LOGERROR, fmt::format ("failed to load file {}", filename));
-    return;
-    }
-    //}}}
-
-  constexpr uint32_t kMaxFileSize = 20000000;
-  uint8_t* fileBuf = new uint8_t [kMaxFileSize];
-  uint32_t fileBufLen = 0;
-  fileBufLen = (uint32_t)fread (fileBuf, 1, kMaxFileSize, file);
-  fclose (file);
-
-  int32_t width;
-  int32_t height;
-  int32_t channels;
-  uint8_t* pixels = (uint8_t*)stbi_load_from_memory (fileBuf, fileBufLen, &width, &height, &channels, 4);
-
-  cLog::log (LOGINFO, fmt::format ("createPiccy {} {}x{}:{}", filename, width, height, channels));
-
-  mModel.resize (width * height);
-
-  const float dw = 2.0f / width;
-  const float dh = 2.0f / height;
-
-  size_t surfelIndex = 0;
-  uint32_t* rgbaPixels = (uint32_t*)pixels;
-  for (size_t j = 0; j < height; ++j) {
-    for (size_t i = 0; i < width; ++i) {
-      mModel[surfelIndex].centre = Eigen::Vector3f (-1.0f + (dh * i), -1.0f + (dw * j), 0.0f);
-      mModel[surfelIndex].major = dw * Eigen::Vector3f::UnitX(); // ellipse major axis
-      mModel[surfelIndex].minor = dh * Eigen::Vector3f::UnitY(); // ellipse minor axis
-      mModel[surfelIndex].clipPlane= Eigen::Vector3f::Zero(),
-      mModel[surfelIndex].rgba = *(rgbaPixels++);
-
-      // clipping planes
-      if (j == 0)
-        mModel[surfelIndex].clipPlane= Eigen::Vector3f(1.0f, 0.0f, 0.0f);
-      else if (i == 0)
-        mModel[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-      else if (j == height-1)
-        mModel[surfelIndex].clipPlane= Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
-      else if (i == width-1)
-        mModel[surfelIndex].clipPlane= Eigen::Vector3f(0.0f, -1.0f, 0.0f);
-      else
-        mModel[surfelIndex].clipPlane= Eigen::Vector3f::Zero();
-      surfelIndex++;
       }
     }
   }

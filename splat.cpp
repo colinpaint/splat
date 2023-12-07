@@ -213,15 +213,17 @@ int main (int numArgs, char* args[]) {
     }
   else if (fileName.substr (fileName.size() - 4, 4) == ".obj") {
     // .obj
-    splatApp.mModel = new cModel();
-    splatApp.mModel->loadObjFile (fileName);
+    cSurfelModel* surfelModel = new cSurfelModel();
+    surfelModel->loadObjFile (fileName);
+    splatApp.mModel = surfelModel;
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
   else if (fileName.substr (fileName.size() - 4, 4) == ".raw") {
     // .raw
-    splatApp.mModel = new cModel();
-    splatApp.mModel->loadRawFile (fileName);
+    cSurfelModel* surfelModel = new cSurfelModel();
+    surfelModel->loadRawFile (fileName);
+    splatApp.mModel = surfelModel;
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
