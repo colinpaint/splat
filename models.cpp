@@ -36,56 +36,6 @@ using namespace std;
 
 // cModel
 //{{{
-void cModel::load (int modelIndex) {
-
-  if (modelIndex == 0)
-    loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
-  else
-    loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
-  }
-//}}}
-//{{{
-void cModel::loadRawFile (string const& fileName) {
-
-  ifstream inputFind (fileName);
-    if (!inputFind.good()) {
-      //{{{  error, return
-       cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot find {}", fileName));
-      throw runtime_error ("cannot find");
-      return;
-      }
-      //}}}
-
-  inputFind.close();
-
-  ifstream input (fileName, ios::in | ios::binary);
-  if (input.fail()) {
-    ostringstream error_message;
-    cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot open {}", fileName));
-    throw runtime_error (error_message.str().c_str());
-    }
-
-  unsigned int nv;
-  input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
-  mVertices.resize (nv);
-  for (size_t i = 0; i < nv; ++i)
-    input.read (reinterpret_cast<char*>(mVertices[i].data()), 3 * sizeof(float));
-
-  unsigned int nf;
-  input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
-  mFaces.resize (nf);
-  for (size_t i = 0; i < nf; ++i)
-    input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
-
-  input.close();
-
-  setVertexNormals();
-
-  cLog::log (LOGINFO, fmt::format ("cModel::loadRawFile {} vertices:{} faces:{}",
-                                   fileName, mVertices.size(), mFaces.size()));
-  }
-//}}}
-//{{{
 void cModel::loadObjFile (string const& fileName) {
 
   // Go through each loaded mesh and out its contents
@@ -123,28 +73,136 @@ void cModel::loadObjFile (string const& fileName) {
     //}}}
 
     //mVertices.resize (mVertices.size() + loader.LoadedVertices.size());
-    for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
+    for (size_t i = 0; i < loader.LoadedVertices.size(); ++i) {
       mVertices.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Position.X,
                                             loader.LoadedVertices[i].Position.Y,
                                             loader.LoadedVertices[i].Position.Z));
-
-    //mVertices.resize (mNormals.size() + loader.LoadedVertices.size());
-    for (size_t i = 0; i < loader.LoadedVertices.size(); ++i)
       mNormals.push_back (Eigen::Vector3f (loader.LoadedVertices[i].Normal.X,
                                            loader.LoadedVertices[i].Normal.Y,
                                            loader.LoadedVertices[i].Normal.Z));
+      }
 
     //mVertices.resize (mFaces.size() + (curMesh.Indices.size() / 3));
     for (int j = 0; j < curMesh.Indices.size(); j += 3)
-      mFaces.push_back ({ curMesh.Indices[j], curMesh.Indices[j+1], curMesh.Indices[j+2] });
+     mFaces.push_back ({ curMesh.Indices[j], curMesh.Indices[j+1], curMesh.Indices[j+2] });
     }
 
+  cLog::log (LOGINFO, fmt::format ("cModel::loadObjFile {} vertices:{} faces:{}",
+                                   fileName, mVertices.size(), mFaces.size()));
+  normalise();
   //setVertexNormals();
+  }
+//}}}
+//{{{
+void cModel::loadRawFile (string const& fileName) {
 
-  cLog::log (LOGINFO, fmt::format ("cModel::LoadedMeshes {} LoadedMeshes {} LoadedVertices:{} LoadedIndices:{} LoadedMaterials:{}",
-                                   fileName,
-                                   loader.LoadedMeshes.size(), loader.LoadedVertices.size(),
-                                   loader.LoadedIndices.size(), loader.LoadedMaterials.size()));
+  ifstream inputFind (fileName);
+    if (!inputFind.good()) {
+      //{{{  error, return
+       cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot find {}", fileName));
+      throw runtime_error ("cannot find");
+      return;
+      }
+      //}}}
+
+  inputFind.close();
+
+  ifstream input (fileName, ios::in | ios::binary);
+  if (input.fail()) {
+    ostringstream error_message;
+    cLog::log (LOGERROR, fmt::format ("cModel::loadFile - cannot open {}", fileName));
+    throw runtime_error (error_message.str().c_str());
+    }
+
+  unsigned int nv;
+  input.read (reinterpret_cast<char*>(&nv), sizeof(unsigned int));
+  mVertices.resize (nv);
+  for (size_t i = 0; i < nv; ++i)
+    input.read (reinterpret_cast<char*>(mVertices[i].data()), 3 * sizeof(float));
+
+  unsigned int nf;
+  input.read (reinterpret_cast<char*>(&nf), sizeof(unsigned int));
+  mFaces.resize (nf);
+  for (size_t i = 0; i < nf; ++i)
+    input.read (reinterpret_cast<char*>(mFaces[i].data()), 3 * sizeof(unsigned int));
+
+  input.close();
+
+  cLog::log (LOGINFO, fmt::format ("cModel::loadRawFile {} vertices:{} faces:{}",
+                                   fileName, mVertices.size(), mFaces.size()));
+  normalise();
+  setVertexNormals();
+  }
+//}}}
+//{{{
+void cModel::load (int modelIndex) {
+
+  if (modelIndex == 0)
+    loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
+  else
+    loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
+  }
+//}}}
+
+//{{{
+void cModel::normalise() {
+
+  // min max range
+  float minX = 99999.f;
+  float maxX = -99999.f;
+  float minY = 99999.f;
+  float maxY = -99999.f;
+  float minZ = 99999.f;
+  float maxZ = -99999.f;
+  for (auto& vertice : mVertices) {
+    minX = min (vertice.data()[0], minX);
+    maxX = max (vertice.data()[0], maxX);
+    minY = min (vertice.data()[1], minY);
+    maxY = max (vertice.data()[1], maxY);
+    minZ = min (vertice.data()[2], minZ);
+    maxZ = max (vertice.data()[2], maxZ);
+    }
+  cLog::log (LOGINFO, fmt::format ("range {:6.4f}:{:6.4f} {:6.4f}:{:6.4f} {:6.4f}:{:6.4f}",
+                                   minX, maxX, minY, maxY, minZ, maxZ));
+
+  // centre
+  float centreX = (maxX - minX) / 2.f;
+  float centreY = (maxY - minY) / 2.f;
+  float centreZ = (maxZ - minZ) / 2.f;
+
+  minX = 99999.f;
+  maxX = -99999.f;
+  minY = 99999.f;
+  maxY = -99999.f;
+  minZ = 99999.f;
+  maxZ = -99999.f;
+  for (auto& vertice : mVertices) {
+    vertice.data()[0] -= centreX;
+    vertice.data()[1] -= centreY;
+    vertice.data()[2] -= centreZ;
+    minX = min (vertice.data()[0], minX);
+    maxX = max (vertice.data()[0], maxX);
+    minY = min (vertice.data()[1], minY);
+    maxY = max (vertice.data()[1], maxY);
+    minZ = min (vertice.data()[2], minZ);
+    maxZ = max (vertice.data()[2], maxZ);
+    }
+
+  // scale
+  float rangeX = maxX - minX;
+  float rangeY = maxY - minY;
+  float rangeZ = maxZ - minZ;
+  float maxRange = max (max (rangeX, rangeY), rangeZ);
+  if ((maxRange > 2.f) || (maxRange < 1.f)) {
+    float scale = 1.f / maxRange;
+    cLog::log (LOGINFO, fmt::format ("scaled scale:{:4.2f} maxRange:{:6.4f} x:{:6.4f}:{:6.4f} y:{:6.4f}:{:6.4f} z:{:6.4f}:{:6.4f}",
+                                     scale, maxRange, minX, maxX, minY, maxY, minZ, maxZ));
+    for (auto& vertice : mVertices) {
+      vertice.data()[0] *= scale;
+      vertice.data()[1] *= scale;
+      vertice.data()[2] *= scale;
+      }
+    }
   }
 //}}}
 //{{{

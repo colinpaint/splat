@@ -42,6 +42,7 @@ public:
   bool mSelectable = true;
 
 private:
+  void normalise();
   void setVertexNormals();
   };
 //}}}
