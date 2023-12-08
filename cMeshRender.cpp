@@ -497,7 +497,6 @@ cMeshRender::cMeshRender (cApp& app, bool multiSample, bool backFaceCull)
   use (mMultiSample, mBackFaceCull);
   }
 //}}}
-cMeshRender::~cMeshRender() {}
 
 //{{{
 void cMeshRender::use (bool multiSample, bool backFaceCull) {
