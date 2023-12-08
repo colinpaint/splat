@@ -7,7 +7,6 @@
 
 #include <Eigen/Core>
 
-//{{{
 class cModel {
 public:
   cModel () {}
@@ -42,10 +41,10 @@ public:
   bool mSelectable = true;
 
 private:
-  void normalise();
+  void normaliseVertices();
   void setVertexNormals();
   };
-//}}}
+
 //{{{
 class cSurfelModel : public cModel {
 public:
