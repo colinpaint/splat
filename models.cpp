@@ -7,6 +7,7 @@
 #include <sstream>
 #include <thread>
 #include <exception>
+#include <limits>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -139,16 +140,17 @@ void cModel::loadRawFile (const string& fileName) {
 //}}}
 //{{{
 void cModel::normaliseVertices() {
+// normalise vertices to +/- 0.5 range, centre on mid ranges
 
-  // min max range
-  float minX = 999999.f;
-  float maxX = -99999.f;
-  float minY = 999999.f;
-  float maxY = -999999.f;
-  float minZ = 999999.f;
-  float maxZ = -999999.f;
+  // original range
+  float minX = numeric_limits<float>::max();
+  float maxX = numeric_limits<float>::min();
+  float minY = numeric_limits<float>::max();
+  float maxY = numeric_limits<float>::min();
+  float minZ = numeric_limits<float>::max();
+  float maxZ = numeric_limits<float>::min();
   for (auto& vertice : mVertices) {
-    //{{{  min max xyz
+    //{{{  min,max xyz
     minX = min (vertice.data()[0], minX);
     maxX = max (vertice.data()[0], maxX);
     minY = min (vertice.data()[1], minY);
@@ -160,15 +162,15 @@ void cModel::normaliseVertices() {
   cLog::log (LOGINFO, fmt::format ("range {:6.4f}:{:6.4f} {:6.4f}:{:6.4f} {:6.4f}:{:6.4f}",
                                    minX, maxX, minY, maxY, minZ, maxZ));
 
-  // centre
+  // centre range
   mCentre = Eigen::Vector3f ((maxX + minX) / 2.f, (maxY + minY) / 2.f, (maxZ + minZ) / 2.f);
 
-  minX = 999999.f;
-  maxX = -999999.f;
-  minY = 999999.f;
-  maxY = -999999.f;
-  minZ = 999999.f;
-  maxZ = -999999.f;
+  minX = numeric_limits<float>::max();
+  maxX = numeric_limits<float>::min();
+  minY = numeric_limits<float>::max();
+  maxY = numeric_limits<float>::min();
+  minZ = numeric_limits<float>::max();
+  maxZ = numeric_limits<float>::min();
   for (auto& vertice : mVertices) {
     //{{{  centre xyz
     vertice.data()[0] -= mCentre.data()[0];
@@ -186,19 +188,21 @@ void cModel::normaliseVertices() {
     //}}}
   cLog::log (LOGINFO, fmt::format ("- centred {:6.4f}:{:6.4f} {:6.4f}:{:6.4f} {:6.4f}:{:6.4f}",
                                    minX, maxX, minY, maxY, minZ, maxZ));
-  //  scale
+
+  //  scale to +/- 0.5
   float rangeX = maxX - minX;
   float rangeY = maxY - minY;
   float rangeZ = maxZ - minZ;
   float maxRange = max (max (rangeX, rangeY), rangeZ);
   float mScale = 1.f / maxRange;
 
-  minX = 999999.f;
-  maxX = -999999.f;
-  minY = 999999.f;
-  maxY = -999999.f;
-  minZ = 999999.f;
-  maxZ = -999999.f;
+  // scaled range
+  minX = numeric_limits<float>::max();
+  maxX = numeric_limits<float>::min();
+  minY = numeric_limits<float>::max();
+  maxY = numeric_limits<float>::min();
+  minZ = numeric_limits<float>::max();
+  maxZ = numeric_limits<float>::min();
   for (auto& vertice : mVertices) {
     //{{{  scale xyz
     vertice.data()[0] *= mScale;
