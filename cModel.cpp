@@ -1182,6 +1182,31 @@ void cModel::normaliseVertices() {
 //}}}
 
 //{{{
+void cModel::saveRawFile (const string& fileName) {
+
+  ofstream output (fileName, ios::out | ios::binary);
+  if (output.fail()) {
+    cLog::log (LOGERROR, fmt::format ("cannot save {}", fileName));
+    return;
+    }
+
+  unsigned int nv = static_cast<unsigned int>(mVertices.size());
+  output.write (reinterpret_cast<char const*>(&nv), sizeof(unsigned int));
+
+  for (unsigned int i = 0; i < nv; ++i)
+    output.write (reinterpret_cast<char const*>(mVertices[i].data()), 3 * sizeof(float));
+
+  unsigned int nf = static_cast<unsigned int>(mFaces.size());
+  output.write (reinterpret_cast<char const*>(&nf), sizeof(unsigned int));
+
+  for (unsigned int i = 0; i < nf; ++i)
+    output.write (reinterpret_cast<char const*>(mFaces[i].data()), 3 * sizeof(unsigned int));
+
+  output.close();
+  }
+//}}}
+
+//{{{
 void cModel::ripple() {
 
   mTime += 25.f / 1000.f;

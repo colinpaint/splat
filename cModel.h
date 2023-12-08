@@ -15,6 +15,7 @@ public:
   virtual void loadIndex (int index);
   virtual void loadObjFile (const std::string& fileName);
   virtual void loadRawFile (const std::string& fileName);
+  void saveRawFile (const std::string& fileName);
 
   size_t isSelectable() const { return mSelectable; }
 
