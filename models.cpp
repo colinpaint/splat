@@ -161,9 +161,7 @@ void cModel::normaliseVertices() {
                                    minX, maxX, minY, maxY, minZ, maxZ));
 
   // centre
-  float centreX = (maxX + minX) / 2.f;
-  float centreY = (maxY + minY) / 2.f;
-  float centreZ = (maxZ + minZ) / 2.f;
+  mCentre = Eigen::Vector3f ((maxX + minX) / 2.f, (maxY + minY) / 2.f, (maxZ + minZ) / 2.f);
 
   minX = 999999.f;
   maxX = -999999.f;
@@ -173,15 +171,15 @@ void cModel::normaliseVertices() {
   maxZ = -999999.f;
   for (auto& vertice : mVertices) {
     //{{{  centre xyz
-    vertice.data()[0] -= centreX;
+    vertice.data()[0] -= mCentre.data()[0];
     minX = min (vertice.data()[0], minX);
     maxX = max (vertice.data()[0], maxX);
 
-    vertice.data()[1] -= centreY;
+    vertice.data()[1] -= mCentre.data()[1];
     minY = min (vertice.data()[1], minY);
     maxY = max (vertice.data()[1], maxY);
 
-    vertice.data()[2] -= centreZ;
+    vertice.data()[2] -= mCentre.data()[2];
     minZ = min (vertice.data()[2], minZ);
     maxZ = max (vertice.data()[2], maxZ);
     }
@@ -193,7 +191,7 @@ void cModel::normaliseVertices() {
   float rangeY = maxY - minY;
   float rangeZ = maxZ - minZ;
   float maxRange = max (max (rangeX, rangeY), rangeZ);
-  float scale = 1.f / maxRange;
+  float mScale = 1.f / maxRange;
 
   minX = 999999.f;
   maxX = -999999.f;
@@ -203,21 +201,21 @@ void cModel::normaliseVertices() {
   maxZ = -999999.f;
   for (auto& vertice : mVertices) {
     //{{{  scale xyz
-    vertice.data()[0] *= scale;
+    vertice.data()[0] *= mScale;
     minX = min (vertice.data()[0], minX);
     maxX = max (vertice.data()[0], maxX);
 
-    vertice.data()[1] *= scale;
+    vertice.data()[1] *= mScale;
     minY = min (vertice.data()[1], minY);
     maxY = max (vertice.data()[1], maxY);
 
-    vertice.data()[2] *= scale;
+    vertice.data()[2] *= mScale;
     minZ = min (vertice.data()[2], minZ);
     maxZ = max (vertice.data()[2], maxZ);
     }
     //}}}
   cLog::log (LOGINFO, fmt::format ("- scaled:{:4.2f} x:{:6.4f}:{:6.4f} y:{:6.4f}:{:6.4f} z:{:6.4f}:{:6.4f}",
-                                   scale, minX, maxX, minY, maxY, minZ, maxZ));
+                                   mScale, minX, maxX, minY, maxY, minZ, maxZ));
   }
 //}}}
 

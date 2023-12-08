@@ -16,11 +16,13 @@ public:
   virtual void loadObjFile (const std::string& fileName);
   virtual void loadRawFile (const std::string& fileName);
 
+  size_t isSelectable() const { return mSelectable; }
+
   size_t getNumVertices() const { return mVertices.size(); }
   size_t getNumNormals() const { return mNormals.size(); }
   size_t getNumFaces() const { return mFaces.size(); }
-
-  size_t isSelectable() const { return mSelectable; }
+  float* getScale() const { mScale; }
+  Eigen::Vector3f getCentre() const { mCentre; }
 
   float* getVerticesData() { return (float*)mVertices.front().data(); }
   float* getNormalsData() { return (float*)mNormals.front().data(); }
@@ -43,6 +45,9 @@ public:
 private:
   void normaliseVertices();
   void setVertexNormals();
+
+  float mScale = 1.f;
+  Eigen::Vector3f mCentre;
   };
 
 //{{{
