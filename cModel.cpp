@@ -13,11 +13,10 @@
 #include <exception>
 #include <limits>
 
-#include <Eigen/Dense>
-
-#include "../common/cLog.h"
-
 #include "cModel.h"
+
+#include <Eigen/Dense>
+#include "../common/cLog.h"
 
 using namespace std;
 //}}}
@@ -1205,8 +1204,8 @@ void cModel::ripple() {
 //{{{
 void cModel::setVertexNormals() {
 
-  unsigned int nf(static_cast<unsigned int>(mFaces.size()));
-  unsigned int nv(static_cast<unsigned int>(mVertices.size()));
+  unsigned int nf = static_cast<unsigned int>(mFaces.size());
+  unsigned int nv = static_cast<unsigned int>(mVertices.size());
 
   mNormals.resize (mVertices.size());
   fill (mNormals.begin(), mNormals.end(), Eigen::Vector3f::Zero());

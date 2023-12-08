@@ -13,7 +13,6 @@
 #include <exception>
 #include <limits>
 
-#include <Eigen/Core>
 #include <Eigen/Dense>
 
 //{{{  include stb

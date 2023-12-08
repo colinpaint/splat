@@ -9,7 +9,7 @@
 
 class cModel {
 public:
-  cModel () {}
+  cModel() {}
   virtual ~cModel() = default;
 
   virtual void loadIndex (int index);
