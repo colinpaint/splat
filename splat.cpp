@@ -21,7 +21,9 @@
 
 #include "cMeshRender.h"
 #include "cSplatRender.h"
-#include "models.h"
+
+#include "cModel.h"
+#include "cSurfelModel.h"
 
 using namespace std;
 //}}}

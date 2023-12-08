@@ -15,7 +15,8 @@ add_subdirectory (app)
 # splat dragon
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
-                                  objLoader.h models.h models.cpp
+                                  cModel.h cModel.cpp
+                                  cSurfelModel.h cSurfelModel.cpp
                                   cRender.h
                                   cMeshRender.h cMeshRender.cpp
                                   cSplatRender.h cSplatRender.cpp)
