@@ -139,8 +139,10 @@ private:
     if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
       mRender->setBackFaceCull (mBackFaceCull);
 
-    ImGui::Text ("%.1f fps %d vertices %d faces",
-                 ImGui::GetIO().Framerate, (int)mModel->getNumVertices(), (int)mModel->getNumFaces());
+    ImGui::Text ("%.1f:fps %d:vertices %d:faces %3.2f:scaled",
+                 ImGui::GetIO().Framerate, 
+                 (int)mModel->getNumVertices(), (int)mModel->getNumFaces(),
+                 mModel->getScale());
 
     if (mModel->isSelectable()) {
       ImGui::SetNextItemOpen (true, ImGuiCond_Once);

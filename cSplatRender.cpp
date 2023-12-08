@@ -6,7 +6,7 @@
 #include "app/cApp.h"
 #include "../imgui/imgui.h"
 
-#include "models.h"
+#include "cSurfelModel.h"
 
 using namespace std;
 //}}}

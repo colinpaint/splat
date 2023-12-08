@@ -21,8 +21,8 @@ public:
   size_t getNumVertices() const { return mVertices.size(); }
   size_t getNumNormals() const { return mNormals.size(); }
   size_t getNumFaces() const { return mFaces.size(); }
-  float* getScale() const { mScale; }
-  Eigen::Vector3f getCentre() const { mCentre; }
+  float getScale() const { return mScale; }
+  Eigen::Vector3f getCentre() const { return mCentre; }
 
   float* getVerticesData() { return (float*)mVertices.front().data(); }
   float* getNormalsData() { return (float*)mNormals.front().data(); }
