@@ -12,7 +12,7 @@ add_subdirectory (app)
 #  add_subdirectory (objviewer)
 #endif()
 
-# splat dragon
+# splatApp
 project (splat VERSION 1.0.0)
   add_executable (${PROJECT_NAME} splat.cpp
                                   cModel.h cModel.cpp

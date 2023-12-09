@@ -128,10 +128,10 @@ private:
       if (ImGui::Checkbox ("multiSample", &mMultiSample))
         mRender->setMultiSample (mMultiSample);
 
-    if (ImGui::Checkbox ("backfaceCull", &mBackFaceCull))
+    if (ImGui::Checkbox ("backFaceCull", &mBackFaceCull))
       mRender->setBackFaceCull (mBackFaceCull);
 
-    ImGui::Text ("%.1f:fps %d:vertices %d:faces %3.2f:scaled",
+    ImGui::Text ("%.1f:fps %d:%d %2.1f:scale",
                  ImGui::GetIO().Framerate,
                  (int)mModel->getNumVertices(), (int)mModel->getNumFaces(),
                  mModel->getScale());
@@ -203,6 +203,7 @@ int main (int numArgs, char* args[]) {
     //{{{  surfel drop downs
     splatApp.setModel (new cSurfelModel());
     splatApp.getModel()->loadIndex (splatApp.getModelIndex());
+
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
@@ -212,6 +213,7 @@ int main (int numArgs, char* args[]) {
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadObjFile (fileName);
     splatApp.setModel (surfelModel);
+
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
@@ -221,6 +223,7 @@ int main (int numArgs, char* args[]) {
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadRawFile (fileName);
     splatApp.setModel (surfelModel);
+
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     splatApp.setMeshRender (new cMeshRender (splatApp, hasMultiSample, backFaceCull));
     }
@@ -230,6 +233,7 @@ int main (int numArgs, char* args[]) {
     //{{{  .png, .jpg files
     cSurfelModel* surfelModel = new cSurfelModel();
     surfelModel->loadPiccyFile (fileName);
+
     splatApp.setModel (surfelModel);
     splatApp.setSplatRender (new cSplatRender (splatApp, hasMultiSample, backFaceCull));
     }
