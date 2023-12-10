@@ -517,11 +517,12 @@ void cMeshRender::use (bool multiSample, bool backFaceCull) {
 //{{{
 void cMeshRender::gui() {
 
+  ImGui::Separator();
   if (ImGui::CollapsingHeader ("Mesh", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::Checkbox ("draw", &mDisplayMesh);
     ImGui::Combo ("shading", &mShadingMethod, "flat\0phong\0\0");
     ImGui::ColorEdit3 ("color", mMeshMaterial);
-    ImGui::DragFloat ("shine", &(mMeshMaterial[3]), 1e-2f, 1e-12f, 1000.0f);
+    ImGui::DragFloat ("shine", &mMeshMaterial[3], 1e-2f, 1e-12f, 1000.0f);
     ImGui::Separator();
 
     ImGui::Checkbox ("wireFrame", &mDisplayWireFrame);
@@ -529,13 +530,14 @@ void cMeshRender::gui() {
     ImGui::Separator();
     }
 
- if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-   ImGui::Checkbox ("draw##spheres", &mDisplaySpheres);
-   ImGui::DragFloat ("radius##spheres", &mPointRadius, 1e-5f, 0.0f, 0.1f, "%.4f");
-   ImGui::ColorEdit3 ("color##spheres", mPointsMaterial);
-   ImGui::DragFloat ("shine##spheres", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
-   }
- }
+  if (ImGui::CollapsingHeader ("Spheres", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Checkbox ("draw##spheres", &mDisplaySpheres);
+    ImGui::DragFloat ("radius##spheres", &mPointRadius, 1e-5f, 0.0f, 0.1f, "%.4f");
+    ImGui::ColorEdit3 ("color##spheres", mPointsMaterial);
+    ImGui::DragFloat ("shine##spheres", &mPointsMaterial[3], 1e-2f, 1e-12f, 1000.0f);
+    ImGui::Separator();
+    }
+  }
 //}}}
 //{{{
 bool cMeshRender::keyboard (SDL_Keycode key) {

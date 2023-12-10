@@ -17,7 +17,6 @@
 
 using namespace std;
 //}}}
-
 namespace {
   SDL_Window* mSdlWindow;
   SDL_GLContext mGlContext;
@@ -33,8 +32,8 @@ void cApp::init (const string& name, int screenWidth, int screenHeight, bool ful
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     //{{{  error,return
-      // Initialize GLEW.
-    cLog::log (LOGERROR, fmt::format ("Failed to initialize SDL Video {}", SDL_GetError()));
+    // init GLEW.
+    cLog::log (LOGERROR, fmt::format ("Failed to init SDL Video {}", SDL_GetError()));
     SDL_Quit();
     exit (EXIT_FAILURE);
     }
@@ -65,7 +64,7 @@ void cApp::init (const string& name, int screenWidth, int screenHeight, bool ful
   mGlContext = SDL_GL_CreateContext (mSdlWindow);
   if (!mGlContext) {
     //{{{  error, return
-    cLog::log (LOGERROR, fmt::format ("Failed to create initialize OpenGL: {}", SDL_GetError()));
+    cLog::log (LOGERROR, fmt::format ("Failed to create init OpenGL: {}", SDL_GetError()));
     SDL_Quit();
     exit (EXIT_FAILURE);
     }
@@ -88,7 +87,7 @@ void cApp::init (const string& name, int screenWidth, int screenHeight, bool ful
     GLenum glew_error = glewInit();
     if (glew_error != GLEW_OK) {
       //{{{  error, return
-      cLog::log (LOGERROR, fmt::format ("Failed to create initialize GLEW {}",
+      cLog::log (LOGERROR, fmt::format ("Failed to create init GLEW {}",
                                         (const char*)(glewGetErrorString(glew_error))));
       exit(EXIT_FAILURE);
       }

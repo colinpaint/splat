@@ -96,7 +96,7 @@ public:
   void resize (GLint width, GLint height);
 
 private:
-  void initialize();
+  void init();
   void removeDeleteAttachments();
 
   GLuint mFbo;

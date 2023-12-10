@@ -7,7 +7,7 @@
 
 class cApp {
 public:
-  cApp() {}
+  cApp() = default;
   virtual ~cApp() = default;
 
   void init (const std::string& name, int screenWidth, int screen_height, bool fullScreen, bool multiSample);

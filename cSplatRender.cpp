@@ -652,6 +652,7 @@ void cUniformParameter::set (Eigen::Vector3f const& color, float shine,
 //{{{  cProgramAttribute
 //{{{
 cProgramAttribute::cProgramAttribute() {
+
   initShader();
   initProgram();
   }
@@ -714,6 +715,7 @@ void cProgramAttribute::setPointSizeType (unsigned int pointSizeType) {
 
 //{{{
 void cProgramAttribute::initShader() {
+
   mAttributeVertexShader.load (kAttributeVertexShader);
   mLightVertexShader.load (kLightVertexShader);
   mAttributeFragmentShader.load (kAttributeFragmentShader);
@@ -743,7 +745,7 @@ void cProgramAttribute::initProgram() {
     mAttributeFragmentShader.compile (defines);
     }
   catch (shaderCompilationError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed compile {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramAttribute::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -751,7 +753,7 @@ void cProgramAttribute::initProgram() {
     link();
     }
   catch (shaderLinkError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed link {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramAttribute::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -762,7 +764,7 @@ void cProgramAttribute::initProgram() {
     setUniformBind ("Parameter", 3);
     }
   catch (uniformNotFoundError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramAttribute::initProgram - failed setUniformBind {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramAttribute::initProgram - failed setUniformBind {}", e.what()));
     }
   }
 //}}}
@@ -770,6 +772,7 @@ void cProgramAttribute::initProgram() {
 //{{{  cProgramFinal
 //{{{
 cProgramFinal::cProgramFinal() {
+
   initShader();
   initProgram();
   }
@@ -821,7 +824,7 @@ void cProgramFinal::initProgram() {
     mFinalFragmentShader.compile (defines);
     }
   catch (shaderCompilationError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed compile {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramFinal::initProgram - failed compile {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -829,7 +832,7 @@ void cProgramFinal::initProgram() {
     link();
     }
   catch (shaderLinkError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed link {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramFinal::initProgram - failed link {}", e.what()));
     exit (EXIT_FAILURE);
     }
 
@@ -839,7 +842,7 @@ void cProgramFinal::initProgram() {
     setUniformBind ("Parameter", 3);
     }
   catch (uniformNotFoundError const& e) {
-    cLog::log (LOGERROR, fmt::format ("ProgramFinal::initProgram - failed setUniformBindto {}", e.what()));
+    cLog::log (LOGERROR, fmt::format ("cProgramFinal::initProgram - failed setUniformBindto {}", e.what()));
     }
   }
 //}}}
@@ -947,9 +950,8 @@ cFrameBuffer::cFrameBuffer()
   // Create framebuffer object.
   glGenFramebuffers (1, &mFbo);
 
-  // Initialize.
   bind();
-  initialize();
+  init();
   unbind();
   }
 //}}}
@@ -1056,7 +1058,7 @@ void cFrameBuffer::setMultiSample (bool enable) {
     else
       mPimpl = unique_ptr<cFrameBuffer::sImpl>(new cFrameBuffer::sMultisample());
 
-    initialize();
+    init();
     if (type == GL_TEXTURE) {
       attachNormalTexture();
       enableDepthTexture();
@@ -1139,7 +1141,7 @@ void cFrameBuffer::resize (GLint width, GLint height) {
 
 // private
 //{{{
-void cFrameBuffer::initialize() {
+void cFrameBuffer::init() {
 
   GLint viewport[4];
   glGetIntegerv (GL_VIEWPORT, viewport);
