@@ -1,3 +1,4 @@
+// cSplatRender.cpp
 //{{{  includes
 #include "cSplatRender.h"
 

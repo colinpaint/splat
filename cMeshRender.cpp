@@ -1,3 +1,4 @@
+// cMeshRender.cpp
 //{{{  includes
 #include "cMeshRender.h"
 
@@ -313,6 +314,7 @@ namespace {
     };
   //}}}
   }
+
 //{{{  cUniformMaterial
 cUniformMaterial::cUniformMaterial() : cUniform (4 * sizeof(GLfloat)) {}
 

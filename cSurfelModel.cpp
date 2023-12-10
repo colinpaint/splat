@@ -43,38 +43,24 @@ using namespace std;
 void cSurfelModel::loadIndex (int modelIndex) {
 
   switch (modelIndex) {
-    case 0:
-      loadRawFile ("../models/stanford_dragon_v40k_f80k.raw");
-      meshToSurfel();
-      break;
-
-    case 1:
-      loadRawFile ("../models/stanford_dragon_v344k_f688k.raw");
-      meshToSurfel();
-      break;
-
-    case 2:
-      createChecker (100,100);
-      break;
-
-    case 3:
-      createCube();
-      break;
-
-    default:
-      cLog::log (LOGERROR, "cSurfelModel unrecognised model index");
-      break;
+    case 0: loadRawFile ("../models/stanford_dragon_v40k_f80k.raw"); break;
+    case 1: loadRawFile ("../models/stanford_dragon_v344k_f688k.raw"); break;
+    case 2: createChecker (100,100); break;
+    case 3: createCube(); break;
+    default: cLog::log (LOGERROR, "cSurfelModel - unrecognised model index"); break;
     }
   }
 //}}}
 //{{{
 void cSurfelModel::loadObjFile (const string& fileName) {
+
   cModel::loadObjFile (fileName);
   meshToSurfel();
   }
 //}}}
 //{{{
 void cSurfelModel::loadRawFile (const string& fileName) {
+
   cModel::loadRawFile (fileName);
   meshToSurfel();
   }
@@ -266,20 +252,6 @@ void cSurfelModel::meshToSurfel() {
 
   for (auto& t : threads)
     t.join();
-  }
-//}}}
-//{{{
-void cSurfelModel::createModel (const string& fileName) {
-
-  try {
-    loadRawFile (fileName);
-    meshToSurfel();
-    }
-
-  catch (runtime_error const& e) {
-    cLog::log (LOGERROR, fmt::format ("createModel {}", e.what()));
-    exit (EXIT_FAILURE);
-    }
   }
 //}}}
 

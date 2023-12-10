@@ -35,10 +35,8 @@ private:
   void steinerCircumEllipse (float const* v0_ptr, float const* v1_ptr, float const* v2_ptr,
                              float* p0_ptr, float* t1_ptr, float* t2_ptr);
   void meshToSurfel();
-  void createModel (const std::string& fileName);
 
   void createChecker (size_t width, size_t height);
-  void createPiccy (const std::string& fileName);
   void createCube();
 
   std::vector <cSurfel> mModel;
