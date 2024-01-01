@@ -1,5 +1,5 @@
 project (common VERSION 1.0.0)
-  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  if (CMAKE_HOST_WIN32)
     add_library (${PROJECT_NAME} date.h cLog.h cLog.cpp)
   else()
     add_library (${PROJECT_NAME} date.h cLog.h cLog.cpp)
@@ -7,7 +7,7 @@ project (common VERSION 1.0.0)
 
   target_link_libraries (${PROJECT_NAME} PUBLIC fmt)
 
-  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  if (CMAKE_HOST_WIN32)
     target_compile_options (${PROJECT_NAME} PUBLIC /W3  # /W4 Eigen problems
                                                    ${BUILD_MSVC_COMPILE_OPTIONS})
     if (USE_AVX512)

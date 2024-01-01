@@ -5,7 +5,7 @@ project (app VERSION 1.0.0)
 
   target_include_directories (${PROJECT_NAME} PUBLIC ../ ../glew/include ../imgui)
 
-  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  if (CMAKE_HOST_WIN32)
     if (PLATFORM STREQUAL "SDL3")
       message (STATUS "building ${PLATFORM} SDL3 for windows")
       target_compile_definitions (${PROJECT_NAME} PUBLIC GLEW_STATIC=1 $PLATFORM)

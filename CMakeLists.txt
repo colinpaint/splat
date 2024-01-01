@@ -7,7 +7,7 @@ add_subdirectory (common)
 add_subdirectory (imgui)
 add_subdirectory (app)
 
-#if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+#if (CMAKE_HOST_WIN32)
 #else()
 #  add_subdirectory (objviewer)
 #endif()
