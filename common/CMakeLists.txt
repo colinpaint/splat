@@ -1,11 +1,11 @@
 project (common VERSION 1.0.0)
   if (CMAKE_HOST_WIN32)
-    add_library (${PROJECT_NAME} date.h cLog.h cLog.cpp)
+    add_library (${PROJECT_NAME} cLog.h cLog.cpp)
   else()
-    add_library (${PROJECT_NAME} date.h cLog.h cLog.cpp)
+    add_library (${PROJECT_NAME} cLog.h cLog.cpp)
   endif()
 
-  target_link_libraries (${PROJECT_NAME} PUBLIC fmt)
+  target_link_libraries (${PROJECT_NAME} PUBLIC date fmt)
 
   if (CMAKE_HOST_WIN32)
     target_compile_options (${PROJECT_NAME} PUBLIC /W3  # /W4 Eigen problems

@@ -12,7 +12,6 @@
 #include <GL/glew.h>
 #include <SDL.h>
 
-#include "../common/date.h"
 #include "../common/cLog.h"
 
 using namespace std;
