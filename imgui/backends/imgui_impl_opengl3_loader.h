@@ -260,6 +260,8 @@ typedef khronos_intptr_t GLintptr;
 #define GL_ARRAY_BUFFER_BINDING           0x8894
 #define GL_ELEMENT_ARRAY_BUFFER_BINDING   0x8895
 #define GL_STREAM_DRAW                    0x88E0
+#define GL_PIXEL_UNPACK_BUFFER            0x88EC
+#define GL_PIXEL_UNPACK_BUFFER_BINDING    0x88EF
 typedef void (APIENTRYP PFNGLBINDBUFFERPROC) (GLenum target, GLuint buffer);
 typedef void (APIENTRYP PFNGLDELETEBUFFERSPROC) (GLsizei n, const GLuint *buffers);
 typedef void (APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
@@ -305,9 +307,9 @@ typedef void (APIENTRYP PFNGLDISABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef void (APIENTRYP PFNGLENABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef GLint (APIENTRYP PFNGLGETATTRIBLOCATIONPROC) (GLuint program, const GLchar *name);
 typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint *params);
-typedef void (APIENTRYP PFNGLGETPROGRAMinfoLogPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 typedef void (APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint *params);
-typedef void (APIENTRYP PFNGLGETSHADERinfoLogPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void (APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 typedef GLint (APIENTRYP PFNGLGETUNIFORMLOCATIONPROC) (GLuint program, const GLchar *name);
 typedef void (APIENTRYP PFNGLGETVERTEXATTRIBIVPROC) (GLuint index, GLenum pname, GLint *params);
 typedef void (APIENTRYP PFNGLGETVERTEXATTRIBPOINTERVPROC) (GLuint index, GLenum pname, void **pointer);
@@ -331,9 +333,9 @@ GLAPI void APIENTRY glDisableVertexAttribArray (GLuint index);
 GLAPI void APIENTRY glEnableVertexAttribArray (GLuint index);
 GLAPI GLint APIENTRY glGetAttribLocation (GLuint program, const GLchar *name);
 GLAPI void APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint *params);
-GLAPI void APIENTRY glGetPrograminfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+GLAPI void APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 GLAPI void APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint *params);
-GLAPI void APIENTRY glGetShaderinfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+GLAPI void APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 GLAPI GLint APIENTRY glGetUniformLocation (GLuint program, const GLchar *name);
 GLAPI void APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint *params);
 GLAPI void APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, void **pointer);
@@ -505,9 +507,9 @@ union ImGL3WProcs {
         PFNGLGETATTRIBLOCATIONPROC        GetAttribLocation;
         PFNGLGETERRORPROC                 GetError;
         PFNGLGETINTEGERVPROC              GetIntegerv;
-        PFNGLGETPROGRAMinfoLogPROC        GetPrograminfoLog;
+        PFNGLGETPROGRAMINFOLOGPROC        GetProgramInfoLog;
         PFNGLGETPROGRAMIVPROC             GetProgramiv;
-        PFNGLGETSHADERinfoLogPROC         GetShaderinfoLog;
+        PFNGLGETSHADERINFOLOGPROC         GetShaderInfoLog;
         PFNGLGETSHADERIVPROC              GetShaderiv;
         PFNGLGETSTRINGPROC                GetString;
         PFNGLGETSTRINGIPROC               GetStringi;
@@ -570,9 +572,9 @@ GL3W_API extern union ImGL3WProcs imgl3wProcs;
 #define glGetAttribLocation               imgl3wProcs.gl.GetAttribLocation
 #define glGetError                        imgl3wProcs.gl.GetError
 #define glGetIntegerv                     imgl3wProcs.gl.GetIntegerv
-#define glGetPrograminfoLog               imgl3wProcs.gl.GetPrograminfoLog
+#define glGetProgramInfoLog               imgl3wProcs.gl.GetProgramInfoLog
 #define glGetProgramiv                    imgl3wProcs.gl.GetProgramiv
-#define glGetShaderinfoLog                imgl3wProcs.gl.GetShaderinfoLog
+#define glGetShaderInfoLog                imgl3wProcs.gl.GetShaderInfoLog
 #define glGetShaderiv                     imgl3wProcs.gl.GetShaderiv
 #define glGetString                       imgl3wProcs.gl.GetString
 #define glGetStringi                      imgl3wProcs.gl.GetStringi
@@ -608,7 +610,7 @@ extern "C" {
 
 #include <stdlib.h>
 
-#define ARRAY_SIZE(x)  (sizeof(x) / sizeof((x)[0]))
+#define GL3W_ARRAY_SIZE(x)  (sizeof(x) / sizeof((x)[0]))
 
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -668,6 +670,10 @@ static int open_libgl(void)
 {
     // While most systems use libGL.so.1, NetBSD seems to use that libGL.so.3. See https://github.com/ocornut/imgui/issues/6983
     libgl = dlopen("libGL.so", RTLD_LAZY | RTLD_LOCAL);
+    if (!libgl)
+        libgl = dlopen("libGL.so.1", RTLD_LAZY | RTLD_LOCAL);
+    if (!libgl)
+        libgl = dlopen("libGL.so.3", RTLD_LAZY | RTLD_LOCAL);
     if (!libgl)
         return GL3W_ERROR_LIBRARY_OPEN;
     *(void **)(&glx_get_proc_address) = dlsym(libgl, "glXGetProcAddressARB");
@@ -769,9 +775,9 @@ static const char *proc_names[] = {
     "glGetAttribLocation",
     "glGetError",
     "glGetIntegerv",
-    "glGetPrograminfoLog",
+    "glGetProgramInfoLog",
     "glGetProgramiv",
-    "glGetShaderinfoLog",
+    "glGetShaderInfoLog",
     "glGetShaderiv",
     "glGetString",
     "glGetStringi",
@@ -800,7 +806,7 @@ GL3W_API union ImGL3WProcs imgl3wProcs;
 static void load_procs(GL3WGetProcAddressProc proc)
 {
     size_t i;
-    for (i = 0; i < ARRAY_SIZE(proc_names); i++)
+    for (i = 0; i < GL3W_ARRAY_SIZE(proc_names); i++)
         imgl3wProcs.ptr[i] = proc(proc_names[i]);
 }
 

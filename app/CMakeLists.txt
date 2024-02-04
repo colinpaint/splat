@@ -17,7 +17,7 @@ project (app VERSION 1.0.0)
       target_compile_definitions (${PROJECT_NAME} PUBLIC GLEW_STATIC=1)
       target_include_directories (${PROJECT_NAME} PUBLIC ../SDL2/include)
       target_link_libraries (${PROJECT_NAME} PRIVATE ../SDL2/SDL2-static ../SDL2/SDL2main
-                                                   opengl32 ../glew/glew32s winmm Setupapi version)
+                                                     opengl32 ../glew/glew32s winmm Setupapi version)
     endif()
 
   else()
@@ -37,4 +37,4 @@ project (app VERSION 1.0.0)
     endif()
   endif()
 
-  target_link_libraries (${PROJECT_NAME} PUBLIC imgui)
+  target_link_libraries (${PROJECT_NAME} PUBLIC common imgui)
